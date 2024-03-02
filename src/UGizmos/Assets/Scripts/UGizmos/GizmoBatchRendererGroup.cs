@@ -13,9 +13,8 @@ using UnityEngine.Rendering;
 namespace UGizmos
 {
     [BurstCompile]
-    public sealed unsafe class GizmoBatchRendererGroup<TCustom> where TCustom : unmanaged
+    public sealed unsafe class GizmoBatchRendererGroup
     {
-        private readonly bool useCustomData = typeof(TCustom) != typeof(NoCustom);
         private readonly BatchRendererGroup batchRendererGroup;
         private readonly GraphicsBuffer gpuPersistentData;
         private BatchID batchID;
@@ -29,15 +28,10 @@ namespace UGizmos
 
         public GizmoBatchRendererGroup(Mesh mesh, Material material, int maxInstanceCount)
         {
-            if (useCustomData && sizeof(TCustom) % 16 != 0)
-            {
-                throw new ArgumentException("T should be aligned with 16 bytes.");
-            }
-
             batchRendererGroup = new BatchRendererGroup(OnPerformCulling, IntPtr.Zero);
             this.maxInstanceCount = maxInstanceCount;
 
-            int instanceSize = sizeof(float3x4) * 2 + sizeof(float4) + (useCustomData ? sizeof(TCustom) : 0);
+            int instanceSize = sizeof(float3x4) * 2 + sizeof(float4);
             int bufferSize = this.maxInstanceCount * instanceSize;
 
             gpuPersistentData = new GraphicsBuffer(GraphicsBuffer.Target.Raw, bufferSize / sizeof(float), sizeof(float));
@@ -66,7 +60,7 @@ namespace UGizmos
             int colorID = Shader.PropertyToID("_BaseColor");
 
             // In our sample game we're dealing with 3 instanced properties: obj2world, world2obj and baseColor
-            var batchMetadata = new NativeArray<MetadataValue>(useCustomData ? 4 : 3, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            var batchMetadata = new NativeArray<MetadataValue>(3, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
 
             int gpuOffset = 0;
             batchMetadata[0] = CreateMetadataValue(objectToWorldID, 0); // matrices
@@ -76,13 +70,6 @@ namespace UGizmos
 
             gpuOffset += maxInstanceCount * sizeof(float3x4);
             batchMetadata[2] = CreateMetadataValue(colorID, gpuOffset); // colors
-
-            if (useCustomData)
-            {
-                int customID = Shader.PropertyToID("_CustomData");
-                gpuOffset += maxInstanceCount * sizeof(float4);
-                batchMetadata[3] = CreateMetadataValue(customID, gpuOffset);
-            }
 
             batchID = batchRendererGroup.AddBatch(batchMetadata, gpuPersistentData.bufferHandle);
 
@@ -111,12 +98,6 @@ namespace UGizmos
             gpuPersistentData.SetData(systemBuffer, 0, 0, instanceCount * 3);
             gpuPersistentData.SetData(systemBuffer, worldToObjectOffset, worldToObjectOffset, instanceCount * 3);
             gpuPersistentData.SetData(systemBuffer, colorOffset, colorOffset, instanceCount);
-
-            if (useCustomData)
-            {
-                int customDataOffset = maxInstanceCount * 7;
-                gpuPersistentData.SetData(systemBuffer, customDataOffset, customDataOffset, instanceCount * (sizeof(TCustom) / sizeof(float4)));
-            }
         }
 
         public Span<float4> GetBuffer()

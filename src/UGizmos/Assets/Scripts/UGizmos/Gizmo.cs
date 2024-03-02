@@ -1,52 +1,22 @@
 ﻿using System.Runtime.CompilerServices;
-using Unity.Jobs;
-using UnityEngine;
 
 namespace UGizmos
 {
-    public static class Gizmo<TObject, TCustom>
-        where TObject : IGizmoElement, new()
-        where TCustom : unmanaged
+    public static class Gizmo<TRenderer, TJobData>
+        where TRenderer : GizmoRenderer<TJobData>
+        where TJobData : unmanaged
     {
-        private static GizmoRenderer<TCustom> renderer;
+        private static TRenderer gizmoRenderer;
 
-        private const int MaxInstanceCount = 8192;
-
-        public static void Initialize()
+        public static void Initialize(TRenderer renderer)
         {
-            var objectData = new TObject();
-            Mesh mesh = Resources.Load<Mesh>(objectData.MeshPath);
-            Material material = Resources.Load<Material>(objectData.MaterialPath);
-
-            if (mesh == null)
-            {
-                Debug.LogError("Mesh is null!");
-                return;
-            }
-
-            if (material == null)
-            {
-                Debug.LogError("Material is null!");
-                return;
-            }
-
-            renderer = new GizmoRenderer<TCustom>(mesh, material, MaxInstanceCount);
+            gizmoRenderer = renderer;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddData(in GizmoData<TCustom> data)
+        public static void AddData(in TJobData data)
         {
-            renderer.Add(data);
-        }
-
-        public static void Dispose()
-        {
-            renderer.Dispose();
-        }
-
-        public static IGizmoUpdater GetUpdater()
-        {
-            return renderer;
+            gizmoRenderer.Add(data);
         }
     }
 }

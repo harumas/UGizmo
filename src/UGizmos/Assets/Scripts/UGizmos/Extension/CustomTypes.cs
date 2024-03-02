@@ -2,7 +2,6 @@
 using UGizmos.Extension;
 using Unity.Jobs;
 
-[assembly: RegisterGenericJobType(typeof(CreateRenderDataJob<NoCustom>))]
 
 namespace UGizmos.Extension
 {

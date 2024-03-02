@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using UGizmos.MeshGenerator;
 using Unity.Burst;
 using Unity.Burst.CompilerServices;
 using Unity.Collections;
@@ -10,11 +9,11 @@ using Unity.Mathematics;
 namespace UGizmos
 {
     [BurstCompile]
-    internal unsafe struct CreateRenderDataJob<T> : IJobParallelFor where T : unmanaged
+    internal unsafe struct CreatePrimitiveObjectJob : IJobParallelFor
     {
         [NativeDisableUnsafePtrRestriction]
         [ReadOnly]
-        public GizmoData<T>* GizmoDataPtr;
+        public PrimitiveData* GizmoDataPtr;
 
         [NativeDisableUnsafePtrRestriction]
         [WriteOnly]
@@ -23,12 +22,11 @@ namespace UGizmos
         public int MaxInstanceCount;
 
         private static readonly int stride = UnsafeUtility.SizeOf<float4>();
-        private static readonly int customDataSize = UnsafeUtility.SizeOf<T>() == 1 ? 0 : UnsafeUtility.SizeOf<T>() / stride;
 
         [BurstCompile]
         public void Execute([AssumeRange(0, int.MaxValue)] int index)
         {
-            GizmoData<T>* renderData = GizmoDataPtr + index;
+            PrimitiveData* renderData = GizmoDataPtr + index;
 
             float4x4 matrix = float4x4.TRS(renderData->Position, renderData->Rotation, renderData->Scale);
             float4x4 inversedMatrix = math.inverse(matrix);
@@ -36,11 +34,6 @@ namespace UGizmos
             UnsafeUtility.WriteArrayElementWithStride(Result, index * 3, stride, Pack(matrix));
             UnsafeUtility.WriteArrayElementWithStride(Result, MaxInstanceCount * 3 + index * 3, stride, Pack(inversedMatrix));
             UnsafeUtility.WriteArrayElementWithStride(Result, MaxInstanceCount * 6 + index * 1, stride, renderData->Color);
-
-            if (customDataSize > 0)
-            {
-                UnsafeUtility.WriteArrayElementWithStride(Result, MaxInstanceCount * 7 + index * customDataSize, stride, renderData->CustomData);
-            }
         }
 
         [BurstCompile]

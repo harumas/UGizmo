@@ -7,8 +7,8 @@ namespace UGizmos
     {
         public static void DrawWireSphere(Vector3 position, float radius, Color color)
         {
-            var data = new GizmoData<NoCustom>(position, Quaternion.identity, new Vector3(radius, radius, radius), color, NoCustom.None);
-            Gizmo<WireSphere, NoCustom>.AddData(data);
+            var data = new PrimitiveData(position, Quaternion.identity, new Vector3(radius, radius, radius), color);
+            Gizmo<WireSphere, PrimitiveData>.AddData(data);
         }
     }
 }

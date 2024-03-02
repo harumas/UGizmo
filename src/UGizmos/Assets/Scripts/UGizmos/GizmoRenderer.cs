@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
@@ -12,59 +13,51 @@ namespace UGizmos
         void Render();
     }
 
-    public sealed unsafe class GizmoRenderer<TCustom> : IGizmoUpdater where TCustom : unmanaged
+    public abstract class GizmoRenderer<TJobData> : IGizmoUpdater where TJobData : unmanaged
     {
-        private readonly GizmoBatchRendererGroup<TCustom> batchRendererGroup;
-        private readonly int maxInstanceCount;
-        private NativeArray<GizmoData<TCustom>> gizmoData;
-        private int count;
+        protected GizmoBatchRendererGroup BatchRendererGroup;
+        protected NativeArray<TJobData> JobData;
 
-        public GizmoRenderer(Mesh mesh, Material material, int maxInstanceCount)
+        protected const int MaxInstanceCount = 8192;
+
+        protected int RenderCount
         {
-            this.maxInstanceCount = maxInstanceCount;
-            batchRendererGroup = new GizmoBatchRendererGroup<TCustom>(mesh, material, maxInstanceCount);
-            gizmoData = new NativeArray<GizmoData<TCustom>>(maxInstanceCount, Allocator.Persistent);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private set;
         }
 
-        public JobHandle CreateJobHandle()
+        public void Initialize(Mesh mesh, Material material)
         {
-            var systemBuffer = batchRendererGroup.GetBuffer();
-
-            fixed (void* buffer = systemBuffer)
-            {
-                var createJob = new CreateRenderDataJob<TCustom>()
-                {
-                    GizmoDataPtr = (GizmoData<TCustom>*)gizmoData.GetUnsafeReadOnlyPtr(),
-                    MaxInstanceCount = maxInstanceCount,
-                    Result = buffer
-                };
-
-                return createJob.Schedule(gizmoData.Length, 16);
-            }
+            BatchRendererGroup = new GizmoBatchRendererGroup(mesh, material, MaxInstanceCount);
+            JobData = new NativeArray<TJobData>(MaxInstanceCount, Allocator.Persistent);
         }
+
+        public abstract JobHandle CreateJobHandle();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Add(in GizmoData<TCustom> data)
+        public void Add(in TJobData data)
         {
-            if (count >= gizmoData.Length)
+            if (RenderCount >= JobData.Length)
             {
                 return;
             }
 
-            gizmoData[count++] = data;
+            JobData[RenderCount++] = data;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Render()
         {
-            batchRendererGroup.UploadGpuData(count);
-            count = 0;
+            BatchRendererGroup.UploadGpuData(RenderCount);
+            RenderCount = 0;
         }
 
         public void Dispose()
         {
-            gizmoData.Dispose();
-            batchRendererGroup.Dispose();
+            JobData.Dispose();
+            BatchRendererGroup.Dispose();
         }
     }
 }

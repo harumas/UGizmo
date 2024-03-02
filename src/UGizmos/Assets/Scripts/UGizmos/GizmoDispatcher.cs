@@ -65,23 +65,22 @@ namespace UGizmos
             {
                 foreach (var type in types)
                 {
-                    if ((type.IsClass && type.IsAbstract) || !type.GetInterfaces().Contains(typeof(IGizmoElement))) continue;
+                    if ((type.IsClass && type.IsAbstract) || !type.GetInterfaces().Contains(typeof(IGizmoCreator))) continue;
 
-                    var gizmoElement = (IGizmoElement)Activator.CreateInstance(type);
-                    gizmoElement.Register(this);
+                    var gizmoElement = (IGizmoCreator)Activator.CreateInstance(type);
+                    gizmoElement.Create(this);
                 }
             }
         }
 
-        internal void Register<TObject, TCustom>()
-            where TObject : IGizmoElement, new()
-            where TCustom : unmanaged
+        internal void Register<TRenderer, TJobData>(TRenderer renderer)
+            where TRenderer : GizmoRenderer<TJobData>
+            where TJobData : unmanaged
         {
-            Gizmo<TObject, TCustom>.Initialize();
-            IGizmoUpdater updater = Gizmo<TObject, TCustom>.GetUpdater();
-            updaters.Add(updater);
+            Gizmo<TRenderer, TJobData>.Initialize(renderer);
+            updaters.Add(renderer);
 
-            DisposeEvents += Gizmo<TObject, TCustom>.Dispose;
+            DisposeEvents += renderer.Dispose;
         }
 
         public void Dispose()
