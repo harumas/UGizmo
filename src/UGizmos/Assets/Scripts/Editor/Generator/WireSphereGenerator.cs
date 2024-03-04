@@ -6,7 +6,7 @@ namespace Editor.Generator
 {
     public class WireSphereGenerator
     {
-        private const int PointCount = 32;
+        private const int PointCount = 64;
 
         [MenuItem("Assets/Create/UGizmos/WireSphere")]
         public static void Generate()
