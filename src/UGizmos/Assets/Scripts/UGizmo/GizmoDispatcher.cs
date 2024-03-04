@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using Unity.Burst;
+using UGizmo.Extension;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace UGizmos
+namespace UGizmo
 {
     [ExecuteAlways]
     [DefaultExecutionOrder(-1000)]
@@ -73,14 +73,18 @@ namespace UGizmos
             }
         }
 
-        internal void Register<TRenderer, TJobData>(TRenderer renderer)
-            where TRenderer : GizmoRenderer<TJobData>
+        internal void Register<TRenderer, TJobData>(GizmoAsset<TRenderer, TJobData> asset)
+            where TRenderer : GizmoRenderer<TJobData>, new()
             where TJobData : unmanaged
         {
-            Gizmo<TRenderer, TJobData>.Initialize(renderer);
-            updaters.Add(renderer);
+            TRenderer gizmoRenderer = new TRenderer();
+            (Mesh mesh, Material material) = AssetUtility.CreateMeshAndMaterial(asset.MeshName, asset.MaterialName);
+            gizmoRenderer.Initialize(mesh, material);
 
-            DisposeEvents += renderer.Dispose;
+            Gizmo<TRenderer, TJobData>.Initialize(gizmoRenderer);
+            updaters.Add(gizmoRenderer);
+
+            DisposeEvents += gizmoRenderer.Dispose;
         }
 
         public void Dispose()

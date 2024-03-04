@@ -2,15 +2,20 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace UGizmos.MeshGenerator
+namespace UGizmo.Extension.Generator
 {
     public class WireSphereGenerator
     {
         private const int PointCount = 32;
 
-        public void Generate()
+        [MenuItem("Assets/Create/UGizmos/WireSphere")]
+        public static void Generate()
         {
-            Mesh sphereMesh = new Mesh();
+            Mesh sphereMesh = new Mesh()
+            {
+                name = "WireSphere"
+            };
+
             Vector3[] vertices = new Vector3[PointCount * 3];
             List<int> indices = new List<int>();
 
@@ -57,8 +62,7 @@ namespace UGizmos.MeshGenerator
             sphereMesh.Optimize();
             sphereMesh.UploadMeshData(true);
 
-            AssetDatabase.CreateAsset(sphereMesh, "Assets/Scripts/UGizmos/MeshAsset/WireSphere.asset");
-            AssetDatabase.SaveAssets();
+            AssetUtility.CreateMeshAsset(sphereMesh);
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Reflection;
 using UnityEditor;
 
-namespace UGizmos
+namespace UGizmo
 {
     public static class GameViewUtility
     {

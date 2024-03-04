@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Reflection;
-using UGizmos.Extension;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -10,7 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace UGizmos
+namespace UGizmo
 {
     [BurstCompile]
     public sealed unsafe class GizmoBatchRendererGroup

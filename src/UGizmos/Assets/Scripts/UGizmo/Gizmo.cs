@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace UGizmos
+namespace UGizmo
 {
     public static class Gizmo<TRenderer, TJobData>
         where TRenderer : GizmoRenderer<TJobData>

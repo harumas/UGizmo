@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace UGizmos
+namespace UGizmo
 {
     internal sealed class NoResizableList<T>
     {

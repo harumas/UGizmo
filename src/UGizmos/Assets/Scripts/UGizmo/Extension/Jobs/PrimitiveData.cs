@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace UGizmos
+namespace UGizmo
 {
     public readonly struct PrimitiveData
     {

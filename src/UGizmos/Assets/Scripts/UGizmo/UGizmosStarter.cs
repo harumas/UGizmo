@@ -1,8 +1,7 @@
-﻿using System;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace UGizmos
+namespace UGizmo
 {
     public class UGizmosStarter : ScriptableSingleton<UGizmosStarter>
     {

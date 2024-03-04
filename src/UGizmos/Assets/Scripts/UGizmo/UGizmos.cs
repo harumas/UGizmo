@@ -1,7 +1,7 @@
-﻿using UGizmos.Extension;
+﻿using UGizmo.Extension;
 using UnityEngine;
 
-namespace UGizmos
+namespace UGizmo
 {
     public static class UGizmos
     {
@@ -9,6 +9,12 @@ namespace UGizmos
         {
             var data = new PrimitiveData(position, Quaternion.identity, new Vector3(radius, radius, radius), color);
             Gizmo<WireSphere, PrimitiveData>.AddData(data);
+        }
+
+        public static void DrawLine(Vector3 from, Vector3 to, Color color)
+        {
+            var data = new LineData(from, to, color);
+            Gizmo<WireLine, LineData>.AddData(data);
         }
     }
 }

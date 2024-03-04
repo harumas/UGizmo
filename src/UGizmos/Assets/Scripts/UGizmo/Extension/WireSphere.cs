@@ -1,21 +1,12 @@
-﻿using UGizmos;
-using UGizmos.Extension;
-using Unity.Collections.LowLevel.Unsafe;
+﻿using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
-using UnityEngine;
 
-namespace UGizmos.Extension
+namespace UGizmo.Extension
 {
-    public sealed class WireSphereData : GizmoElement<WireSphere, PrimitiveData>
+    public sealed class WireSphereAsset : GizmoAsset<WireSphere, PrimitiveData>
     {
-        public override string MeshPath => "Meshes/WireSphere";
-        public override string MaterialPath => "Materials/Common";
-
-        protected override WireSphere CreateInstance()
-        {
-            WireSphere wireSphere = new WireSphere();
-            return wireSphere;
-        }
+        public override string MeshName => "WireSphere";
+        public override string MaterialName => "Common";
     }
 
     public sealed unsafe class WireSphere : GizmoRenderer<PrimitiveData>
