@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace UGizmo.Extension.Generator
+namespace Editor.Generator
 {
     public class WireSphereGenerator
     {
@@ -62,7 +62,7 @@ namespace UGizmo.Extension.Generator
             sphereMesh.Optimize();
             sphereMesh.UploadMeshData(true);
 
-            AssetUtility.CreateMeshAsset(sphereMesh);
+            GeneratorUtil.CreateMeshAsset(sphereMesh);
         }
     }
 }

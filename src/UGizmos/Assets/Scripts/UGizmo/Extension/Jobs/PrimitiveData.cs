@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace UGizmo
+namespace UGizmo.Extension.Jobs
 {
     public readonly struct PrimitiveData
     {

@@ -1,4 +1,5 @@
-﻿using Unity.Collections.LowLevel.Unsafe;
+﻿using UGizmo.Extension.Jobs;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 
 namespace UGizmo.Extension

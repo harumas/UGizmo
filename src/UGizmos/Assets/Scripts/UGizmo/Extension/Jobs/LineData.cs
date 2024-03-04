@@ -1,7 +1,7 @@
 ﻿using Unity.Mathematics;
 using UnityEngine;
 
-namespace UGizmo
+namespace UGizmo.Extension.Jobs
 {
     public struct LineData
     {

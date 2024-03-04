@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace UGizmo.Extension.Generator
+namespace Editor.Generator
 {
     public class WireLineGenerator
     {
@@ -29,7 +29,7 @@ namespace UGizmo.Extension.Generator
             lineMesh.Optimize();
             lineMesh.UploadMeshData(true);
 
-            AssetUtility.CreateMeshAsset(lineMesh);
+            GeneratorUtil.CreateMeshAsset(lineMesh);
         }
     }
 }

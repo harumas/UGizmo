@@ -1,12 +1,11 @@
-﻿using UGizmo.Extension;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Burst.CompilerServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-namespace UGizmo
+namespace UGizmo.Extension.Jobs
 {
     [BurstCompile]
     internal unsafe struct CreateWireLineJob : IJobParallelFor
