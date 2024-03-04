@@ -40,20 +40,19 @@ public class UGizmoTester : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // for (int i = 0; i < positions.Count; i++)
-        // {
-        //     Color color = colors[i];
-        //    UGizmos.DrawWireSphere(positions[i], radius[i], color);
-        // }
-
-
-        Vector3 before = Vector3.zero;
-        for (var i = 0; i < points.Count; i++)
+        for (int i = 0; i < positions.Count; i++)
         {
-            var point = points[i];
-            UGizmos.DrawLine(before, point, colors[i]);
-            before = point;
+            Color color = colors[i];
+            UGizmos.DrawWireCube(positions[i], new Vector3(radius[i], radius[i], radius[i]) , color);
         }
+
+        // Vector3 before = Vector3.zero;
+        // for (var i = 0; i < points.Count; i++)
+        // {
+        //     var point = points[i];
+        //     UGizmos.DrawLine(before, point, colors[i]);
+        //     before = point;
+        // }
 
         // Vector3 before = Vector3.zero;
         // for (var i = 0; i < points.Count; i++)

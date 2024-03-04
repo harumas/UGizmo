@@ -12,6 +12,12 @@ namespace UGizmo
             Gizmo<WireSphere, PrimitiveData>.AddData(data);
         }
 
+        public static void DrawWireCube(Vector3 position, Vector3 scale, Color color)
+        {
+            var data = new PrimitiveData(position, Quaternion.identity, scale, color);
+            Gizmo<WireCube, PrimitiveData>.AddData(data);
+        }
+
         public static void DrawLine(Vector3 from, Vector3 to, Color color)
         {
             var data = new LineData(from, to, color);
