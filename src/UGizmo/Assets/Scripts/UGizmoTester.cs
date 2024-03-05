@@ -41,14 +41,11 @@ public class UGizmoTester : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Profiler.BeginSample("NoInline");
         for (int i = 0; i < positions.Count; i++)
         {
             Color color = colors[i];
             UGizmos.DrawWireSphere(positions[i], radius[i], color);
         }
-
-        Profiler.EndSample();
 
         // Vector3 before = Vector3.zero;
         // for (var i = 0; i < points.Count; i++)
