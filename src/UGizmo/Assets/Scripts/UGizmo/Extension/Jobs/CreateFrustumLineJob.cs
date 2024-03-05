@@ -4,15 +4,16 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace UGizmo.Extension.Jobs
 {
     [BurstCompile]
-    internal unsafe struct CreateWireLineJob : IJobParallelFor
+    internal unsafe struct CreateFrustumLineJob : IJobParallelFor
     {
         [NativeDisableUnsafePtrRestriction]
         [ReadOnly]
-        public LineData* GizmoDataPtr;
+        public FrustumLineData* GizmoDataPtr;
 
         public int MaxInstanceCount;
 
@@ -25,17 +26,20 @@ namespace UGizmo.Extension.Jobs
         [BurstCompile]
         public void Execute([AssumeRange(0, int.MaxValue)] int index)
         {
-            LineData* renderData = GizmoDataPtr + index;
+            FrustumLineData* renderData = GizmoDataPtr + index;
 
-            float3 diff = renderData->End - renderData->Start;
-            float3 position = (float3)renderData->Start + diff * 0.5f;
+            float3 start = math.rotate(renderData->Rotation, renderData->Start);
+            float3 end = math.rotate(renderData->Rotation, renderData->End);
+
+            float3 diff = end - start;
+            float3 position = start + diff * 0.5f;
             float lengthE = math.length(diff);
 
             float cos = (1 + math.clamp(diff.z / lengthE, -1f, 1f)) * 0.5f;
             float3 axis = math.normalize(new float3(-diff.y, diff.x, 0f));
             quaternion rotation = new quaternion(new float4(axis * math.sqrt(1 - cos), math.sqrt(cos)));
 
-            float4x4 matrix = float4x4.TRS(position, rotation, new float3(0f, 0f, lengthE));
+            float4x4 matrix = float4x4.TRS(renderData->Center + position, rotation, new float3(0f, 0f, lengthE));
             MathUtil.Pack3x4(matrix, out float3x4 packedMatrix);
             MathUtil.Pack3x4(math.fastinverse(matrix), out float3x4 inversedMatrix);
 

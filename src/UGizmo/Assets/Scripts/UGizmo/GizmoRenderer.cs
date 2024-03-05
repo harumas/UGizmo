@@ -15,10 +15,10 @@ namespace UGizmo
     {
         protected GizmoBatchRendererGroup BatchRendererGroup;
         protected NativeArray<TJobData> JobData;
+        protected int MaxInstanceCount = 8192;
+        protected int RenderPerInstance = 1;
 
-        protected const int MaxInstanceCount = 8192;
-
-        protected int RenderCount
+        protected int InstanceCount
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get;
@@ -28,7 +28,7 @@ namespace UGizmo
 
         public void Initialize(Mesh mesh, Material material)
         {
-            BatchRendererGroup = new GizmoBatchRendererGroup(mesh, material, MaxInstanceCount);
+            BatchRendererGroup = new GizmoBatchRendererGroup(mesh, material, MaxInstanceCount * RenderPerInstance);
             JobData = new NativeArray<TJobData>(MaxInstanceCount, Allocator.Persistent);
         }
 
@@ -37,22 +37,22 @@ namespace UGizmo
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(in TJobData data)
         {
-            if (RenderCount >= JobData.Length)
+            if (InstanceCount >= JobData.Length)
             {
                 return;
             }
 
-            JobData[RenderCount++] = data;
+            JobData[InstanceCount++] = data;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Render()
         {
-            BatchRendererGroup.UploadGpuData(RenderCount);
-            RenderCount = 0;
+            BatchRendererGroup.UploadGpuData(MaxInstanceCount * RenderPerInstance);
+            InstanceCount = 0;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             JobData.Dispose();
             BatchRendererGroup.Dispose();

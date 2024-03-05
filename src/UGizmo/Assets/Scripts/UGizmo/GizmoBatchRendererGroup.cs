@@ -10,7 +10,6 @@ using UnityEngine.Rendering;
 
 namespace UGizmo
 {
-    [BurstCompile]
     public sealed unsafe class GizmoBatchRendererGroup
     {
         private readonly BatchRendererGroup batchRendererGroup;
@@ -20,17 +19,17 @@ namespace UGizmo
         private BatchMeshID meshID;
         private NativeArray<float4> systemBuffer;
 
-        private int maxInstanceCount;
+        private int maxRenderCount;
         private int instanceCount;
         private bool initialized;
 
-        public GizmoBatchRendererGroup(Mesh mesh, Material material, int maxInstanceCount)
+        public GizmoBatchRendererGroup(Mesh mesh, Material material, int maxRenderCount)
         {
             batchRendererGroup = new BatchRendererGroup(OnPerformCulling, IntPtr.Zero);
-            this.maxInstanceCount = maxInstanceCount;
+            this.maxRenderCount = maxRenderCount;
 
             int instanceSize = sizeof(float3x4) * 2 + sizeof(float4);
-            int bufferSize = this.maxInstanceCount * instanceSize;
+            int bufferSize = this.maxRenderCount * instanceSize;
 
             gpuPersistentData = new GraphicsBuffer(GraphicsBuffer.Target.Raw, bufferSize / sizeof(float), sizeof(float));
 
@@ -63,10 +62,10 @@ namespace UGizmo
             int gpuOffset = 0;
             batchMetadata[0] = CreateMetadataValue(objectToWorldID, 0); // matrices
 
-            gpuOffset += maxInstanceCount * sizeof(float3x4);
+            gpuOffset += maxRenderCount * sizeof(float3x4);
             batchMetadata[1] = CreateMetadataValue(worldToObjectID, gpuOffset); // inverse matrices
 
-            gpuOffset += maxInstanceCount * sizeof(float3x4);
+            gpuOffset += maxRenderCount * sizeof(float3x4);
             batchMetadata[2] = CreateMetadataValue(colorID, gpuOffset); // colors
 
             batchID = batchRendererGroup.AddBatch(batchMetadata, gpuPersistentData.bufferHandle);
@@ -85,13 +84,12 @@ namespace UGizmo
             }
         }
 
-        [BurstCompile]
         public void UploadGpuData(int instanceCount)
         {
             this.instanceCount = instanceCount;
 
-            int worldToObjectOffset = maxInstanceCount * 3;
-            int colorOffset = maxInstanceCount * 6;
+            int worldToObjectOffset = maxRenderCount * 3;
+            int colorOffset = maxRenderCount * 6;
 
             gpuPersistentData.SetData(systemBuffer, 0, 0, instanceCount * 3);
             gpuPersistentData.SetData(systemBuffer, worldToObjectOffset, worldToObjectOffset, instanceCount * 3);

@@ -41,11 +41,14 @@ public class UGizmoTester : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        for (int i = 0; i < positions.Count; i++)
-        {
-            Color color = colors[i];
-            UGizmos.DrawWireSphere(positions[i], radius[i], color);
-        }
+        // for (int i = 0; i < positions.Count; i++)
+        // {
+        //     Color color = colors[i];
+        //     UGizmos.DrawWireSphere(positions[i], radius[i], color);
+        // }
+
+
+        UGizmos.DrawFrustum(Camera.main, Color.red);
 
         // Vector3 before = Vector3.zero;
         // for (var i = 0; i < points.Count; i++)

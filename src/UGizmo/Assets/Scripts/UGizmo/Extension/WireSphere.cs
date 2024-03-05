@@ -25,7 +25,7 @@ namespace UGizmo.Extension
                     Result = buffer
                 };
 
-                return createJob.Schedule(RenderCount, 16);
+                return createJob.Schedule(InstanceCount, 16);
             }
         }
     }
