@@ -12,20 +12,21 @@ namespace UGizmo.Extension
 
     public sealed unsafe class WireSphere : GizmoRenderer<PrimitiveData>
     {
-        public override JobHandle CreateJobHandle()
+        public override JobHandle CreateJobHandle(int frameDivision)
         {
+            int jobCount = InstanceCount / frameDivision;
             var systemBuffer = BatchRendererGroup.GetBuffer();
 
             fixed (void* buffer = systemBuffer)
             {
                 var createJob = new CreatePrimitiveObjectJob()
                 {
-                    GizmoDataPtr = (PrimitiveData*)JobData.GetUnsafeReadOnlyPtr(),
+                    GizmoDataPtr = (PrimitiveData*)JobData.GetUnsafeReadOnlyPtr() + jobCount,
                     MaxInstanceCount = MaxInstanceCount,
                     Result = buffer
                 };
 
-                return createJob.Schedule(InstanceCount, 16);
+                return createJob.Schedule(jobCount, 16);
             }
         }
     }

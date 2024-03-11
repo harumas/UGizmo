@@ -106,15 +106,28 @@ namespace UGizmo
             {
                 Initialize();
             }
+
+
+ //           Debug.Log(nameof(OnRenderObject));
+
+            EditorApplication.QueuePlayerLoopUpdate();
+            SceneView.RepaintAll();
         }
 
-        private void OnDrawGizmos()
+        private int frameDivision = 0;
+
+        private void LateUpdate()
         {
             Profiler.BeginSample("UGizmo");
 
-            if (!UseDomainReload() && isFirstFrame)
+            if (!UseDomainReload() && isFirstFrame || updaters == null)
             {
                 Initialize();
+            }
+
+            if (frameDivision == 0)
+            {
+                return;
             }
 
             var updaterSpan = updaters.AsSpan();
@@ -122,7 +135,7 @@ namespace UGizmo
             int i = 0;
             foreach (var updater in updaterSpan)
             {
-                jobHandles[i++] = updater.CreateJobHandle();
+                jobHandles[i++] = updater.CreateJobHandle(frameDivision);
             }
 
             JobHandle createDataJob = JobHandle.CombineDependencies(jobHandles.Slice(0, updaterSpan.Length));
@@ -130,10 +143,19 @@ namespace UGizmo
 
             foreach (var updater in updaterSpan)
             {
-                updater.Render();
+                updater.Render(frameDivision);
             }
 
+            frameDivision = 0;
+
             Profiler.EndSample();
+
+            Debug.Log(nameof(LateUpdate));
+        }
+
+        private void OnDrawGizmos()
+        {
+            frameDivision++;
         }
     }
 }

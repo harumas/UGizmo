@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine.Profiling;
 using Random = UnityEngine.Random;
 
-public class UGizmoTester : MonoBehaviour
+public class UGizmoTester2 : MonoBehaviour
 {
     private List<Vector3> positions;
     private List<float> radius;
@@ -26,7 +26,7 @@ public class UGizmoTester : MonoBehaviour
         positions = new List<Vector3>();
         points = new List<Vector3>();
 
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < 5000; i++)
         {
             positions.Add(Random.insideUnitSphere * 50f);
             radius.Add(Random.Range(1f, 10f));
@@ -34,7 +34,7 @@ public class UGizmoTester : MonoBehaviour
         }
 
 
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < 5000; i++)
         {
             points.Add(Random.insideUnitSphere * 50f);
         }
@@ -42,15 +42,20 @@ public class UGizmoTester : MonoBehaviour
 
     private void OnPreRender()
     {
+        
     }
 
     private void OnDrawGizmos()
     {
-        for (int i = 0; i < positions.Count; i++)
-        {
-            Color color = colors[i];
-            UGizmos.DrawWireSphere(positions[i], radius[i], color);
-        }
+        // for (int i = 0; i < positions.Count; i++)
+        // {
+        //     Color color = colors[i];
+        //     UGizmos.DrawWireSphere(positions[i], radius[i], color);
+        // }
+
+        
+        UGizmos.DrawWireSphere(transform.position, 3f);
+
 
         // Vector3 before = Vector3.zero;
         // for (var i = 0; i < points.Count; i++)

@@ -19,16 +19,18 @@ namespace UGizmo.Extension
         public Frustum() : base()
         {
             RenderPerInstance = 12;
-            frustumLineData = new NativeArray<FrustumLineData>(RenderPerInstance, Allocator.Persistent);
+            frustumLineData = new NativeArray<FrustumLineData>(MaxInstanceCount * RenderPerInstance, Allocator.Persistent);
         }
 
-        public override JobHandle CreateJobHandle()
+        public override JobHandle CreateJobHandle(int frameDivision)
         {
+            int jobCount = InstanceCount / frameDivision;
+
             JobHandle prepareDataJob = new CreateFrustumJob()
             {
-                GizmoDataPtr = (FrustumData*)JobData.GetUnsafeReadOnlyPtr(),
+                GizmoDataPtr = (FrustumData*)JobData.GetUnsafeReadOnlyPtr() + jobCount,
                 Result = (FrustumLineData*)frustumLineData.GetUnsafePtr()
-            }.Schedule(InstanceCount, 8);
+            }.Schedule(jobCount, 8);
 
             var systemBuffer = BatchRendererGroup.GetBuffer();
             fixed (void* buffer = systemBuffer)
@@ -40,7 +42,7 @@ namespace UGizmo.Extension
                     Result = buffer
                 };
 
-                return createJob.Schedule(InstanceCount * RenderPerInstance, 16, prepareDataJob);
+                return createJob.Schedule(jobCount * RenderPerInstance, 16, prepareDataJob);
             }
         }
 

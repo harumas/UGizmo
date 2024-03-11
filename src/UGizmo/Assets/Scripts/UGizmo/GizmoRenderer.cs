@@ -7,8 +7,9 @@ namespace UGizmo
 {
     public interface IGizmoUpdater
     {
-        JobHandle CreateJobHandle();
-        void Render();
+        JobHandle CreateJobHandle(int frameDivision);
+        void Render(int frameDivision);
+        void Reset();
     }
 
     public abstract class GizmoRenderer<TJobData> : IGizmoUpdater where TJobData : unmanaged
@@ -32,7 +33,7 @@ namespace UGizmo
             JobData = new NativeArray<TJobData>(MaxInstanceCount, Allocator.Persistent);
         }
 
-        public abstract JobHandle CreateJobHandle();
+        public abstract JobHandle CreateJobHandle(int frameDivision);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(in TJobData data)
@@ -46,9 +47,15 @@ namespace UGizmo
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Render()
+        public void Render(int frameDivision)
         {
-            BatchRendererGroup.UploadGpuData(MaxInstanceCount * RenderPerInstance);
+            BatchRendererGroup.UploadGpuData(InstanceCount * RenderPerInstance / frameDivision);
+            Reset();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Reset()
+        {
             InstanceCount = 0;
         }
 
