@@ -16,7 +16,7 @@ namespace UGizmo.Extension.Jobs
 
         [NativeDisableUnsafePtrRestriction]
         [WriteOnly]
-        public void* Result;
+        public RenderData* Result;
 
         public int MaxInstanceCount;
 
@@ -28,12 +28,8 @@ namespace UGizmo.Extension.Jobs
             PrimitiveData* renderData = GizmoDataPtr + index;
 
             float4x4 matrix = float4x4.TRS(renderData->Position, renderData->Rotation, renderData->Scale);
-            MathUtil.Pack3x4(matrix, out float3x4 packedMatrix);
-            MathUtil.Pack3x4(math.fastinverse(matrix), out float3x4 inversedMatrix);
 
-            UnsafeUtility.WriteArrayElementWithStride(Result, index * 3, stride, packedMatrix);
-            UnsafeUtility.WriteArrayElementWithStride(Result, MaxInstanceCount * 3 + index * 3, stride, inversedMatrix);
-            UnsafeUtility.WriteArrayElementWithStride(Result, MaxInstanceCount * 6 + index * 1, stride, renderData->Color);
+            Result[index] = new RenderData(matrix, renderData->Color);
         }
     }
 }

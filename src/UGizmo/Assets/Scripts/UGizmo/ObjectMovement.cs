@@ -37,11 +37,6 @@ public class ObjectMovement : MonoBehaviour
         }
     }
 
-    private void OnRenderObject()
-    {
-        Debug.Log("aaaaaaaaaaaa");
-    }
-
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;

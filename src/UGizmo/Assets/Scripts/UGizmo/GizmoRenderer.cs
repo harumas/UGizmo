@@ -1,23 +1,31 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace UGizmo
 {
-    public interface IGizmoUpdater
+    public interface IGizmoUpdater : IDisposable
     {
         JobHandle CreateJobHandle(int frameDivision);
-        void Render(int frameDivision);
-        void Reset();
+        void Render(CommandBuffer commandBuffer);
     }
 
     public abstract class GizmoRenderer<TJobData> : IGizmoUpdater where TJobData : unmanaged
     {
-        protected GizmoBatchRendererGroup BatchRendererGroup;
         protected NativeArray<TJobData> JobData;
+        protected NativeArray<RenderData> RenderBuffer;
         protected int MaxInstanceCount = 8192;
         protected int RenderPerInstance = 1;
+
+        private Mesh mesh;
+        private Material material;
+        private GraphicsBuffer graphicsBuffer;
+        private int maxRenderingCount;
+        private static readonly int renderBuffer = Shader.PropertyToID("_RenderBuffer");
 
         protected int InstanceCount
         {
@@ -29,8 +37,15 @@ namespace UGizmo
 
         public void Initialize(Mesh mesh, Material material)
         {
-            BatchRendererGroup = new GizmoBatchRendererGroup(mesh, material, MaxInstanceCount * RenderPerInstance);
+            this.mesh = mesh;
+            this.material = material;
+            maxRenderingCount = MaxInstanceCount * RenderPerInstance;
+
             JobData = new NativeArray<TJobData>(MaxInstanceCount, Allocator.Persistent);
+            RenderBuffer = new NativeArray<RenderData>(maxRenderingCount, Allocator.Persistent);
+
+            graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, maxRenderingCount, Marshal.SizeOf<RenderData>());
+            material.SetBuffer(renderBuffer, graphicsBuffer);
         }
 
         public abstract JobHandle CreateJobHandle(int frameDivision);
@@ -47,9 +62,17 @@ namespace UGizmo
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Render(int frameDivision)
+        public void Render(CommandBuffer commandBuffer)
         {
-            BatchRendererGroup.UploadGpuData(InstanceCount * RenderPerInstance / frameDivision);
+            int renderCount = InstanceCount * RenderPerInstance;
+
+            if (renderCount == 0)
+            {
+                return;
+            }
+
+            graphicsBuffer.SetData(RenderBuffer, 0, 0, renderCount);
+            commandBuffer.DrawMeshInstancedProcedural(mesh, 0, material, -1, renderCount);
             Reset();
         }
 
@@ -62,7 +85,8 @@ namespace UGizmo
         public virtual void Dispose()
         {
             JobData.Dispose();
-            BatchRendererGroup.Dispose();
+            RenderBuffer.Dispose();
+            graphicsBuffer.Dispose();
         }
     }
 }

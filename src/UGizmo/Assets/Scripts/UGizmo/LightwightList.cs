@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace UGizmo
 {
-    internal sealed class NoResizableList<T>
+    public sealed class NoResizableList<T>
     {
         private readonly T[] items;
         private int count;

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UGizmo;
-using Unity.Mathematics;
-using UnityEditor;
-using UnityEngine.Profiling;
 using Random = UnityEngine.Random;
 
 public class UGizmoTester : MonoBehaviour
@@ -40,17 +36,15 @@ public class UGizmoTester : MonoBehaviour
         }
     }
 
-    private void OnPreRender()
-    {
-    }
+    private void OnPreRender() { }
 
     private void OnDrawGizmos()
     {
         for (int i = 0; i < positions.Count; i++)
         {
-            Color color = colors[i];
-            UGizmos.DrawWireSphere(positions[i], radius[i], color);
+            UGizmos.DrawWireSphere(positions[i], radius[i], colors[i]);
         }
+        
 
         // Vector3 before = Vector3.zero;
         // for (var i = 0; i < points.Count; i++)

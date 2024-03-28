@@ -32,8 +32,7 @@ namespace UGizmo.Extension
                 Result = (FrustumLineData*)frustumLineData.GetUnsafePtr()
             }.Schedule(jobCount, 8);
 
-            var systemBuffer = BatchRendererGroup.GetBuffer();
-            fixed (void* buffer = systemBuffer)
+            fixed (RenderData* buffer = RenderBuffer.AsSpan())
             {
                 CreateFrustumLineJob createJob = new CreateFrustumLineJob()
                 {

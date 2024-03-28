@@ -15,9 +15,8 @@ namespace UGizmo.Extension
         public override JobHandle CreateJobHandle(int frameDivision)
         {
             int jobCount = InstanceCount / frameDivision;
-            var systemBuffer = BatchRendererGroup.GetBuffer();
 
-            fixed (void* buffer = systemBuffer)
+            fixed (RenderData* buffer = RenderBuffer.AsSpan())
             {
                 var createJob = new CreateWireLineJob()
                 {

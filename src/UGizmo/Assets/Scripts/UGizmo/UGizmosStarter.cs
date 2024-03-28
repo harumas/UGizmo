@@ -7,7 +7,6 @@ namespace UGizmo
     {
         [SerializeField] private GizmoDispatcher dispatcher;
 
-        [InitializeOnLoadMethod]
         private static void Init()
         {
             if (instance.dispatcher == null)

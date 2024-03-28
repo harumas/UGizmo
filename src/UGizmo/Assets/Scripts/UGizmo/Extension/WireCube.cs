@@ -14,20 +14,16 @@ namespace UGizmo.Extension
     {
         public override JobHandle CreateJobHandle(int frameDivision)
         {
-            int jobCount = InstanceCount / frameDivision;
-            
-            var systemBuffer = BatchRendererGroup.GetBuffer();
-
-            fixed (void* buffer = systemBuffer)
+            fixed (RenderData* buffer = RenderBuffer.AsSpan())
             {
                 var createJob = new CreatePrimitiveObjectJob()
                 {
-                    GizmoDataPtr = (PrimitiveData*)JobData.GetUnsafeReadOnlyPtr() + jobCount,
+                    GizmoDataPtr = (PrimitiveData*)JobData.GetUnsafeReadOnlyPtr(),
                     MaxInstanceCount = MaxInstanceCount,
                     Result = buffer
                 };
 
-                return createJob.Schedule(jobCount, 16);
+                return createJob.Schedule(InstanceCount, 16);
             }
         }
     }

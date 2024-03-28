@@ -1,22 +1,19 @@
 Shader "UGizmo"
 {
-    Properties
-    {
-        [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
-    }
-
     SubShader
     {
         Tags
         {
-            "RenderType" = "Opaque" "Queue" = "Overlay" "RenderPipeline" = "UniversalPipeline"
+            "RenderType" = "Transparent" "Queue" = "Transparent" "RenderPipeline" = "UniversalPipeline"
         }
-
+        
         Pass
         {
-            Cull Off
-            ZWrite On
-            ZTest Always 
+            Cull Back
+            ZTest LEqual
+            ZWrite Off
+            Blend SrcAlpha OneMinusSrcAlpha
+            Offset -1, -1
 
             Lighting Off
             Fog
@@ -24,56 +21,105 @@ Shader "UGizmo"
                 Mode Off
             }
 
-            Blend SrcAlpha OneMinusDstAlpha
-
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma target 4.5
             #pragma multi_compile_instancing
-            #pragma multi_compile _ DOTS_INSTANCING_ON
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
-                float4 _BaseColor;
-            CBUFFER_END
+            struct RenderData
+            {
+                float4x4 mat;
+                float4 color;
+            };
 
-            #ifdef UNITY_DOTS_INSTANCING_ENABLED
-                UNITY_DOTS_INSTANCING_START (MaterialPropertyMetadata)
-                    UNITY_DOTS_INSTANCED_PROP(float4, _BaseColor)
-                UNITY_DOTS_INSTANCING_END(MaterialPropertyMetadata)
-                #define _BaseColor UNITY_ACCESS_DOTS_INSTANCED_PROP_WITH_DEFAULT(float4, _BaseColor)
-            #endif
+            StructuredBuffer<RenderData> _RenderBuffer;
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings
             {
                 float4 positionHCS : SV_POSITION;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
+                float4 color : COLOR;
             };
 
-            Varyings vert(Attributes IN)
+            Varyings vert(Attributes IN, uint instanceID : SV_InstanceID)
             {
-                Varyings OUT;
+                Varyings o;
+                RenderData render_data = _RenderBuffer[instanceID];
 
-                UNITY_SETUP_INSTANCE_ID(IN);
-                UNITY_TRANSFER_INSTANCE_ID(IN, OUT);
+                float4 pos = mul(render_data.mat, IN.positionOS);
+                o.positionHCS = TransformObjectToHClip(pos.xyz);
+                o.color = render_data.color;
 
-                const VertexPositionInputs positionInputs = GetVertexPositionInputs(IN.positionOS.xyz);
-                OUT.positionHCS = positionInputs.positionCS;
-                
-                return OUT;
+                return o;
             }
 
             half4 frag(Varyings v) : SV_Target
             {
-                UNITY_SETUP_INSTANCE_ID(v);
-                return _BaseColor;
+                return v.color;
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Cull Back
+            ZTest Greater
+            ZWrite Off
+            Blend SrcAlpha OneMinusSrcAlpha
+            Offset -1, -1
+
+            Lighting Off
+            Fog
+            {
+                Mode Off
+            }
+
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_instancing
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct RenderData
+            {
+                float4x4 mat;
+                float4 color;
+            };
+
+            StructuredBuffer<RenderData> _RenderBuffer;
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+            };
+
+            struct Varyings
+            {
+                float4 positionHCS : SV_POSITION;
+                float4 color : COLOR;
+            };
+
+            Varyings vert(Attributes IN, uint instanceID : SV_InstanceID)
+            {
+                Varyings o;
+                RenderData render_data = _RenderBuffer[instanceID];
+
+                float4 pos = mul(render_data.mat, IN.positionOS);
+                o.positionHCS = TransformObjectToHClip(pos.xyz);
+                o.color = render_data.color;
+                o.color.a *= 0.1;
+
+                return o;
+            }
+
+            half4 frag(Varyings v) : SV_Target
+            {
+                return v.color;
             }
             ENDHLSL
         }

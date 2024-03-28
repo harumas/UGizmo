@@ -32,7 +32,7 @@ namespace UGizmo
             updaters = new NoResizableList<IGizmoUpdater>(capacity);
             jobHandles = new NativeArray<JobHandle>(capacity, Allocator.Persistent);
 
-            RegisterAllElement();
+            // RegisterAllElement();
 
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
@@ -57,21 +57,21 @@ namespace UGizmo
             }
         }
 
-        private void RegisterAllElement()
-        {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-            foreach (var types in assemblies.Select(assembly => assembly.GetTypes()))
-            {
-                foreach (var type in types)
-                {
-                    if ((type.IsClass && type.IsAbstract) || !type.GetInterfaces().Contains(typeof(IGizmoCreator))) continue;
-
-                    var gizmoElement = (IGizmoCreator)Activator.CreateInstance(type);
-                    gizmoElement.Create(this);
-                }
-            }
-        }
+        // private void RegisterAllElement()
+        // {
+        //     var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        //
+        //     foreach (var types in assemblies.Select(assembly => assembly.GetTypes()))
+        //     {
+        //         foreach (var type in types)
+        //         {
+        //             if ((type.IsClass && type.IsAbstract) || !type.GetInterfaces().Contains(typeof(IGizmoCreator))) continue;
+        //
+        //             var gizmoElement = (IGizmoCreator)Activator.CreateInstance(type);
+        //             gizmoElement.Create(this);
+        //         }
+        //     }
+        // }
 
         internal void Register<TRenderer, TJobData>(GizmoAsset<TRenderer, TJobData> asset)
             where TRenderer : GizmoRenderer<TJobData>, new()
@@ -107,9 +107,6 @@ namespace UGizmo
                 Initialize();
             }
 
-
- //           Debug.Log(nameof(OnRenderObject));
-
             EditorApplication.QueuePlayerLoopUpdate();
             SceneView.RepaintAll();
         }
@@ -143,14 +140,12 @@ namespace UGizmo
 
             foreach (var updater in updaterSpan)
             {
-                updater.Render(frameDivision);
+                //updater.Render(frameDivision);
             }
 
             frameDivision = 0;
 
             Profiler.EndSample();
-
-            Debug.Log(nameof(LateUpdate));
         }
 
         private void OnDrawGizmos()
