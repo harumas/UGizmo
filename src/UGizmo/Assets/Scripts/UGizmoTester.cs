@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UGizmo;
+using UnityEditor;
 using Random = UnityEngine.Random;
 
 public class UGizmoTester : MonoBehaviour
@@ -36,15 +37,12 @@ public class UGizmoTester : MonoBehaviour
         }
     }
 
-    private void OnPreRender() { }
-
     private void OnDrawGizmos()
     {
         for (int i = 0; i < positions.Count; i++)
         {
             UGizmos.DrawWireSphere(positions[i], radius[i], colors[i]);
         }
-        
 
         // Vector3 before = Vector3.zero;
         // for (var i = 0; i < points.Count; i++)
@@ -62,7 +60,6 @@ public class UGizmoTester : MonoBehaviour
         //     Gizmos.DrawLine(before, point);
         //     before = point;
         // }
-
 
         // for (int i = 0; i < positions.Count; i++)
         // {

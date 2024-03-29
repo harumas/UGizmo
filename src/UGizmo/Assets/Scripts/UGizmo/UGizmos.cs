@@ -14,6 +14,8 @@ namespace UGizmo
             set => defaultColor = value;
         }
 
+        public static bool ImmediateMode { get; set; }
+
         private static Color defaultColor = Color.red;
 
         #region WireSphere
@@ -133,6 +135,14 @@ namespace UGizmo
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void QueueDrawWireSphere(Vector3 position, Quaternion rotation, float radius, Color color)
         {
+            if (ImmediateMode)
+            {
+                Gizmos.color = color;
+                Gizmos.matrix = Matrix4x4.TRS(position, rotation, new Vector3(radius, radius, radius));
+                Gizmos.DrawWireSphere(position, radius);
+                return;
+            }
+            
             var data = new PrimitiveData(position, rotation, new Vector3(radius, radius, radius), color);
             Gizmo<WireSphere, PrimitiveData>.AddData(data);
         }

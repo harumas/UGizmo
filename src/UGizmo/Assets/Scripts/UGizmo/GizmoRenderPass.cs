@@ -1,73 +1,79 @@
-using System;
-using System.Runtime.InteropServices;
-using UGizmo;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-public readonly struct RenderData
+namespace UGizmo
 {
-    public readonly float4x4 Matrix;
-    public readonly Color Color;
-
-    public RenderData(in float4x4 matrix, in Color color)
+    public readonly struct RenderData
     {
-        this.Matrix = matrix;
-        this.Color = color;
-    }
-}
+        public readonly float4x4 Matrix;
+        public readonly Color Color;
 
-public class GizmoRenderPass : ScriptableRenderPass
-{
-    private NoResizableList<IGizmoUpdater> updaters;
-    private NativeArray<JobHandle> jobHandles;
-
-    public GizmoRenderPass()
-    {
-        renderPassEvent = RenderPassEvent.AfterRendering;
-        jobHandles = new NativeArray<JobHandle>(64, Allocator.Persistent);
-    }
-
-    public void SetUpdaters(NoResizableList<IGizmoUpdater> updaters)
-    {
-        this.updaters = updaters;
-    }
-
-    public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
-    {
-        if (updaters.Count == 0)
+        public RenderData(in float4x4 matrix, in Color color)
         {
-            return;
+            this.Matrix = matrix;
+            this.Color = color;
         }
-        
-        CommandBuffer cmd = CommandBufferPool.Get();
+    }
 
-        var updaterSpan = updaters.AsSpan();
+    public class GizmoRenderPass : ScriptableRenderPass
+    {
+        private NoResizableList<IGizmoUpdater> updaters;
+        private NativeArray<JobHandle> jobHandles;
 
-        int i = 0;
-        foreach (var updater in updaterSpan)
+        public GizmoRenderPass()
         {
-            jobHandles[i++] = updater.CreateJobHandle(1);
+            renderPassEvent = RenderPassEvent.AfterRendering;
+            jobHandles = new NativeArray<JobHandle>(64, Allocator.Persistent);
+            profilingSampler = new ProfilingSampler("DrawUGizmos");
         }
 
-        JobHandle createDataJob = JobHandle.CombineDependencies(jobHandles.Slice(0, updaterSpan.Length));
-        createDataJob.Complete();
-
-        foreach (IGizmoUpdater updater in updaters.AsSpan())
+        public void SetUpdaters(NoResizableList<IGizmoUpdater> updaters)
         {
-            updater.Render(cmd);
+            this.updaters = updaters;
         }
 
-        context.ExecuteCommandBuffer(cmd);
+        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+        {
+            if (updaters.Count == 0)
+            {
+                return;
+            }
 
-        CommandBufferPool.Release(cmd);
-    }
+            Handles.DrawGizmos(renderingData.cameraData.camera);
+            
+            CommandBuffer cmd = CommandBufferPool.Get();
 
-    public void Dispose()
-    {
-        jobHandles.Dispose();
+            using (new ProfilingScope(cmd, profilingSampler))
+            {
+                var updaterSpan = updaters.AsSpan();
+
+                int i = 0;
+                foreach (var updater in updaterSpan)
+                {
+                    jobHandles[i++] = updater.CreateJobHandle(1);
+                }
+
+                JobHandle createDataJob = JobHandle.CombineDependencies(jobHandles.Slice(0, updaterSpan.Length));
+                createDataJob.Complete();
+
+                foreach (IGizmoUpdater updater in updaters.AsSpan())
+                {
+                    updater.Render(cmd);
+                }
+            }
+
+            context.ExecuteCommandBuffer(cmd);
+            CommandBufferPool.Release(cmd);
+        }
+
+        public void Dispose()
+        {
+            jobHandles.Dispose();
+        }
     }
 }

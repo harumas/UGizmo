@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: GizmoRendererFeature
   m_EditorClassIdentifier: 
   m_Active: 1
+  sampleMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  sampleMaterial: {fileID: 2100000, guid: 086a5d64806174448915031a5fdb657f, type: 2}
 --- !u!114 &-1878332245247344467
 MonoBehaviour:
   m_ObjectHideFlags: 0

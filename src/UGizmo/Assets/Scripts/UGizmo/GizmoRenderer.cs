@@ -45,7 +45,6 @@ namespace UGizmo
             RenderBuffer = new NativeArray<RenderData>(maxRenderingCount, Allocator.Persistent);
 
             graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, maxRenderingCount, Marshal.SizeOf<RenderData>());
-            material.SetBuffer(renderBuffer, graphicsBuffer);
         }
 
         public abstract JobHandle CreateJobHandle(int frameDivision);
@@ -71,8 +70,9 @@ namespace UGizmo
                 return;
             }
 
+            material.SetBuffer(renderBuffer, graphicsBuffer);
             graphicsBuffer.SetData(RenderBuffer, 0, 0, renderCount);
-            commandBuffer.DrawMeshInstancedProcedural(mesh, 0, material, -1, renderCount);
+            commandBuffer.DrawMeshInstancedProcedural(mesh, 0, material, 0, renderCount);
             Reset();
         }
 
