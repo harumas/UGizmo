@@ -1,5 +1,6 @@
 ﻿using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace UGizmo.Extension.Jobs
 {
@@ -9,9 +10,9 @@ namespace UGizmo.Extension.Jobs
         public readonly float3 End;
         public readonly float3 Center;
         public readonly quaternion Rotation;
-        public readonly float4 Color;
+        public readonly Color Color;
 
-        public FrustumLineData(float3 start, float3 end, float3 center, quaternion rotation, float4 color)
+        public FrustumLineData(float3 start, float3 end, float3 center, quaternion rotation, Color color)
         {
             Start = start;
             End = end;

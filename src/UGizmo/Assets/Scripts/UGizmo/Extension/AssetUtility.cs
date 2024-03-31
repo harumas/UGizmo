@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace UGizmo.Extension
 {
+    
     public static class AssetUtility
     {
         internal static (Mesh mesh, Material material) CreateMeshAndMaterial(string meshPath, string materialPath)

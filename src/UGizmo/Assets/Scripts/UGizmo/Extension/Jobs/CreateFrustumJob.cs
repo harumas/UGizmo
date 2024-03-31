@@ -38,7 +38,6 @@ namespace UGizmo.Extension.Jobs
             float heightFar = height * far;
             float widthFar = heightFar * aspect;
 
-
             float3 nearTopLeft = new float3(-widthNear, heightNear, near);
             float3 nearTopRight = new float3(widthNear, heightNear, near);
             float3 nearBottomLeft = new float3(-widthNear, -heightNear, near);
@@ -49,26 +48,24 @@ namespace UGizmo.Extension.Jobs
             float3 farBottomLeft = new float3(-widthFar, -heightFar, far);
             float3 farBottomRight = new float3(widthFar, -heightFar, far);
 
-
             float3 center = data->Center;
             quaternion rotation = data->Rotation;
             Color originColor = data->Color;
-            float4 color = new float4(originColor.r, originColor.g, originColor.b, originColor.a);
 
-            Result[LineCount * index + 0] = new FrustumLineData(nearTopLeft, nearTopRight, center, rotation, color);
-            Result[LineCount * index + 1] = new FrustumLineData(nearTopRight, nearBottomRight, center, rotation, color);
-            Result[LineCount * index + 2] = new FrustumLineData(nearBottomRight, nearBottomLeft, center, rotation, color);
-            Result[LineCount * index + 3] = new FrustumLineData(nearBottomLeft, nearTopLeft, center, rotation, color);
+            Result[LineCount * index + 0] = new FrustumLineData(nearTopLeft, nearTopRight, center, rotation, originColor);
+            Result[LineCount * index + 1] = new FrustumLineData(nearTopRight, nearBottomRight, center, rotation, originColor);
+            Result[LineCount * index + 2] = new FrustumLineData(nearBottomRight, nearBottomLeft, center, rotation, originColor);
+            Result[LineCount * index + 3] = new FrustumLineData(nearBottomLeft, nearTopLeft, center, rotation, originColor);
 
-            Result[LineCount * index + 4] = new FrustumLineData(farTopLeft, farTopRight, center, rotation, color);
-            Result[LineCount * index + 5] = new FrustumLineData(farTopRight, farBottomRight, center, rotation, color);
-            Result[LineCount * index + 6] = new FrustumLineData(farBottomRight, farBottomLeft, center, rotation, color);
-            Result[LineCount * index + 7] = new FrustumLineData(farBottomLeft, farTopLeft, center, rotation, color);
+            Result[LineCount * index + 4] = new FrustumLineData(farTopLeft, farTopRight, center, rotation, originColor);
+            Result[LineCount * index + 5] = new FrustumLineData(farTopRight, farBottomRight, center, rotation, originColor);
+            Result[LineCount * index + 6] = new FrustumLineData(farBottomRight, farBottomLeft, center, rotation, originColor);
+            Result[LineCount * index + 7] = new FrustumLineData(farBottomLeft, farTopLeft, center, rotation, originColor);
 
-            Result[LineCount * index + 8] = new FrustumLineData(nearTopLeft, farTopLeft, center, rotation, color);
-            Result[LineCount * index + 9] = new FrustumLineData(nearTopRight, farTopRight, center, rotation, color);
-            Result[LineCount * index + 10] = new FrustumLineData(nearBottomRight, farBottomRight, center, rotation, color);
-            Result[LineCount * index + 11] = new FrustumLineData(nearBottomLeft, farBottomLeft, center, rotation, color);
+            Result[LineCount * index + 8] = new FrustumLineData(nearTopLeft, farTopLeft, center, rotation, originColor);
+            Result[LineCount * index + 9] = new FrustumLineData(nearTopRight, farTopRight, center, rotation, originColor);
+            Result[LineCount * index + 10] = new FrustumLineData(nearBottomRight, farBottomRight, center, rotation, originColor);
+            Result[LineCount * index + 11] = new FrustumLineData(nearBottomLeft, farBottomLeft, center, rotation, originColor);
         }
     }
 }

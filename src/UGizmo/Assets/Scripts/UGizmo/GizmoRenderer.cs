@@ -5,12 +5,13 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace UGizmo
 {
     public interface IGizmoUpdater : IDisposable
     {
-        JobHandle CreateJobHandle(int frameDivision);
+        JobHandle CreateJobHandle();
         void Render(CommandBuffer commandBuffer);
     }
 
@@ -24,6 +25,7 @@ namespace UGizmo
         private Mesh mesh;
         private Material material;
         private GraphicsBuffer graphicsBuffer;
+        private MaterialPropertyBlock propertyBlock;
         private int maxRenderingCount;
         private static readonly int renderBuffer = Shader.PropertyToID("_RenderBuffer");
 
@@ -45,9 +47,11 @@ namespace UGizmo
             RenderBuffer = new NativeArray<RenderData>(maxRenderingCount, Allocator.Persistent);
 
             graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, maxRenderingCount, Marshal.SizeOf<RenderData>());
+            propertyBlock = new MaterialPropertyBlock();
+            propertyBlock.SetBuffer(renderBuffer, graphicsBuffer);
         }
 
-        public abstract JobHandle CreateJobHandle(int frameDivision);
+        public abstract JobHandle CreateJobHandle();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(in TJobData data)
@@ -63,21 +67,19 @@ namespace UGizmo
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Render(CommandBuffer commandBuffer)
         {
-            int renderCount = InstanceCount * RenderPerInstance;
-
-            if (renderCount == 0)
+            if (InstanceCount == 0)
             {
                 return;
             }
 
-            material.SetBuffer(renderBuffer, graphicsBuffer);
+            int renderCount = InstanceCount * RenderPerInstance;
             graphicsBuffer.SetData(RenderBuffer, 0, 0, renderCount);
-            commandBuffer.DrawMeshInstancedProcedural(mesh, 0, material, 0, renderCount);
-            Reset();
+            commandBuffer.DrawMeshInstancedProcedural(mesh, 0, material, 0, renderCount, propertyBlock);
+            Clear();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Reset()
+        public void Clear()
         {
             InstanceCount = 0;
         }

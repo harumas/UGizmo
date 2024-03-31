@@ -18,10 +18,6 @@ namespace UGizmo.Extension.Jobs
         [WriteOnly]
         public RenderData* Result;
 
-        public int MaxInstanceCount;
-
-        private static readonly int stride = UnsafeUtility.SizeOf<float4>();
-
         [BurstCompile]
         public void Execute([AssumeRange(0, int.MaxValue)] int index)
         {

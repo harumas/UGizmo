@@ -2,6 +2,7 @@
 using UnityEngine;
 using UGizmo;
 using UnityEditor;
+using UnityEditor.MPE;
 using Random = UnityEngine.Random;
 
 public class UGizmoTester : MonoBehaviour
@@ -23,13 +24,12 @@ public class UGizmoTester : MonoBehaviour
         positions = new List<Vector3>();
         points = new List<Vector3>();
 
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < 5000; i++)
         {
             positions.Add(Random.insideUnitSphere * 50f);
             radius.Add(Random.Range(1f, 10f));
             colors.Add(Random.ColorHSV(0.5f, 1f));
         }
-
 
         for (int i = 0; i < 1000; i++)
         {
@@ -41,9 +41,12 @@ public class UGizmoTester : MonoBehaviour
     {
         for (int i = 0; i < positions.Count; i++)
         {
-            UGizmos.DrawWireSphere(positions[i], radius[i], colors[i]);
+            UGizmos.DrawWireCube(positions[i], radius[i], colors[i]);
         }
 
+        UGizmos.DrawFrustum(Camera.main, Color.red);
+        //
+        // UGizmos.DrawLine(Vector3.zero, Vector3.up * 10f);
         // Vector3 before = Vector3.zero;
         // for (var i = 0; i < points.Count; i++)
         // {

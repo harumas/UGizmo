@@ -22,26 +22,23 @@ namespace UGizmo.Extension
             frustumLineData = new NativeArray<FrustumLineData>(MaxInstanceCount * RenderPerInstance, Allocator.Persistent);
         }
 
-        public override JobHandle CreateJobHandle(int frameDivision)
+        public override JobHandle CreateJobHandle()
         {
-            int jobCount = InstanceCount / frameDivision;
-
             JobHandle prepareDataJob = new CreateFrustumJob()
             {
-                GizmoDataPtr = (FrustumData*)JobData.GetUnsafeReadOnlyPtr() + jobCount,
+                GizmoDataPtr = (FrustumData*)JobData.GetUnsafeReadOnlyPtr(),
                 Result = (FrustumLineData*)frustumLineData.GetUnsafePtr()
-            }.Schedule(jobCount, 8);
+            }.Schedule(InstanceCount, 8);
 
             fixed (RenderData* buffer = RenderBuffer.AsSpan())
             {
                 CreateFrustumLineJob createJob = new CreateFrustumLineJob()
                 {
                     GizmoDataPtr = (FrustumLineData*)frustumLineData.GetUnsafeReadOnlyPtr(),
-                    MaxInstanceCount = MaxInstanceCount * RenderPerInstance,
                     Result = buffer
                 };
 
-                return createJob.Schedule(jobCount * RenderPerInstance, 16, prepareDataJob);
+                return createJob.Schedule(InstanceCount * RenderPerInstance, 16, prepareDataJob);
             }
         }
 

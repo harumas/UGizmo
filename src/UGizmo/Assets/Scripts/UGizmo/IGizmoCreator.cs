@@ -5,7 +5,7 @@ namespace UGizmo
 {
     public interface IGizmoCreator
     {
-        void Create(GizmoRendererFeature dispatcher);
+        void Create(GizmoInstanceActivator dispatcher);
     }
 
     public abstract class GizmoAsset<TRenderer, TJobData> : IGizmoCreator
@@ -15,9 +15,9 @@ namespace UGizmo
         public abstract string MeshName { get; }
         public abstract string MaterialName { get; }
 
-        public void Create(GizmoRendererFeature dispatcher)
+        public void Create(GizmoInstanceActivator activator)
         {
-            dispatcher.Register<TRenderer, TJobData>(this);
+            activator.Register<TRenderer, TJobData>(this);
         }
     }
 }

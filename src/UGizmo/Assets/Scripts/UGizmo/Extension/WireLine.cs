@@ -12,20 +12,17 @@ namespace UGizmo.Extension
 
     public sealed unsafe class WireLine : GizmoRenderer<LineData>
     {
-        public override JobHandle CreateJobHandle(int frameDivision)
+        public override JobHandle CreateJobHandle()
         {
-            int jobCount = InstanceCount / frameDivision;
-
             fixed (RenderData* buffer = RenderBuffer.AsSpan())
             {
                 var createJob = new CreateWireLineJob()
                 {
-                    GizmoDataPtr = (LineData*)JobData.GetUnsafeReadOnlyPtr() + jobCount,
-                    MaxInstanceCount = MaxInstanceCount,
+                    GizmoDataPtr = (LineData*)JobData.GetUnsafeReadOnlyPtr(),
                     Result = buffer
                 };
 
-                return createJob.Schedule(jobCount, 16);
+                return createJob.Schedule(InstanceCount, 16);
             }
         }
     }
