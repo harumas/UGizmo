@@ -5,19 +5,23 @@ using UnityEngine;
 
 namespace UGizmo
 {
-    public class GizmoInstanceActivator
+    public class GizmoInstanceActivator : IDisposable
     {
-        private NoResizableList<IGizmoUpdater> updaters;
-        
-        public NoResizableList<IGizmoUpdater> CreateInstance()
-        {
-            updaters = new NoResizableList<IGizmoUpdater>();
-            RegisterAllElement();
+        public NoResizableList<IGizmoRenderer> Updaters;
+        public NoResizableList<IPreparingJobScheduler> Schedulers;
 
-            return updaters;
+        public void Activate()
+        {
+            Updaters = new NoResizableList<IGizmoRenderer>();
+            Schedulers = new NoResizableList<IPreparingJobScheduler>();
+
+            RegisterElements();
+
+            var sortedArray = Updaters.Take(Updaters.Count).OrderBy(renderer => renderer.RenderQueue).ToArray();
+            Updaters.SetArray(sortedArray);
         }
-        
-        private void RegisterAllElement()
+
+        private void RegisterElements()
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
@@ -25,18 +29,29 @@ namespace UGizmo
             {
                 foreach (var type in types)
                 {
-                    if ((type.IsClass && type.IsAbstract) || !type.GetInterfaces().Contains(typeof(IGizmoCreator)))
+                    if (type.IsClass && type.IsAbstract)
                     {
                         continue;
                     }
 
-                    var gizmoElement = (IGizmoCreator)Activator.CreateInstance(type);
-                    gizmoElement.Create(this);
+                    Type[] interfaces = type.GetInterfaces();
+
+                    if (interfaces.Contains(typeof(IGizmoCreator)))
+                    {
+                        var gizmoElement = (IGizmoCreator)Activator.CreateInstance(type);
+                        gizmoElement.Create(this);
+                    }
+                    else if (interfaces.Contains(typeof(IPreparingJobScheduler)))
+                    {
+                        var scheduler = (IPreparingJobScheduler)Activator.CreateInstance(type);
+                        scheduler.Register(this);
+                    }
                 }
             }
         }
 
-        internal void Register<TRenderer, TJobData>(GizmoAsset<TRenderer, TJobData> asset)
+
+        internal void RegisterRenderer<TRenderer, TJobData>(GizmoAsset<TRenderer, TJobData> asset)
             where TRenderer : GizmoRenderer<TJobData>, new()
             where TJobData : unmanaged
         {
@@ -45,7 +60,24 @@ namespace UGizmo
             gizmoRenderer.Initialize(mesh, material);
 
             Gizmo<TRenderer, TJobData>.Initialize(gizmoRenderer);
-            updaters.Add(gizmoRenderer);
+            Updaters.Add(gizmoRenderer);
+        }
+
+        internal void RegisterScheduler<TPreparingScheduler, TPrepareData>()
+            where TPreparingScheduler : PreparingJobScheduler<TPreparingScheduler, TPrepareData>, new()
+            where TPrepareData : unmanaged
+        {
+            TPreparingScheduler preparableGizmo = new TPreparingScheduler();
+            PreparableGizmo<TPreparingScheduler, TPrepareData>.Initialize(preparableGizmo);
+            Schedulers.Add(preparableGizmo);
+        }
+
+        public void Dispose()
+        {
+            foreach (var gizmoRenderer in Updaters.AsSpan())
+            {
+                gizmoRenderer.Dispose();
+            }
         }
     }
 }

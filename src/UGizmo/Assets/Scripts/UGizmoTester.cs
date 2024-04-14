@@ -2,7 +2,6 @@
 using UnityEngine;
 using UGizmo;
 using UnityEditor;
-using UnityEditor.MPE;
 using Random = UnityEngine.Random;
 
 public class UGizmoTester : MonoBehaviour
@@ -16,6 +15,8 @@ public class UGizmoTester : MonoBehaviour
 
     [SerializeField] private Transform pointA;
     [SerializeField] private Transform pointB;
+
+    [SerializeField] private float width;
 
     private void OnValidate()
     {
@@ -39,13 +40,18 @@ public class UGizmoTester : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        for (int i = 0; i < positions.Count; i++)
-        {
-            UGizmos.DrawWireCube(positions[i], radius[i], colors[i]);
-        }
-
-        UGizmos.DrawFrustum(Camera.main, Color.red);
+        // for (int i = 0; i < positions.Count; i++)
+        // {
+        //     UGizmos.DrawWireCube(positions[i], radius[i], colors[i]);
+        // }
         //
+
+        // UGizmos.DrawWirePlane(transform.position, Vector3.forward, new Vector2(3f, 3f), Color.red);
+        UGizmos.DrawCircle2D(transform.position, 1f, Color.red);
+
+        Handles.Label(transform.position, "Text");
+
+
         // UGizmos.DrawLine(Vector3.zero, Vector3.up * 10f);
         // Vector3 before = Vector3.zero;
         // for (var i = 0; i < points.Count; i++)

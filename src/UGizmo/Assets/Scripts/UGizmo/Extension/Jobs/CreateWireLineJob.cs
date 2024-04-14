@@ -25,16 +25,29 @@ namespace UGizmo.Extension.Jobs
             LineData* renderData = GizmoDataPtr + index;
 
             float3 diff = renderData->End - renderData->Start;
-            float3 position = (float3)renderData->Start + diff * 0.5f;
-            float lengthE = math.length(diff);
+            float3 position = renderData->Start + diff * 0.5f;
+            float length = math.length(diff);
 
-            float cos = (1 + math.clamp(diff.z / lengthE, -1f, 1f)) * 0.5f;
-            float3 axis = math.normalize(new float3(-diff.y, diff.x, 0f));
+            float cos = (1 + math.clamp(diff.z / length, -1f, 1f)) * 0.5f;
+            float3 axis = math.normalizesafe(new float3(-diff.y, diff.x, 0f), new float3(0f, 0f, 1f));
             quaternion rotation = new quaternion(new float4(axis * math.sqrt(1 - cos), math.sqrt(cos)));
-            
-            float4x4 matrix = float4x4.TRS(position, rotation, new float3(0f, 0f, lengthE));
+            float4x4 matrix = float4x4.TRS(position, rotation, new float3(0f, 0f, length));
 
             Result[index] = new RenderData(matrix, renderData->Color);
+        }
+    }
+
+    public struct LineData
+    {
+        public readonly float3 Start;
+        public readonly float3 End;
+        public readonly Color Color;
+
+        public LineData(float3 start, float3 end, Color color)
+        {
+            Start = start;
+            End = end;
+            Color = color;
         }
     }
 }

@@ -1,29 +1,29 @@
 ﻿using UGizmo.Extension.Jobs;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
+using Unity.Mathematics;
+using UnityEngine;
 
 namespace UGizmo.Extension
 {
     public sealed class WireLineAsset : GizmoAsset<WireLine, LineData>
     {
         public override string MeshName => "WireLine";
-        public override string MaterialName => "Common";
+        public override string MaterialName => "CommonWire";
     }
 
     public sealed unsafe class WireLine : GizmoRenderer<LineData>
     {
+        public override int RenderQueue { get; protected set; } = 3000;
+
         public override JobHandle CreateJobHandle()
         {
-            fixed (RenderData* buffer = RenderBuffer.AsSpan())
+            var createJob = new CreateWireLineJob()
             {
-                var createJob = new CreateWireLineJob()
-                {
-                    GizmoDataPtr = (LineData*)JobData.GetUnsafeReadOnlyPtr(),
-                    Result = buffer
-                };
+                GizmoDataPtr = JobDataPtr,
+                Result = RenderBufferPtr
+            };
 
-                return createJob.Schedule(InstanceCount, 16);
-            }
+            return createJob.Schedule(InstanceCount, 16, Dependency);
         }
     }
 }

@@ -39,7 +39,6 @@ namespace UGizmo
         {
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(transform.position,4f);
-            UGizmos.DrawWireSphere(transform.position, 4f);
         }
     }
 }

@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace UGizmo
 {
-    public sealed class NoResizableList<T>
+    public sealed class NoResizableList<T> : IEnumerable<T>
     {
-        private readonly T[] items;
+        private T[] items;
         private int count;
 
         public NoResizableList(int capacity = 64)
@@ -29,6 +32,11 @@ namespace UGizmo
             set => items[index] = value;
         }
 
+        public void SetArray(T[] items)
+        {
+            this.items = items;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(T item)
         {
@@ -44,6 +52,16 @@ namespace UGizmo
         public void Clear()
         {
             count = 0;
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return items.AsEnumerable().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

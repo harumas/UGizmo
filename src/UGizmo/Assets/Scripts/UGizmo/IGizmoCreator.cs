@@ -1,7 +1,4 @@
-﻿using System;
-using UnityEngine;
-
-namespace UGizmo
+﻿namespace UGizmo
 {
     public interface IGizmoCreator
     {
@@ -17,7 +14,7 @@ namespace UGizmo
 
         public void Create(GizmoInstanceActivator activator)
         {
-            activator.Register<TRenderer, TJobData>(this);
+            activator.RegisterRenderer<TRenderer, TJobData>(this);
         }
     }
 }

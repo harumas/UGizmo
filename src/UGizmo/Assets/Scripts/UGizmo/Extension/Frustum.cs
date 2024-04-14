@@ -1,51 +1,24 @@
 ﻿using UGizmo.Extension.Jobs;
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
 
 namespace UGizmo.Extension
 {
-    public sealed class FrustumAsset : GizmoAsset<Frustum, FrustumData>
+    public sealed unsafe class Frustum : PreparingJobScheduler<Frustum, FrustumData>
     {
-        public override string MeshName => "WireLine";
-        public override string MaterialName => "Common";
-    }
+        private const int LineCount = 12;
 
-    public sealed unsafe class Frustum : GizmoRenderer<FrustumData>
-    {
-        private NativeArray<FrustumLineData> frustumLineData;
-
-        public Frustum() : base()
+        public override void Schedule()
         {
-            RenderPerInstance = 12;
-            frustumLineData = new NativeArray<FrustumLineData>(MaxInstanceCount * RenderPerInstance, Allocator.Persistent);
-        }
+            var buffer = Gizmo<WireLine, LineData>.Reserve(InstanceCount * LineCount);
 
-        public override JobHandle CreateJobHandle()
-        {
-            JobHandle prepareDataJob = new CreateFrustumJob()
+            JobHandle jobHandle = new CreateFrustumJob()
             {
-                GizmoDataPtr = (FrustumData*)JobData.GetUnsafeReadOnlyPtr(),
-                Result = (FrustumLineData*)frustumLineData.GetUnsafePtr()
-            }.Schedule(InstanceCount, 8);
+                GizmoDataPtr = JobDataPtr,
+                Result = buffer
+            }.Schedule(InstanceCount, 16);
 
-            fixed (RenderData* buffer = RenderBuffer.AsSpan())
-            {
-                CreateFrustumLineJob createJob = new CreateFrustumLineJob()
-                {
-                    GizmoDataPtr = (FrustumLineData*)frustumLineData.GetUnsafeReadOnlyPtr(),
-                    Result = buffer
-                };
-
-                return createJob.Schedule(InstanceCount * RenderPerInstance, 16, prepareDataJob);
-            }
-        }
-
-        public override void Dispose()
-        {
-            frustumLineData.Dispose();
-            base.Dispose();
+            Gizmo<WireLine, LineData>.AddDependency(jobHandle);
         }
     }
 }
