@@ -1,9 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
-using UGizmo.Extension;
-using UGizmo.Extension.Jobs;
+using UGizmo.Internal;
+using UGizmo.Internal.Extension;
+using UGizmo.Internal.Extension.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
-using Plane = UGizmo.Extension.Plane;
+using Plane = UGizmo.Internal.Extension.Plane;
 
 namespace UGizmo
 {

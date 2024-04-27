@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using UGizmo.Extension;
-using UGizmo.Extension.Jobs;
+using UGizmo.Internal;
+using UGizmo.Internal.Extension.Jobs;
 using Unity.Burst;
 using Unity.Mathematics;
 using UnityEditor;
@@ -433,7 +433,6 @@ namespace UGizmo
 
         #endregion
 
-
         #region Physics
 
         public static bool Raycast(Vector3 origin,
@@ -613,7 +612,6 @@ namespace UGizmo
         }
 
         #endregion
-
 
         #region Physics2D
 
