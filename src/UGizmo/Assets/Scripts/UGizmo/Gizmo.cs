@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using Unity.Jobs;
+﻿using System.Runtime.CompilerServices;
 
 namespace UGizmo
 {
@@ -24,19 +22,16 @@ namespace UGizmo
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddDataRange(TJobData* data, int length)
         {
-            gizmoRenderer.AddRange(data, length);
+            for (int i = 0; i < length; i++)
+            {
+                gizmoRenderer.Add(*(data + i));
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TJobData* Reserve(int count)
         {
             return gizmoRenderer.Reserve(count);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddDependency(JobHandle jobHandle)
-        {
-            gizmoRenderer.AddDependency(jobHandle);
         }
     }
 

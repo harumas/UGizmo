@@ -1,6 +1,5 @@
 ﻿using UGizmo.Extension.Jobs;
 using Unity.Jobs;
-using UnityEngine;
 
 namespace UGizmo.Extension
 {
@@ -8,7 +7,7 @@ namespace UGizmo.Extension
     {
         private const int LineCount = 12;
 
-        public override void Schedule()
+        public override JobHandle Schedule()
         {
             var buffer = Gizmo<WireLine, LineData>.Reserve(InstanceCount * LineCount);
 
@@ -18,7 +17,7 @@ namespace UGizmo.Extension
                 Result = buffer
             }.Schedule(InstanceCount, 16);
 
-            Gizmo<WireLine, LineData>.AddDependency(jobHandle);
+            return jobHandle;
         }
     }
 }

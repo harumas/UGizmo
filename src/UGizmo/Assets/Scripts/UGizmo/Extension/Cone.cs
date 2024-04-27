@@ -1,5 +1,4 @@
 ﻿using UGizmo.Extension.Jobs;
-using Unity.Jobs;
 
 namespace UGizmo.Extension
 {
@@ -9,17 +8,7 @@ namespace UGizmo.Extension
         public override string MaterialName => "CommonMesh";
     }
 
-    public sealed unsafe class Cone : GizmoRenderer<ConeData>
+    public sealed class Cone : GizmoRenderer<ConeData>
     {
-        public override JobHandle CreateJobHandle()
-        {
-            var createJob = new CreateConeJob()
-            {
-                GizmoDataPtr = JobDataPtr,
-                Result = RenderBufferPtr
-            };
-
-            return createJob.Schedule(InstanceCount, 16, Dependency);
-        }
     }
 }

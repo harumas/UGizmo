@@ -5,7 +5,7 @@ namespace UGizmo.Extension
 {
     public sealed unsafe class WireCylinder : PreparingJobScheduler<WireCylinder, CapsuleData>
     {
-        public override void Schedule()
+        public override JobHandle Schedule()
         {
             PrimitiveData* circleBuffer = Gizmo<WireCircle, PrimitiveData>.Reserve(InstanceCount * 2);
             LineData* lineBuffer = Gizmo<WireLine, LineData>.Reserve(InstanceCount * 4);
@@ -17,8 +17,7 @@ namespace UGizmo.Extension
                 LineResult = lineBuffer
             }.Schedule(InstanceCount, 16);
 
-            Gizmo<WireLine, LineData>.AddDependency(createHandle);
-            Gizmo<WireCircle, PrimitiveData>.AddDependency(createHandle);
+           return createHandle;
         }
     }
 }

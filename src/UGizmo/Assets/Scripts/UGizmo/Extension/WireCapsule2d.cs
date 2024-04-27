@@ -5,20 +5,19 @@ namespace UGizmo.Extension
 {
     public sealed unsafe class WireCapsule2d : PreparingJobScheduler<WireCapsule2d, Capsule2dData>
     {
-        public override void Schedule()
+        public override JobHandle Schedule()
         {
             PrimitiveData* semicircleBuffer = Gizmo<WireSemicircle, PrimitiveData>.Reserve(InstanceCount * 2);
             LineData* lineBuffer = Gizmo<WireLine, LineData>.Reserve(InstanceCount * 2);
             
-            var createJob = new CreateWireCapsule2dJob()
+            JobHandle createJob = new CreateWireCapsule2dJob()
             {
                 GizmoDataPtr = JobDataPtr,
                 WireSemicircleResult = semicircleBuffer,
                 LineResult = lineBuffer,
             }.Schedule(InstanceCount, 16);
-            
-            Gizmo<Semicircle, PrimitiveData>.AddDependency(createJob);
-            Gizmo<Plane, PrimitiveData>.AddDependency(createJob);
+
+            return createJob;
         }
     }
 }

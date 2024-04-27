@@ -5,7 +5,7 @@ namespace UGizmo.Extension
 {
     public sealed unsafe class WirePlane : PreparingJobScheduler<WirePlane, PrimitiveData>
     {
-        public override void Schedule()
+        public override JobHandle Schedule()
         {
             LineData* planeBuffer = Gizmo<WireLine, LineData>.Reserve(InstanceCount * 4);
 
@@ -15,7 +15,7 @@ namespace UGizmo.Extension
                 Result = planeBuffer
             }.Schedule(InstanceCount, 16);
 
-            Gizmo<WireLine, LineData>.AddDependency(createHandle);
+            return createHandle;
         }
     }
 }

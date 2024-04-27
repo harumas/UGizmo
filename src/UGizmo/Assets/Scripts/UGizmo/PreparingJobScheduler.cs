@@ -1,13 +1,12 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Unity.Jobs;
 
 namespace UGizmo
 {
     public interface IPreparingJobScheduler
     {
-        void Schedule();
         void Register(GizmoInstanceActivator activator);
+        JobHandle Schedule();
         void Clear();
     }
 
@@ -15,7 +14,7 @@ namespace UGizmo
         where TPreparingScheduler : PreparingJobScheduler<TPreparingScheduler, TPrepareData>, new()
         where TPrepareData : unmanaged
     {
-        protected TPrepareData[] JobData;
+        private readonly TPrepareData[] jobData;
         protected int InstanceCount;
         private int maxInstanceCount = 8192;
 
@@ -23,7 +22,7 @@ namespace UGizmo
         {
             get
             {
-                fixed (TPrepareData* ptr = JobData)
+                fixed (TPrepareData* ptr = jobData)
                 {
                     return ptr;
                 }
@@ -32,21 +31,16 @@ namespace UGizmo
 
         protected PreparingJobScheduler()
         {
-            JobData = new TPrepareData[maxInstanceCount];
+            jobData = new TPrepareData[maxInstanceCount];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(in TPrepareData data)
         {
-            if (InstanceCount >= JobData.Length)
-            {
-                return;
-            }
-
-            JobData[InstanceCount++] = data;
+            jobData[InstanceCount++] = data;
         }
 
-        public abstract void Schedule();
+        public abstract JobHandle Schedule();
 
         public void Register(GizmoInstanceActivator activator)
         {

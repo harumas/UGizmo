@@ -8,12 +8,14 @@ namespace UGizmo
     public class GizmoInstanceActivator : IDisposable
     {
         public NoResizableList<IGizmoRenderer> Updaters;
-        public NoResizableList<IPreparingJobScheduler> Schedulers;
+        public NoResizableList<IPreparingJobScheduler> PreparingJobSchedulers;
+        public NoResizableList<IGizmoJobScheduler> JobSchedulers;
 
         public void Activate()
         {
             Updaters = new NoResizableList<IGizmoRenderer>();
-            Schedulers = new NoResizableList<IPreparingJobScheduler>();
+            PreparingJobSchedulers = new NoResizableList<IPreparingJobScheduler>();
+            JobSchedulers = new NoResizableList<IGizmoJobScheduler>();
 
             RegisterElements();
 
@@ -43,13 +45,17 @@ namespace UGizmo
                     }
                     else if (interfaces.Contains(typeof(IPreparingJobScheduler)))
                     {
-                        var scheduler = (IPreparingJobScheduler)Activator.CreateInstance(type);
-                        scheduler.Register(this);
+                        var preparingJobScheduler = (IPreparingJobScheduler)Activator.CreateInstance(type);
+                        preparingJobScheduler.Register(this);
+                    }
+                    else if (interfaces.Contains(typeof(IGizmoJobScheduler)))
+                    {
+                        var jobScheduler = (IGizmoJobScheduler)Activator.CreateInstance(type);
+                        JobSchedulers.Add(jobScheduler);
                     }
                 }
             }
         }
-
 
         internal void RegisterRenderer<TRenderer, TJobData>(GizmoAsset<TRenderer, TJobData> asset)
             where TRenderer : GizmoRenderer<TJobData>, new()
@@ -69,7 +75,7 @@ namespace UGizmo
         {
             TPreparingScheduler preparableGizmo = new TPreparingScheduler();
             PreparableGizmo<TPreparingScheduler, TPrepareData>.Initialize(preparableGizmo);
-            Schedulers.Add(preparableGizmo);
+            PreparingJobSchedulers.Add(preparableGizmo);
         }
 
         public void Dispose()
@@ -77,6 +83,11 @@ namespace UGizmo
             foreach (var gizmoRenderer in Updaters.AsSpan())
             {
                 gizmoRenderer.Dispose();
+            }
+
+            foreach (var jobScheduler in JobSchedulers.AsSpan())
+            {
+                jobScheduler.Dispose();
             }
         }
     }

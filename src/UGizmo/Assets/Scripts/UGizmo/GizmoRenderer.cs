@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using UGizmo.Extension;
 using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -13,8 +12,6 @@ namespace UGizmo
     public interface IGizmoRenderer : IDisposable
     {
         int RenderQueue { get; }
-
-        JobHandle CreateJobHandle();
         void Render(CommandBuffer commandBuffer);
     }
 
@@ -23,16 +20,16 @@ namespace UGizmo
     {
         public virtual int RenderQueue { get; protected set; } = 1000;
 
-        protected NativeArray<TJobData> JobData;
-        protected NativeArray<RenderData> RenderBuffer;
-        protected JobHandle Dependency = default;
-        protected int MaxInstanceCount = 8192;
+        private NativeArray<int> handleData;
+        private NativeArray<RenderData> renderBuffer;
+        private int maxInstanceCount = 8192;
 
         private Mesh mesh;
         private Material material;
         private GraphicsBuffer graphicsBuffer;
+        private SharedGizmoBuffer<TJobData> gizmoBuffer;
         private MaterialPropertyBlock propertyBlock;
-        private static readonly int renderBuffer = Shader.PropertyToID("_RenderBuffer");
+        private static readonly int renderBufferProperty = Shader.PropertyToID("_RenderBuffer");
 
         protected int InstanceCount
         {
@@ -42,67 +39,38 @@ namespace UGizmo
             private set;
         }
 
-        protected TJobData* JobDataPtr => (TJobData*)JobData.GetUnsafePtr();
-        protected RenderData* RenderBufferPtr => (RenderData*)RenderBuffer.GetUnsafePtr();
-
         public void Initialize(Mesh mesh, Material material)
         {
             this.mesh = mesh;
             this.material = material;
 
-            JobData = new NativeArray<TJobData>(MaxInstanceCount, Allocator.Persistent);
-            RenderBuffer = new NativeArray<RenderData>(MaxInstanceCount, Allocator.Persistent);
+            handleData = new NativeArray<int>(maxInstanceCount, Allocator.Persistent);
+            renderBuffer = new NativeArray<RenderData>(maxInstanceCount, Allocator.Persistent);
 
-            graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, MaxInstanceCount, Marshal.SizeOf<RenderData>());
+            graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, maxInstanceCount, Marshal.SizeOf<RenderData>());
+            gizmoBuffer = SharedGizmoBuffer<TJobData>.GetSharedBuffer();
             propertyBlock = new MaterialPropertyBlock();
-            propertyBlock.SetBuffer(renderBuffer, graphicsBuffer);
+            propertyBlock.SetBuffer(renderBufferProperty, graphicsBuffer);
         }
-
-        public abstract JobHandle CreateJobHandle();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(in TJobData data)
         {
-            if (InstanceCount >= JobData.Length)
-            {
-                return;
-            }
-
-            JobData[InstanceCount++] = data;
-        }
-
-        [BurstCompile]
-        public void AddRange(TJobData* data, int length)
-        {
-            if (InstanceCount + length - 1 >= JobData.Length)
-            {
-                return;
-            }
-
-            for (int i = 0; i < length; i++)
-            {
-                JobData[InstanceCount + i] = *(data + i);
-            }
-
-            InstanceCount += length;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddDependency(JobHandle jobHandle)
-        {
-            Dependency = JobHandle.CombineDependencies(Dependency, jobHandle);
+            handleData[InstanceCount++] = gizmoBuffer.Add(data);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TJobData* Reserve(int count)
         {
-            if (InstanceCount + count >= JobData.Length)
-            {
-                throw new OutOfMemoryException();
-            }
-
-            TJobData* ptr = (TJobData*)JobData.GetUnsafePtr() + InstanceCount;
+            int offset = InstanceCount;
             InstanceCount += count;
+            (int start, int length) handle = gizmoBuffer.Reserve(count, out TJobData* ptr);
+
+            for (int i = 0; i < handle.length; i++)
+            {
+                handleData[offset + i] = handle.start + i;
+            }
+            
             return ptr;
         }
 
@@ -114,7 +82,8 @@ namespace UGizmo
                 return;
             }
 
-            graphicsBuffer.SetData(RenderBuffer, 0, 0, InstanceCount);
+            gizmoBuffer.SetRenderData(handleData, renderBuffer, InstanceCount);
+            graphicsBuffer.SetData(renderBuffer, 0, 0, InstanceCount);
             commandBuffer.DrawMeshInstancedProcedural(mesh, 0, material, -1, InstanceCount, propertyBlock);
             Clear();
         }
@@ -123,13 +92,12 @@ namespace UGizmo
         private void Clear()
         {
             InstanceCount = 0;
-            Dependency = default;
         }
 
         public void Dispose()
         {
-            RenderBuffer.Dispose();
-            JobData.Dispose();
+            renderBuffer.Dispose();
+            handleData.Dispose();
             graphicsBuffer.Dispose();
         }
     }

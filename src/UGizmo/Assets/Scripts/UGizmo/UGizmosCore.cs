@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using UGizmo.Extension;
 using UGizmo.Extension.Jobs;
 using Unity.Mathematics;

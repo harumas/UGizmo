@@ -5,7 +5,7 @@ namespace UGizmo.Extension
 {
     public unsafe class Arrow2d : PreparingJobScheduler<Arrow2d, Arrow2dData>
     {
-        public override void Schedule()
+        public override JobHandle Schedule()
         {
             PrimitiveData* planeBuffer = Gizmo<Plane, PrimitiveData>.Reserve(InstanceCount);
             PrimitiveData* triangleBuffer = Gizmo<Triangle, PrimitiveData>.Reserve(InstanceCount);
@@ -19,9 +19,7 @@ namespace UGizmo.Extension
                 LineResult = lineBuffer
             }.Schedule(InstanceCount, 16);
 
-            Gizmo<WireLine, LineData>.AddDependency(createHandle);
-            Gizmo<Triangle, PrimitiveData>.AddDependency(createHandle);
-            Gizmo<Plane, PrimitiveData>.AddDependency(createHandle);
+            return createHandle;
         }
     }
 }

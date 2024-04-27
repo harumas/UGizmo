@@ -1,12 +1,11 @@
-﻿using UGizmo.Extension;
-using UGizmo.Extension.Jobs;
+﻿using UGizmo.Extension.Jobs;
 using Unity.Jobs;
 
-namespace UGizmo
+namespace UGizmo.Extension
 {
     public unsafe class WireTriangle : PreparingJobScheduler<WireTriangle, PrimitiveData>
     {
-        public override void Schedule()
+        public override JobHandle Schedule()
         {
             LineData* lineBuffer = Gizmo<WireLine, LineData>.Reserve(InstanceCount * 3);
 
@@ -16,7 +15,7 @@ namespace UGizmo
                 Result = lineBuffer
             }.Schedule(InstanceCount, 16);
 
-            Gizmo<WireLine, LineData>.AddDependency(createHandle);
+            return createHandle;
         }
     }
 }

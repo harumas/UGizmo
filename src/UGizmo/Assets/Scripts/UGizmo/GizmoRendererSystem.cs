@@ -1,4 +1,5 @@
 ﻿using System;
+using UGizmo.Extension;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEditor;
@@ -10,20 +11,22 @@ namespace UGizmo
     public class DisposeEvent : ScriptableSingleton<DisposeEvent>
     {
         public event Action Dispose;
-        
+
         private void OnDisable()
         {
             Dispose?.Invoke();
             Dispose = null;
         }
     }
-    
+
     public static class GizmoRendererSystem
     {
         private static ProfilingSampler profilingSampler;
-        private static NoResizableList<IGizmoRenderer> updaters;
+        private static NoResizableList<IGizmoRenderer> renderers;
+        private static NoResizableList<IPreparingJobScheduler> preparingJobSchedulers;
+        private static NoResizableList<IGizmoJobScheduler> jobSchedulers;
         private static GizmoInstanceActivator activator;
-        private static NoResizableList<IPreparingJobScheduler> schedulers;
+        private static NativeArray<JobHandle> preparingJobHandles;
         private static NativeArray<JobHandle> jobHandles;
 
         [InitializeOnLoadMethod]
@@ -32,13 +35,15 @@ namespace UGizmo
             RenderPipelineManager.endFrameRendering += OnEndCameraRendering;
             DisposeEvent.instance.Dispose += OnDispose;
             profilingSampler = new ProfilingSampler("DrawUGizmos");
+            preparingJobHandles = new NativeArray<JobHandle>(64, Allocator.Persistent);
             jobHandles = new NativeArray<JobHandle>(64, Allocator.Persistent);
 
             activator = new GizmoInstanceActivator();
             activator.Activate();
 
-            updaters = activator.Updaters;
-            schedulers = activator.Schedulers;
+            renderers = activator.Updaters;
+            preparingJobSchedulers = activator.PreparingJobSchedulers;
+            jobSchedulers = activator.JobSchedulers;
         }
 
         private static void OnDispose()
@@ -58,26 +63,33 @@ namespace UGizmo
 
             using (new ProfilingScope(cmd, profilingSampler))
             {
-                foreach (var scheduler in schedulers.AsSpan())
+                int i = 0;
+                foreach (var scheduler in preparingJobSchedulers.AsSpan())
                 {
-                    scheduler.Schedule();
+                    preparingJobHandles[i++] = scheduler.Schedule();
                     scheduler.Clear();
                 }
-                
-                var updaterSpan = updaters.AsSpan();
 
-                int i = 0;
-                foreach (var updater in updaterSpan)
+                JobHandle preparingJobHandle = JobHandle.CombineDependencies(jobHandles.Slice(0, preparingJobSchedulers.Count));
+                preparingJobHandle.Complete();
+
+                i = 0;
+                foreach (var scheduler in jobSchedulers.AsSpan())
                 {
-                    jobHandles[i++] = updater.CreateJobHandle();
+                    jobHandles[i++] = scheduler.Schedule();
                 }
 
-                JobHandle createDataJob = JobHandle.CombineDependencies(jobHandles.Slice(0, updaterSpan.Length));
+                JobHandle createDataJob = JobHandle.CombineDependencies(jobHandles.Slice(0, jobSchedulers.Count));
                 createDataJob.Complete();
 
-                foreach (var updater in updaterSpan)
+                foreach (var updater in renderers.AsSpan())
                 {
                     updater.Render(cmd);
+                }
+                
+                foreach (var scheduler in jobSchedulers.AsSpan())
+                {
+                    scheduler.Clear();
                 }
             }
 

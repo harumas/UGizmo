@@ -1,7 +1,4 @@
 ﻿using UGizmo.Extension.Jobs;
-using Unity.Jobs;
-using Unity.Mathematics;
-using UnityEngine;
 
 namespace UGizmo.Extension
 {
@@ -11,19 +8,8 @@ namespace UGizmo.Extension
         public override string MaterialName => "CommonWire";
     }
 
-    public sealed unsafe class WireLine : GizmoRenderer<LineData>
+    public sealed class WireLine : GizmoRenderer<LineData>
     {
         public override int RenderQueue { get; protected set; } = 3000;
-
-        public override JobHandle CreateJobHandle()
-        {
-            var createJob = new CreateWireLineJob()
-            {
-                GizmoDataPtr = JobDataPtr,
-                Result = RenderBufferPtr
-            };
-
-            return createJob.Schedule(InstanceCount, 16, Dependency);
-        }
     }
 }

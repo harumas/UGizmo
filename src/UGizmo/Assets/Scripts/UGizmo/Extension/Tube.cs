@@ -1,7 +1,6 @@
 ﻿using UGizmo.Extension.Jobs;
-using Unity.Jobs;
 
-namespace UGizmo
+namespace UGizmo.Extension
 {
     public sealed class TubeAsset : GizmoAsset<Tube, PrimitiveData>
     {
@@ -9,17 +8,7 @@ namespace UGizmo
         public override string MaterialName => "CommonMesh";
     }
 
-    public sealed unsafe class Tube : GizmoRenderer<PrimitiveData>
+    public sealed class Tube : GizmoRenderer<PrimitiveData>
     {
-        public override JobHandle CreateJobHandle()
-        {
-            var createJob = new CreatePrimitiveJob()
-            {
-                GizmoDataPtr = JobDataPtr,
-                Result = RenderBufferPtr
-            };
-
-            return createJob.Schedule(InstanceCount, 16, Dependency);
-        }
     }
 }

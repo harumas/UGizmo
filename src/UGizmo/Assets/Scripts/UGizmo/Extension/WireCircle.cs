@@ -1,7 +1,6 @@
 ﻿using UGizmo.Extension.Jobs;
-using Unity.Jobs;
 
-namespace UGizmo
+namespace UGizmo.Extension
 {
     public sealed class WireCircleAsset : GizmoAsset<WireCircle, PrimitiveData>
     {
@@ -9,19 +8,8 @@ namespace UGizmo
         public override string MaterialName => "CommonWire";
     }
 
-    public sealed unsafe class WireCircle : GizmoRenderer<PrimitiveData>
+    public sealed class WireCircle : GizmoRenderer<PrimitiveData>
     {
         public override int RenderQueue { get; protected set; } = 3000;
-        
-        public override JobHandle CreateJobHandle()
-        {
-            var createJob = new CreatePrimitiveJob()
-            {
-                GizmoDataPtr = JobDataPtr,
-                Result = RenderBufferPtr
-            };
-
-            return createJob.Schedule(InstanceCount, 16, Dependency);
-        }
     }
 }
