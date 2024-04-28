@@ -2,21 +2,21 @@
 
 namespace UGizmo.Internal
 {
-    internal static class PreparableGizmo<TPreparingJobScheduler, TPrepareData>
-        where TPreparingJobScheduler : PreparingJobScheduler<TPreparingJobScheduler, TPrepareData>, new()
+    internal static class PreparableGizmo<TScheduler, TPrepareData>
+        where TScheduler : PreparingJobScheduler<TScheduler, TPrepareData>, new()
         where TPrepareData : unmanaged
     {
-        private static TPreparingJobScheduler preparableGizmo;
+        private static TScheduler scheduler;
 
-        public static void Initialize(TPreparingJobScheduler gizmo)
+        public static void Initialize(TScheduler gizmo)
         {
-            preparableGizmo = gizmo;
+            scheduler = gizmo;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddData(in TPrepareData data)
         {
-            preparableGizmo.Add(data);
+            scheduler.Add(data);
         }
     }
 }

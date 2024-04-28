@@ -13,24 +13,24 @@ namespace UGizmo.Internal
         void Clear();
     }
 
-    internal abstract unsafe class PreparingJobScheduler<TPreparingScheduler, TPrepareData> : IPreparingJobScheduler
-        where TPreparingScheduler : PreparingJobScheduler<TPreparingScheduler, TPrepareData>, new()
-        where TPrepareData : unmanaged
+    internal abstract unsafe class PreparingJobScheduler<TScheduler, TJobData> : IPreparingJobScheduler
+        where TScheduler : PreparingJobScheduler<TScheduler, TJobData>, new()
+        where TJobData : unmanaged
     {
         protected int InstanceCount => jobData.Length;
 
         private const int InitialCapacity = 4096;
-        private UnsafeList<TPrepareData> jobData;
+        private UnsafeList<TJobData> jobData;
 
-        protected TPrepareData* JobDataPtr => jobData.Ptr;
+        protected TJobData* JobDataPtr => jobData.Ptr;
 
         protected PreparingJobScheduler()
         {
-            jobData = new UnsafeList<TPrepareData>(InitialCapacity, Allocator.Persistent);
+            jobData = new UnsafeList<TJobData>(InitialCapacity, Allocator.Persistent);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Add(in TPrepareData data)
+        public void Add(in TJobData data)
         {
             jobData.Add(data);
         }
@@ -39,7 +39,7 @@ namespace UGizmo.Internal
 
         public void Register(GizmoInstanceActivator activator)
         {
-            activator.RegisterScheduler<TPreparingScheduler, TPrepareData>((TPreparingScheduler)this);
+            activator.RegisterScheduler<TScheduler, TJobData>((TScheduler)this);
         }
 
         public void Clear()

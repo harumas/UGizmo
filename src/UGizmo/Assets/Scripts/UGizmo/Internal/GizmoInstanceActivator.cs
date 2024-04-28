@@ -69,11 +69,11 @@ namespace UGizmo.Internal
             Updaters.Add(gizmoRenderer);
         }
 
-        internal void RegisterScheduler<TPreparingScheduler, TPrepareData>(TPreparingScheduler scheduler)
-            where TPreparingScheduler : PreparingJobScheduler<TPreparingScheduler, TPrepareData>, new()
-            where TPrepareData : unmanaged
+        internal void RegisterScheduler<TScheduler, TJobData>(TScheduler scheduler)
+            where TScheduler : PreparingJobScheduler<TScheduler, TJobData>, new()
+            where TJobData : unmanaged
         {
-            PreparableGizmo<TPreparingScheduler, TPrepareData>.Initialize(scheduler);
+            PreparableGizmo<TScheduler, TJobData>.Initialize(scheduler);
             PreparingJobSchedulers.Add(scheduler);
         }
 
