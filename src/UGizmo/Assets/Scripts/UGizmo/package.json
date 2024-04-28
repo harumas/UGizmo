@@ -14,5 +14,12 @@
     },
     "author": {
         "name": "Harumaro"
-    }
+    },
+    "samples": [
+        {
+            "displayName": "UGizmo Sample",
+            "description": "Contains gizmo samples",
+            "path": "Sample~/UGizmoSamples"
+        }
+    ]
 }
