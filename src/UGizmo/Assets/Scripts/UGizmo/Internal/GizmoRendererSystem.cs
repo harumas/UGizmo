@@ -12,11 +12,11 @@ namespace UGizmo.Internal
 {
     internal static unsafe class GizmoRendererSystem
     {
-        private static ProfilingSampler profilingSampler;
         private static NoResizableList<IGizmoRenderer> renderers;
         private static NoResizableList<IPreparingJobScheduler> preparingJobSchedulers;
         private static NoResizableList<IGizmoJobScheduler> jobSchedulers;
         private static GizmoInstanceActivator activator;
+        private static CommandBuffer commandBuffer;
         private static UnsafeList<JobHandle> preparingJobHandles;
         private static UnsafeList<JobHandle> jobHandles;
 
@@ -28,12 +28,13 @@ namespace UGizmo.Internal
             RenderPipelineManager.endContextRendering += OnEndCameraRendering;
             DisposeEvent.instance.Dispose += OnDispose;
 
-            profilingSampler = new ProfilingSampler("DrawUGizmos");
             preparingJobHandles = new UnsafeList<JobHandle>(InitialCapacity, Allocator.Persistent);
             jobHandles = new UnsafeList<JobHandle>(InitialCapacity, Allocator.Persistent);
 
             activator = new GizmoInstanceActivator();
             activator.Activate();
+            
+            commandBuffer = new CommandBuffer();
 
             renderers = activator.Updaters;
             preparingJobSchedulers = activator.PreparingJobSchedulers;
@@ -54,29 +55,23 @@ namespace UGizmo.Internal
                 return;
             }
 
-            CommandBuffer cmd = CommandBufferPool.Get();
+            ExecutePrepareGizmoJob();
+            ExecuteGizmoJob();
 
-
-            using (new ProfilingScope(cmd, profilingSampler))
+            foreach (var updater in renderers.AsSpan())
             {
-                ExecutePrepareGizmoJob();
-                ExecuteGizmoJob();
-
-                foreach (var updater in renderers.AsSpan())
-                {
-                    updater.Render(cmd);
-                }
-
-                foreach (var scheduler in jobSchedulers.AsSpan())
-                {
-                    scheduler.Clear();
-                }
+                updater.Render(commandBuffer);
             }
 
-            context.ExecuteCommandBuffer(cmd);
+            foreach (var scheduler in jobSchedulers.AsSpan())
+            {
+                scheduler.Clear();
+            }
+
+            context.ExecuteCommandBuffer(commandBuffer);
             context.Submit();
 
-            CommandBufferPool.Release(cmd);
+            commandBuffer.Clear();
         }
 
         private static void ExecutePrepareGizmoJob()

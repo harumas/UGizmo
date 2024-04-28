@@ -1,0 +1,18 @@
+{
+    "name": "com.harumaro.ugizmo",
+    "version": "1.0.0",
+    "displayName": "UGizmo",
+    "description": "Highly efficient gizmo renderer for Unity.",
+    "keywords": [
+        "gizmo",
+        "debug"
+    ],
+    "dependencies": {
+        "com.unity.burst": "1.8.12",
+        "com.unity.collections": "1.2.4",
+        "com.unity.mathematics": "1.2.6"
+    },
+    "author": {
+        "name": "Harumaro"
+    }
+}
