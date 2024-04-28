@@ -19,7 +19,7 @@
         {
             "displayName": "UGizmo Sample",
             "description": "Contains gizmo samples",
-            "path": "Sample~/UGizmoSamples"
+            "path": "Samples~/UGizmoSamples"
         }
     ]
 }
