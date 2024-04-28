@@ -1,6 +1,5 @@
 ﻿using System;
 using UGizmo.Internal.Extension.Jobs;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 
 namespace UGizmo.Internal.Extension.Gizmo

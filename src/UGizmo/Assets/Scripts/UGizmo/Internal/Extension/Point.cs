@@ -10,6 +10,6 @@ namespace UGizmo.Internal.Extension
 
     internal sealed class Point : GizmoRenderer<PrimitiveData>
     {
-        public override int RenderQueue { get; protected set; } = 2000;
+        public override int RenderQueue => 2000;
     }
 }

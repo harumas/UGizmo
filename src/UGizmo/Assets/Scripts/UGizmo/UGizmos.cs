@@ -21,41 +21,96 @@ namespace UGizmo
 
         #region Primitive
 
-        public static void DrawSphere(Vector3 position, float radius, Color color)
+        /// <summary>
+        /// Draw a solid sphere.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
+        public static void DrawSphere(Vector3 center, float radius, Color color)
         {
-            DrawSphereCore(position, Quaternion.identity, radius, color);
+            DrawSphereCore(center, Quaternion.identity, radius, color);
         }
 
-        public static void DrawWireSphere(Vector3 position, float radius, Color color)
+        /// <summary>
+        /// Draw a wire sphere.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
+        public static void DrawWireSphere(Vector3 center, float radius, Color color)
         {
-            DrawWireSphereCore(position, Quaternion.identity, radius, color);
+            DrawWireSphereCore(center, Quaternion.identity, radius, color);
         }
 
-        public static void DrawWireSphere(Vector3 position, Quaternion rotation, float radius, Color color)
+        /// <summary>
+        /// Draw a wire sphere with rotation.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="rotation"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
+        public static void DrawWireSphere(Vector3 center, Quaternion rotation, float radius, Color color)
         {
-            DrawWireSphereCore(position, rotation, radius, color);
+            DrawWireSphereCore(center, rotation, radius, color);
         }
 
-        public static void DrawCube(Vector3 position, Quaternion rotation, Vector3 size, Color color)
+        /// <summary>
+        /// Draw a solid cube.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="rotation"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
+        public static void DrawCube(Vector3 center, Quaternion rotation, Vector3 size, Color color)
         {
-            DrawCubeCore(position, rotation, size, color);
+            DrawCubeCore(center, rotation, size, color);
         }
 
-        public static void DrawWireCube(Vector3 position, Quaternion rotation, float size, Color color)
+        /// <summary>
+        /// Draw a solid cube.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="rotation"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
+        public static void DrawWireCube(Vector3 center, Quaternion rotation, Vector3 size, Color color)
         {
-            DrawWireCubeCore(position, rotation, new Vector3(size, size, size), color);
+            DrawWireCubeCore(center, rotation, size, color);
         }
 
-        public static void DrawWireCube(Vector3 position, Quaternion rotation, Vector3 size, Color color)
+        /// <summary>
+        /// Draw a solid capsule.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="scale"></param>
+        /// <param name="color"></param>
+        public static void DrawCapsule(Vector3 position, Quaternion rotation, Vector3 scale, Color color)
         {
-            DrawWireCubeCore(position, rotation, size, color);
+            DrawCapsuleCore(position, rotation * Vector3.up, scale.y, math.max(scale.x, scale.z), color);
         }
 
+        /// <summary>
+        /// Draw a solid capsule with upAxis.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="upAxis"></param>
+        /// <param name="height"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static void DrawCapsule(Vector3 center, Vector3 upAxis, float height, float radius, Color color)
         {
             DrawCapsuleCore(center, upAxis, height, radius, color);
         }
 
+        /// <summary>
+        /// Draw a solid capsule extending from point1 to point2.
+        /// </summary>
+        /// <param name="point1"></param>
+        /// <param name="point2"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawCapsule(Vector3 point1, Vector3 point2, float radius, Color color)
         {
             float3 diff = point2 - point1;
@@ -63,21 +118,64 @@ namespace UGizmo
             DrawCapsuleCore((float3)point1 + diff * 0.5f, normal, length + radius * 2f, radius, color);
         }
 
-        public static void DrawCapsule(Vector3 position, Quaternion rotation, Vector3 scale, Color color)
+        /// <summary>
+        /// Draw a wire capsule.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="scale"></param>
+        /// <param name="color"></param>
+        public static void DrawWireCapsule(Vector3 position, Quaternion rotation, Vector3 scale, Color color)
         {
-            DrawCapsuleCore(position, rotation * Vector3.up, scale.y, math.max(scale.x, scale.z), color);
+            DrawWireCapsuleCore(position, rotation * Vector3.up, scale.y, math.max(scale.x, scale.z), color);
         }
 
+        /// <summary>
+        /// Draw a wire capsule with upAxis.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="upAxis"></param>
+        /// <param name="height"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static void DrawWireCapsule(Vector3 center, Vector3 upAxis, float height, float radius, Color color)
         {
             DrawWireCapsuleCore(center, upAxis, height, radius, color);
         }
 
+        /// <summary>
+        /// Draw a wire capsule extending from point1 to point2.
+        /// </summary>
+        /// <param name="point1"></param>
+        /// <param name="point2"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
+        public static unsafe void DrawWireCapsule(Vector3 point1, Vector3 point2, float radius, Color color)
+        {
+            float3 diff = point2 - point1;
+            GizmoUtil.LengthAndNormalize(&diff, out float length, out float3 normal);
+            DrawWireCapsuleCore((float3)point1 + diff * 0.5f, normal, length + radius * 2f, radius, color);
+        }
+
+        /// <summary>
+        /// Draw a solid cylinder.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="scale"></param>
+        /// <param name="color"></param>
         public static void DrawCylinder(Vector3 position, Quaternion rotation, Vector3 scale, Color color)
         {
             DrawCylinderCore(position, rotation, scale, color);
         }
 
+        /// <summary>
+        /// Draw a solid cylinder extending from point1 to point2.
+        /// </summary>
+        /// <param name="point1"></param>
+        /// <param name="point2"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawCylinder(Vector3 point1, Vector3 point2, float radius, Color color)
         {
             float3 diff = point2 - point1;
@@ -86,16 +184,25 @@ namespace UGizmo
             DrawCylinderCore(point1 * diff * 0.5f, rotation, new float3(radius * 2f, length, radius * 2f), color);
         }
 
+        /// <summary>
+        /// Draw a wire cylinder.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="scale"></param>
+        /// <param name="color"></param>
         public static void DrawWireCylinder(Vector3 position, Quaternion rotation, Vector3 scale, Color color)
         {
             DrawWireCylinderCore(position, rotation * Vector3.up, scale.y, math.max(scale.x, scale.z), color);
         }
 
-        public static void DrawWireCylinder(Vector3 center, Vector3 upAxis, float height, float radius, Color color)
-        {
-            DrawWireCylinderCore(center, upAxis, height, radius, color);
-        }
-
+        /// <summary>
+        /// Draw a wire cylinder extending from point1 to point2.
+        /// </summary>
+        /// <param name="point1"></param>
+        /// <param name="point2"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawWireCylinder(Vector3 point1, Vector3 point2, float radius, Color color)
         {
             float3 diff = point2 - point1;
@@ -103,33 +210,77 @@ namespace UGizmo
             DrawWireCylinderCore((float3)point1 + diff * 0.5f, normal, length + radius * 2f, radius, color);
         }
 
+        /// <summary>
+        /// Draw a solid cone.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="scale"></param>
+        /// <param name="color"></param>
         public static void DrawCone(Vector3 position, Quaternion rotation, Vector3 scale, Color color)
         {
             float maxX = math.max(scale.x, scale.y) * 0.5f;
             DrawConeCore(position, rotation * Vector3.forward, scale.z, math.atan2(maxX, scale.z), color);
         }
 
+        /// <summary>
+        /// Draw a solid cone with direction.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="direction"></param>
+        /// <param name="distance"></param>
+        /// <param name="angle"></param>
+        /// <param name="color"></param>
         public static void DrawCone(float3 origin, float3 direction, float distance, float angle, Color color)
         {
             DrawConeCore(origin, direction, distance, angle, color);
         }
 
+        /// <summary>
+        /// Draw a wire cone.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="scale"></param>
+        /// <param name="color"></param>
         public static void DrawWireCone(Vector3 position, Quaternion rotation, Vector3 scale, Color color)
         {
             float maxX = math.max(scale.x, scale.y) * 0.5f;
             DrawWireConeCore(position, rotation * Vector3.forward, scale.z, math.atan2(maxX, scale.z), color);
         }
 
+        /// <summary>
+        /// Draw a wire cone with direction.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="direction"></param>
+        /// <param name="distance"></param>
+        /// <param name="angle"></param>
+        /// <param name="color"></param>
         public static void DrawWireCone(float3 origin, float3 direction, float distance, float angle, Color color)
         {
             DrawWireConeCore(origin, direction, distance, angle, color);
         }
 
+        /// <summary>
+        /// Draw a plane.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
         public static void DrawPlane(Vector3 position, Quaternion rotation, Vector2 size, Color color)
         {
             DrawPlaneCore(position, rotation, size, color);
         }
 
+        /// <summary>
+        /// Draw a wireframe plane.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
         public static void DrawWirePlane(Vector3 position, Quaternion rotation, Vector2 size, Color color)
         {
             DrawWirePlaneCore(position, rotation, size, color);
@@ -139,74 +290,163 @@ namespace UGizmo
 
         #region Primitive2D
 
+        /// <summary>
+        /// Draw a 2D circle.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawCircle2D(Vector3 position, Quaternion rotation, float radius, Color color)
         {
             GizmoUtil.Rotate90X((quaternion*)(&rotation), out quaternion result);
             DrawCircleCore(position, result, radius, color);
         }
 
+        /// <summary>
+        /// Draw a 2D circle oriented in the z direction.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static void DrawCircle2D(Vector3 position, float radius, Color color)
         {
             DrawCircleCore(position, GizmoUtil.GetRotate90X(), radius, color);
         }
 
+        /// <summary>
+        /// Draw a 2D wire circle.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawWireCircle2D(Vector3 position, Quaternion rotation, float radius, Color color)
         {
             GizmoUtil.Rotate90X((quaternion*)(&rotation), out quaternion result);
             DrawWireCircleCore(position, result, radius, color);
         }
 
+        /// <summary>
+        /// Draw a 2D wire circle oriented in the z direction.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static void DrawWireCircle2D(Vector3 position, float radius, Color color)
         {
             DrawWireCircleCore(position, GizmoUtil.GetRotate90X(), radius, color);
         }
 
+        /// <summary>
+        /// Draw a 2D box.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawBox2D(Vector3 position, Quaternion rotation, Vector2 size, Color color)
         {
             GizmoUtil.Rotate90X((quaternion*)(&rotation), out quaternion result);
             DrawPlaneCore(position, result, size, color);
         }
 
+        /// <summary>
+        /// Draw a 2D box oriented in the z direction.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="angle"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawBox2D(Vector3 position, float angle, Vector2 size, Color color)
         {
             GizmoUtil.PlaneToQuad(&angle, out quaternion rotation);
             DrawPlaneCore(position, rotation, size, color);
         }
 
+        /// <summary>
+        /// Draw a 2D wire box.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawWireBox2D(Vector3 position, Quaternion rotation, Vector2 size, Color color)
         {
             GizmoUtil.Rotate90X((quaternion*)(&rotation), out quaternion result);
             DrawWirePlaneCore(position, result, size, color);
         }
 
+        /// <summary>
+        /// Draw a 2D wire box oriented in the z direction.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="angle"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawWireBox2D(Vector3 position, float angle, Vector2 size, Color color)
         {
             GizmoUtil.PlaneToQuad(&angle, out quaternion rotation);
             DrawWirePlaneCore(position, rotation, size, color);
         }
 
-        public static unsafe void DrawTriangle2D(Vector3 position, Quaternion rotation, Vector2 size, Color color)
+        /// <summary>
+        /// Draw a 2D triangle.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
+        public static void DrawTriangle2D(Vector3 position, Quaternion rotation, Vector2 size, Color color)
         {
             DrawTriangleCore(position, rotation, size, color);
         }
 
+        /// <summary>
+        /// Draw a 2D triangle oriented in the z direction.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="angle"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawTriangle2D(Vector3 position, float angle, Vector2 size, Color color)
         {
             GizmoUtil.Rotate2D(&angle, out quaternion to);
             DrawTriangleCore(position, to, size, color);
         }
 
+        /// <summary>
+        /// Draw a 2D wire triangle.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
         public static void DrawWireTriangle2D(Vector3 position, Quaternion rotation, Vector2 size, Color color)
         {
             DrawWireTriangleCore(position, rotation, size, color);
         }
 
+        /// <summary>
+        /// Draw a 2D wire triangle oriented in the z direction.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="angle"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawWireTriangle2D(Vector3 position, float angle, Vector2 size, Color color)
         {
             GizmoUtil.Rotate2D(&angle, out quaternion to);
             DrawWireTriangleCore(position, to, size, color);
         }
 
+        /// <summary>
+        /// Draw a wire triangle connecting the three points.
+        /// </summary>
+        /// <param name="point1"></param>
+        /// <param name="point2"></param>
+        /// <param name="point3"></param>
+        /// <param name="color"></param>
         public static void DrawWireTriangle2D(Vector3 point1, Vector3 point2, Vector3 point3, Color color)
         {
             DrawWireLineCore(point1, point2, color);
@@ -214,23 +454,54 @@ namespace UGizmo
             DrawWireLineCore(point3, point1, color);
         }
 
-
+        /// <summary>
+        /// Draw a 2D capsule.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="rotation"></param>
+        /// <param name="height"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static void DrawCapsule2D(Vector3 center, Quaternion rotation, float height, float radius, Color color)
         {
             DrawCapsule2DCore(center, rotation, height, radius, color);
         }
 
+        /// <summary>
+        /// Draw a 2D capsule oriented in the z direction.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="angle"></param>
+        /// <param name="height"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawCapsule2D(Vector3 center, float angle, float height, float radius, Color color)
         {
             GizmoUtil.Rotate2D(&angle, out quaternion to);
             DrawCapsule2DCore(center, to, height, radius, color);
         }
 
+        /// <summary>
+        /// Draw a 2D wire capsule.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="rotation"></param>
+        /// <param name="height"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static void DrawWireCapsule2D(Vector3 center, Quaternion rotation, float height, float radius, Color color)
         {
             DrawWireCapsule2DCore(center, rotation, height, radius, color);
         }
 
+        /// <summary>
+        /// Draw a 2D wire capsule oriented in the z direction.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="angle"></param>
+        /// <param name="height"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawWireCapsule2D(Vector3 center, float angle, float height, float radius, Color color)
         {
             GizmoUtil.Rotate2D(&angle, out quaternion to);
@@ -241,16 +512,34 @@ namespace UGizmo
 
         #region Utility
 
+        /// <summary>
+        /// Draw points. This is drawn in the foreground.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
         public static void DrawPoint(Vector3 position, float radius, Color color)
         {
             DrawPointCore(position, Quaternion.identity, radius, color);
         }
 
+        /// <summary>
+        /// Draws a line starting at from towards to.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="color"></param>
         public static void DrawLine(Vector3 from, Vector3 to, Color color)
         {
             DrawWireLineCore(from, to, color);
         }
 
+        /// <summary>
+        /// Draws multiple lines between pairs of points. 
+        /// </summary>
+        /// <param name="points"></param>
+        /// <param name="color"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static unsafe void DrawLineList(ReadOnlySpan<Vector3> points, Color color)
         {
             if (points.Length / 2 > wireLineBuffer.Length - 1)
@@ -269,6 +558,13 @@ namespace UGizmo
             }
         }
 
+        /// <summary>
+        /// Draws a line between each point in the supplied span.
+        /// </summary>
+        /// <param name="points"></param>
+        /// <param name="loop"></param>
+        /// <param name="color"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static unsafe void DrawLineStrip(ReadOnlySpan<Vector3> points, bool loop, Color color)
         {
             if (points.Length > wireLineBuffer.Length - 1)
@@ -310,16 +606,37 @@ namespace UGizmo
             }
         }
 
+        /// <summary>
+        ///	Draws a ray starting at from to from + direction.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="direction"></param>
+        /// <param name="color"></param>
         public static void DrawRay(Vector3 from, Vector3 direction, Color color)
         {
             DrawWireLineCore(from, from + direction, color);
         }
 
+        /// <summary>
+        /// Draw a ray.
+        /// </summary>
+        /// <param name="ray"></param>
+        /// <param name="color"></param>
         public static void DrawRay(Ray ray, Color color)
         {
             DrawWireLineCore(ray.origin, ray.origin + ray.direction, color);
         }
 
+        /// <summary>
+        /// Draw a camera frustum.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="rotation"></param>
+        /// <param name="fov"></param>
+        /// <param name="farClipPlane"></param>
+        /// <param name="nearClipPlane"></param>
+        /// <param name="aspect"></param>
+        /// <param name="color"></param>
         public static void DrawFrustum(
             Vector3 center,
             Quaternion rotation,
@@ -332,6 +649,12 @@ namespace UGizmo
             DrawFrustumCore(center, rotation, fov, farClipPlane, nearClipPlane, aspect, color);
         }
 
+        /// <summary>
+        /// Draw a camera frustum.
+        /// </summary>
+        /// <param name="camera"></param>
+        /// <param name="color"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public static void DrawFrustum(Camera camera, Color color)
         {
             if (camera == null)
@@ -352,6 +675,14 @@ namespace UGizmo
 
         private static readonly GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
 
+        /// <summary>
+        /// Draws a distance starting at from towards to.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="color"></param>
+        /// <param name="headLength"></param>
+        /// <param name="headWidth"></param>
         public static void DrawDistance(Vector3 from, Vector3 to, Color color, float headLength = 0.5f, float headWidth = 0.3f)
         {
             Camera camera = Camera.current;
@@ -369,6 +700,13 @@ namespace UGizmo
             Handles.Label(center + textNormal * 0.2f, math.length(diff).ToString("0.00"), labelStyle);
         }
 
+        /// <summary>
+        /// Draw a line with interval.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="interval"></param>
+        /// <param name="color"></param>
         public static unsafe void DrawMeasure(Vector3 from, Vector3 to, float interval, Color color)
         {
             Camera camera = Camera.current;
@@ -398,16 +736,41 @@ namespace UGizmo
 
         #region Arrow
 
+        /// <summary>
+        /// Draws a solid arrow starting at from towards to.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="color"></param>
+        /// <param name="headLength"></param>
+        /// <param name="width"></param>
         public static void DrawArrow(Vector3 from, Vector3 to, Color color, float headLength = 0.5f, float width = 0.3f)
         {
             DrawArrowCore(from, to, color, headLength, width);
         }
 
+        /// <summary>
+        /// Draws a 2D arrow always facing the given normal.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="normal"></param>
+        /// <param name="color"></param>
+        /// <param name="headLength"></param>
+        /// <param name="width"></param>
         public static void DrawArrow2d(Vector3 from, Vector3 to, Vector3 normal, Color color, float headLength = 0.5f, float width = 0.3f)
         {
             DrawArrow2dCore(from, to, normal, color, headLength, width);
         }
 
+        /// <summary>
+        /// Draws a 2D front-facing arrow.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="color"></param>
+        /// <param name="headLength"></param>
+        /// <param name="width"></param>
         public static void DrawFacingArrow2d(Vector3 from, Vector3 to, Color color, float headLength = 0.5f, float width = 0.3f)
         {
             Camera camera = Camera.current;
@@ -417,11 +780,28 @@ namespace UGizmo
             DrawArrow2dCore(from, to, normal, color, headLength, width);
         }
 
+        /// <summary>
+        /// Draws a 2D wire arrow always facing the given normal.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="normal"></param>
+        /// <param name="color"></param>
+        /// <param name="headLength"></param>
+        /// <param name="headWidth"></param>
         public static void DrawWireArrow(Vector3 from, Vector3 to, Vector3 normal, Color color, float headLength = 0.5f, float headWidth = 0.3f)
         {
             DrawWireArrow2dCore(from, to, normal, color, headLength, headWidth);
         }
 
+        /// <summary>
+        /// Draws a 2D wire front-facing arrow.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="color"></param>
+        /// <param name="headLength"></param>
+        /// <param name="headWidth"></param>
         public static void DrawFacingWireArrow(Vector3 from, Vector3 to, Color color, float headLength = 0.5f, float headWidth = 0.3f)
         {
             Camera camera = Camera.current;
@@ -435,6 +815,15 @@ namespace UGizmo
 
         #region Physics
 
+        /// <summary>
+        /// Draws a raycast visualizer. Returns true if it hits something.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="direction"></param>
+        /// <param name="maxDistance"></param>
+        /// <param name="layerMask"></param>
+        /// <param name="queryTriggerInteraction"></param>
+        /// <returns></returns>
         public static bool Raycast(Vector3 origin,
             Vector3 direction,
             float maxDistance,
@@ -446,11 +835,27 @@ namespace UGizmo
             return isHit;
         }
 
+        /// <summary>
+        /// Draw a raycast visualizer.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="direction"></param>
+        /// <param name="maxDistance"></param>
+        /// <param name="isHit"></param>
+        /// <param name="hitInfo"></param>
         public static void DrawRaycast(Vector3 origin, Vector3 direction, float maxDistance, bool isHit, in RaycastHit hitInfo)
         {
             DrawShapeCast(origin, direction, maxDistance, isHit, in hitInfo, out _);
         }
 
+        /// <summary>
+        /// Draws a linecast visualizer. Returns true if it hits something.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="layerMask"></param>
+        /// <param name="queryTriggerInteraction"></param>
+        /// <returns></returns>
         public static unsafe bool Linecast(
             Vector3 start,
             Vector3 end,
@@ -462,6 +867,13 @@ namespace UGizmo
             return Raycast(start, normal, length, layerMask, queryTriggerInteraction);
         }
 
+        /// <summary>
+        /// Draws a linecast visualizer.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="isHit"></param>
+        /// <param name="hitInfo"></param>
         public static unsafe void DrawLinecast(
             Vector3 start,
             Vector3 end,
@@ -473,6 +885,16 @@ namespace UGizmo
             DrawShapeCast(start, normal, length, isHit, in hitInfo, out _);
         }
 
+        /// <summary>
+        /// Draws a SphereCast visualizer. Returns true if it hits something.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="radius"></param>
+        /// <param name="direction"></param>
+        /// <param name="maxDistance"></param>
+        /// <param name="layerMask"></param>
+        /// <param name="queryTriggerInteraction"></param>
+        /// <returns></returns>
         public static bool SphereCast(Vector3 origin,
             float radius,
             Vector3 direction,
@@ -485,6 +907,15 @@ namespace UGizmo
             return isHit;
         }
 
+        /// <summary>
+        /// Draws a SphereCast visualizer.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="radius"></param>
+        /// <param name="direction"></param>
+        /// <param name="maxDistance"></param>
+        /// <param name="isHit"></param>
+        /// <param name="hitInfo"></param>
         public static void DrawSphereCast(Vector3 origin,
             float radius,
             Vector3 direction,
@@ -508,6 +939,17 @@ namespace UGizmo
             DrawSphere(target, radius, color);
         }
 
+        /// <summary>
+        /// Draws a BoxCast visualizer. Returns true if it hits something.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="halfExtents"></param>
+        /// <param name="direction"></param>
+        /// <param name="orientation"></param>
+        /// <param name="maxDistance"></param>
+        /// <param name="layerMask"></param>
+        /// <param name="queryTriggerInteraction"></param>
+        /// <returns></returns>
         public static bool BoxCast(Vector3 origin,
             Vector3 halfExtents,
             Vector3 direction,
@@ -522,6 +964,16 @@ namespace UGizmo
             return isHit;
         }
 
+        /// <summary>
+        /// Draws a BoxCast visualizer.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="halfExtents"></param>
+        /// <param name="direction"></param>
+        /// <param name="orientation"></param>
+        /// <param name="maxDistance"></param>
+        /// <param name="isHit"></param>
+        /// <param name="hitInfo"></param>
         public static void DrawBoxCast(Vector3 origin,
             Vector3 halfExtents,
             Vector3 direction,
@@ -548,6 +1000,17 @@ namespace UGizmo
             DrawCube(target, orientation, size, color);
         }
 
+        /// <summary>
+        /// Draws a CapsuleCast visualizer. Returns true if it hits something.
+        /// </summary>
+        /// <param name="point1"></param>
+        /// <param name="point2"></param>
+        /// <param name="radius"></param>
+        /// <param name="direction"></param>
+        /// <param name="maxDistance"></param>
+        /// <param name="layerMask"></param>
+        /// <param name="queryTriggerInteraction"></param>
+        /// <returns></returns>
         public static bool CapsuleCast(
             Vector3 point1,
             Vector3 point2,
@@ -563,6 +1026,16 @@ namespace UGizmo
             return isHit;
         }
 
+        /// <summary>
+        /// Draws a CapsuleCast visualizer.
+        /// </summary>
+        /// <param name="point1"></param>
+        /// <param name="point2"></param>
+        /// <param name="radius"></param>
+        /// <param name="direction"></param>
+        /// <param name="maxDistance"></param>
+        /// <param name="isHit"></param>
+        /// <param name="hitInfo"></param>
         public static unsafe void DrawCapsuleCast(Vector3 point1,
             Vector3 point2,
             float radius,
@@ -616,17 +1089,15 @@ namespace UGizmo
         #region Physics2D
 
         /// <summary>
-        ///   <para>Casts a ray against Colliders in the Scene.</para>
+        /// Draws a 2D raycast visualizer. Returns RaycastHit2D.
         /// </summary>
-        /// <param name="origin">The point in 2D space where the ray originates.</param>
-        /// <param name="direction">A vector representing the direction of the ray.</param>
-        /// <param name="distance">The maximum distance over which to cast the ray.</param>
-        /// <param name="layerMask">Filter to detect Colliders only on certain layers.</param>
-        /// <param name="minDepth">Only include objects with a Z coordinate (depth) greater than or equal to this value.</param>
-        /// <param name="maxDepth">Only include objects with a Z coordinate (depth) less than or equal to this value.</param>
-        /// <returns>
-        ///   <para>The cast results returned.</para>
-        /// </returns>
+        /// <param name="origin"></param>
+        /// <param name="direction"></param>
+        /// <param name="distance"></param>
+        /// <param name="layerMask"></param>
+        /// <param name="minDepth"></param>
+        /// <param name="maxDepth"></param>
+        /// <returns></returns>
         public static RaycastHit2D Raycast2D(
             Vector2 origin,
             Vector2 direction,
@@ -639,6 +1110,14 @@ namespace UGizmo
             return Raycast2D(origin, direction, legacyFilter, distance);
         }
 
+        /// <summary>
+        /// Draws a 2D raycast visualizer with contact filter 2D. Returns RaycastHit2D.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="direction"></param>
+        /// <param name="contactFilter2D"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
         public static RaycastHit2D Raycast2D(
             Vector2 origin,
             Vector2 direction,
@@ -651,6 +1130,16 @@ namespace UGizmo
             return hitInfo;
         }
 
+        /// <summary>
+        /// Draws a 2D linecast visualizer. Returns RaycastHit2D.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="distance"></param>
+        /// <param name="layerMask"></param>
+        /// <param name="minDepth"></param>
+        /// <param name="maxDepth"></param>
+        /// <returns></returns>
         public static RaycastHit2D Linecast2D(
             Vector2 start,
             Vector2 end,
@@ -663,6 +1152,14 @@ namespace UGizmo
             return Linecast2D(start, end, legacyFilter, distance);
         }
 
+        /// <summary>
+        /// Draws a 2D linecast visualizer with contact filter 2D. Returns RaycastHit2D.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="contactFilter2D"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
         public static RaycastHit2D Linecast2D(
             Vector2 start,
             Vector2 end,
@@ -675,6 +1172,17 @@ namespace UGizmo
             return hitInfo;
         }
 
+        /// <summary>
+        /// Draws a 2D circlecast visualizer. Returns RaycastHit2D.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="radius"></param>
+        /// <param name="direction"></param>
+        /// <param name="distance"></param>
+        /// <param name="layerMask"></param>
+        /// <param name="minDepth"></param>
+        /// <param name="maxDepth"></param>
+        /// <returns></returns>
         public static RaycastHit2D Circlecast2D(
             Vector2 origin,
             float radius,
@@ -688,6 +1196,15 @@ namespace UGizmo
             return Circlecast2D(origin, radius, direction, legacyFilter, distance);
         }
 
+        /// <summary>
+        /// Draws a 2D circlecast visualizer with contact filter 2D. Returns RaycastHit2D.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="radius"></param>
+        /// <param name="direction"></param>
+        /// <param name="contactFilter2D"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
         public static RaycastHit2D Circlecast2D(
             Vector2 origin,
             float radius,
@@ -716,6 +1233,18 @@ namespace UGizmo
             return hitInfo;
         }
 
+        /// <summary>
+        /// Draws a 2D boxcast visualizer. Returns RaycastHit2D.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="size"></param>
+        /// <param name="angle"></param>
+        /// <param name="direction"></param>
+        /// <param name="distance"></param>
+        /// <param name="layerMask"></param>
+        /// <param name="minDepth"></param>
+        /// <param name="maxDepth"></param>
+        /// <returns></returns>
         public static RaycastHit2D Boxcast2D(
             Vector2 origin,
             Vector2 size,
@@ -730,6 +1259,16 @@ namespace UGizmo
             return Boxcast2D(origin, size, angle, direction, legacyFilter, distance);
         }
 
+        /// <summary>
+        /// Draws a 2D boxcast visualizer with contact filter 2D. Returns RaycastHit2D.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="size"></param>
+        /// <param name="angle"></param>
+        /// <param name="direction"></param>
+        /// <param name="contactFilter2D"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
         public static RaycastHit2D Boxcast2D(
             Vector2 origin,
             Vector2 size,
@@ -759,6 +1298,19 @@ namespace UGizmo
             return hitInfo;
         }
 
+        /// <summary>
+        /// Draws a 2D Capsulecast2D visualizer. Returns RaycastHit2D.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="size"></param>
+        /// <param name="angle"></param>
+        /// <param name="capsuleDirection"></param>
+        /// <param name="direction"></param>
+        /// <param name="distance"></param>
+        /// <param name="layerMask"></param>
+        /// <param name="minDepth"></param>
+        /// <param name="maxDepth"></param>
+        /// <returns></returns>
         public static RaycastHit2D Capsulecast2D(
             Vector2 origin,
             Vector2 size,
@@ -774,6 +1326,17 @@ namespace UGizmo
             return Capsulecast2D(origin, size, angle, capsuleDirection, direction, legacyFilter, distance);
         }
 
+        /// <summary>
+        /// Draws a 2D Capsulecast2D visualizer with contact filter 2D. Returns RaycastHit2D.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="size"></param>
+        /// <param name="angle"></param>
+        /// <param name="capsuleDirection"></param>
+        /// <param name="direction"></param>
+        /// <param name="contactFilter2D"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
         public static RaycastHit2D Capsulecast2D(
             Vector2 origin,
             Vector2 size,

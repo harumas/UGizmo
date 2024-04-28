@@ -74,6 +74,13 @@ namespace UGizmo
             var data = new CapsuleData(center, upAxis, height, radius, color);
             PreparableGizmo<Capsule, CapsuleData>.AddData(data);
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void DrawWireCapsuleCore(float3 center, float3 upAxis, float height, float radius, Color color)
+        {
+            var data = new CapsuleData(center, upAxis, height, radius, color);
+            PreparableGizmo<WireCapsule, CapsuleData>.AddData(data);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void DrawCapsule2DCore(float3 center, quaternion rotation, float height, float radius, Color color)
@@ -87,13 +94,6 @@ namespace UGizmo
         {
             var data = new Capsule2dData(center, rotation, height, radius, color);
             PreparableGizmo<WireCapsule2d, Capsule2dData>.AddData(data);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void DrawWireCapsuleCore(float3 center, float3 upAxis, float height, float radius, Color color)
-        {
-            var data = new CapsuleData(center, upAxis, height, radius, color);
-            PreparableGizmo<WireCapsule, CapsuleData>.AddData(data);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,4 +1,5 @@
-﻿using UGizmo.Internal.Extension.Gizmo;
+﻿using System.Collections.Generic;
+using UGizmo.Internal.Extension.Gizmo;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
@@ -24,7 +25,7 @@ namespace UGizmo.Internal
         [InitializeOnLoadMethod]
         public static void Init()
         {
-            RenderPipelineManager.endFrameRendering += OnEndCameraRendering;
+            RenderPipelineManager.endContextRendering += OnEndCameraRendering;
             DisposeEvent.instance.Dispose += OnDispose;
 
             profilingSampler = new ProfilingSampler("DrawUGizmos");
@@ -46,7 +47,7 @@ namespace UGizmo.Internal
             jobHandles.Dispose();
         }
 
-        private static void OnEndCameraRendering(ScriptableRenderContext context, Camera[] cameras)
+        private static void OnEndCameraRendering(ScriptableRenderContext context, List<Camera> _)
         {
             if (!Handles.ShouldRenderGizmos())
             {
@@ -54,6 +55,7 @@ namespace UGizmo.Internal
             }
 
             CommandBuffer cmd = CommandBufferPool.Get();
+
 
             using (new ProfilingScope(cmd, profilingSampler))
             {
@@ -86,7 +88,7 @@ namespace UGizmo.Internal
             }
 
             int length = preparingJobHandles.Length;
-            
+
             JobHandle preparingJobHandle = JobHandleUnsafeUtility.CombineDependencies(preparingJobHandles.Ptr, length);
             preparingJobHandle.Complete();
             preparingJobHandles.Clear();
@@ -100,7 +102,7 @@ namespace UGizmo.Internal
             }
 
             int length = jobHandles.Length;
-            
+
             JobHandle jobHandle = JobHandleUnsafeUtility.CombineDependencies(jobHandles.Ptr, length);
             jobHandle.Complete();
             jobHandles.Clear();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using UGizmo.Internal.Extension;
 using UGizmo.Internal.Extension.Gizmo;
 using UnityEngine;
 

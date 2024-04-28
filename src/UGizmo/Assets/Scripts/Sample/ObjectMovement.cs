@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UGizmo
+namespace Sample
 {
     public class ObjectMovement : MonoBehaviour
     {

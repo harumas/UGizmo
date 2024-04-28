@@ -10,6 +10,6 @@ namespace UGizmo.Internal.Extension
 
     internal sealed class WireLine : GizmoRenderer<LineData>
     {
-        public override int RenderQueue { get; protected set; } = 3000;
+        public override int RenderQueue => 3000;
     }
 }

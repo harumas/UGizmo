@@ -10,6 +10,6 @@ namespace UGizmo.Internal.Extension
 
     internal sealed class WireCircle : GizmoRenderer<PrimitiveData>
     {
-        public override int RenderQueue { get; protected set; } = 3000;
+        public override int RenderQueue => 3000;
     }
 }

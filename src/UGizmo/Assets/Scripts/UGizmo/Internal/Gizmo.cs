@@ -6,30 +6,29 @@ namespace UGizmo.Internal
         where TRenderer : GizmoRenderer<TJobData>
         where TJobData : unmanaged
     {
-        private static TRenderer gizmoRenderer;
+        private static GizmoRenderBuffer<TJobData> gizmoBuffer;
 
         public static void Initialize(TRenderer renderer)
         {
-            gizmoRenderer = renderer;
+            gizmoBuffer = renderer.RenderBuffer;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddData(in TJobData data)
         {
-            gizmoRenderer.Add(data);
+            gizmoBuffer.Add(data);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddDataRange(TJobData* data, int length)
         {
-            gizmoRenderer.AddRange(data, length);
+            gizmoBuffer.AddRange(data, length);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TJobData* Reserve(int count)
         {
-            return gizmoRenderer.Reserve(count);
+            return gizmoBuffer.Reserve(count);
         }
     }
-
 }
