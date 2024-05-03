@@ -1,51 +1,39 @@
-﻿using System.Collections.Generic;
-using UGizmo.Internal.Extension.Gizmo;
+﻿using UGizmo.Internal.Extension.Gizmo;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Jobs.LowLevel.Unsafe;
-using UnityEditor;
-using UnityEngine;
 using UnityEngine.Rendering;
+
+#if UNITY_EDITOR
+using UnityEditor;
+
+#else
+using UnityEngine;
+#endif
+
 
 namespace UGizmo.Internal
 {
-    [InitializeOnLoad]
     internal static unsafe class GizmoRendererSystem
     {
         private static NoResizableList<IGizmoRenderer> renderers;
         private static NoResizableList<IPreparingJobScheduler> preparingJobSchedulers;
         private static NoResizableList<IGizmoJobScheduler> jobSchedulers;
         private static GizmoInstanceActivator activator;
-        private static CommandBuffer commandBuffer;
         private static UnsafeList<JobHandle> preparingJobHandles;
         private static UnsafeList<JobHandle> jobHandles;
 
         private const int InitialCapacity = 64;
+        private static bool isInitialized;
 
-        private static bool isFirstRun = true;
-
-        static GizmoRendererSystem()
+        public static void Initialize()
         {
 #if UNITY_EDITOR
-            EditorApplication.update += Init;
+            AssemblyReloadEvents.beforeAssemblyReload += OnDispose;
+#else
+            Application.quitting += OnDispose;
 #endif
-        }
-
-#if !UNITY_EDITOR
-        [InitializeOnLoadMethod]
-#endif
-        public static void Init()
-        {
-            if (!isFirstRun)
-            {
-                return;
-            }
-
-            isFirstRun = false;
-
-            RenderPipelineManager.endContextRendering += OnEndCameraRendering;
-            DisposeEvent.instance.Dispose += OnDispose;
 
             preparingJobHandles = new UnsafeList<JobHandle>(InitialCapacity, Allocator.Persistent);
             jobHandles = new UnsafeList<JobHandle>(InitialCapacity, Allocator.Persistent);
@@ -53,23 +41,20 @@ namespace UGizmo.Internal
             activator = new GizmoInstanceActivator();
             activator.Activate();
 
-            commandBuffer = new CommandBuffer();
-
             renderers = activator.Updaters;
             preparingJobSchedulers = activator.PreparingJobSchedulers;
             jobSchedulers = activator.JobSchedulers;
+
+            isInitialized = true;
         }
 
-        private static void OnDispose()
+        public static void SetupCommandBuffer(CommandBuffer commandBuffer)
         {
-            activator.Dispose();
-            preparingJobHandles.Dispose();
-            jobHandles.Dispose();
-        }
-
-        private static void OnEndCameraRendering(ScriptableRenderContext context, List<Camera> _)
-        {
-            if (!Handles.ShouldRenderGizmos())
+            if (!isInitialized
+#if UNITY_EDITOR
+                || !Handles.ShouldRenderGizmos()
+#endif
+               )
             {
                 return;
             }
@@ -86,11 +71,6 @@ namespace UGizmo.Internal
             {
                 scheduler.Clear();
             }
-
-            context.ExecuteCommandBuffer(commandBuffer);
-            context.Submit();
-
-            commandBuffer.Clear();
         }
 
         private static void ExecutePrepareGizmoJob()
@@ -120,6 +100,13 @@ namespace UGizmo.Internal
             JobHandle jobHandle = JobHandleUnsafeUtility.CombineDependencies(jobHandles.Ptr, length);
             jobHandle.Complete();
             jobHandles.Clear();
+        }
+
+        private static void OnDispose()
+        {
+            activator.Dispose();
+            preparingJobHandles.Dispose();
+            jobHandles.Dispose();
         }
     }
 }

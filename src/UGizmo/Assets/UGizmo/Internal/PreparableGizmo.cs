@@ -7,15 +7,22 @@ namespace UGizmo.Internal
         where TPrepareData : unmanaged
     {
         private static TScheduler scheduler;
+        private static bool isInitialized;
 
         public static void Initialize(TScheduler gizmo)
         {
             scheduler = gizmo;
+            isInitialized = true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddData(in TPrepareData data)
         {
+            if (!isInitialized)
+            {
+                return;
+            }
+            
             scheduler.Add(data);
         }
     }

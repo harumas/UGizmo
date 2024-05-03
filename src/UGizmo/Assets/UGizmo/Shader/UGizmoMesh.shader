@@ -4,8 +4,9 @@ Shader "UGizmo"
     {
         Tags
         {
-            "RenderType" = "Transparent" "Queue" = "Transparent" "RenderPipeline" = "UniversalPipeline"
+            "RenderType" = "Transparent" "Queue" = "Transparent"
         }
+
 
         Pass
         {
@@ -21,11 +22,11 @@ Shader "UGizmo"
                 Mode Off
             }
 
-            HLSLPROGRAM
+            CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "UnityCG.cginc"
 
             struct RenderData
             {
@@ -53,11 +54,11 @@ Shader "UGizmo"
                 RenderData render_data = _RenderBuffer[instanceID];
 
                 float4 pos = mul(render_data.mat, IN.positionOS);
-                o.positionHCS = TransformObjectToHClip(pos.xyz);
+                o.positionHCS = UnityObjectToClipPos(pos.xyz);
 
                 IN.normal = mul(render_data.mat, IN.normal);
 
-                float strength = dot(IN.normal, -GetViewForwardDir()) * 0.5f + 0.5f;
+                float strength = dot(IN.normal, -UNITY_MATRIX_V[2].xyz) * 0.2f + 0.8f;
                 o.color.rgb = render_data.color * (strength * strength);
                 o.color.a = render_data.color.a;
 
@@ -68,7 +69,7 @@ Shader "UGizmo"
             {
                 return v.color;
             }
-            ENDHLSL
+            ENDCG
         }
 
         Pass
@@ -85,11 +86,11 @@ Shader "UGizmo"
                 Mode Off
             }
 
-            HLSLPROGRAM
+            CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "UnityCG.cginc"
 
             struct RenderData
             {
@@ -116,7 +117,7 @@ Shader "UGizmo"
                 RenderData render_data = _RenderBuffer[instanceID];
 
                 float4 pos = mul(render_data.mat, IN.positionOS);
-                o.positionHCS = TransformObjectToHClip(pos.xyz);
+                o.positionHCS = UnityObjectToClipPos(pos.xyz);
                 o.color = render_data.color;
                 o.color.a *= 0.3;
 
@@ -127,7 +128,8 @@ Shader "UGizmo"
             {
                 return v.color;
             }
-            ENDHLSL
+            ENDCG
         }
+
     }
 }

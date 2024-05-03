@@ -4,8 +4,11 @@ using UGizmo.Internal;
 using UGizmo.Internal.Extension.Jobs;
 using Unity.Burst;
 using Unity.Mathematics;
-using UnityEditor;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace UGizmo
 {
@@ -673,8 +676,6 @@ namespace UGizmo
         }
 
 
-        private static readonly GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-
         /// <summary>
         /// Draws a distance starting at from towards to.
         /// </summary>
@@ -691,13 +692,19 @@ namespace UGizmo
             float3 camDiff = (float3)camera.transform.position - center;
 
             float3 camNormal = math.normalizesafe(camDiff, new float3(0f, 0f, 1f));
-            float3 textNormal = math.normalizesafe(math.cross(camNormal, diff), new float3(0f, 0f, 1f));
 
             DrawWireArrow2dCore(center, from, camNormal, color, headLength, headWidth);
             DrawWireArrow2dCore(center, to, camNormal, color, headLength, headWidth);
 
-            labelStyle.alignment = TextAnchor.MiddleCenter;
-            Handles.Label(center + textNormal * 0.2f, math.length(diff).ToString("0.00"), labelStyle);
+#if UNITY_EDITOR
+            float3 textNormal = math.normalizesafe(math.cross(camNormal, diff), new float3(0f, 0f, 1f));
+            
+            GUIStyle skinLabel = GUI.skin.label;
+            TextAnchor original = skinLabel.alignment;
+            skinLabel.alignment = TextAnchor.MiddleCenter;
+            Handles.Label(center + textNormal * 0.2f, math.length(diff).ToString("0.00"), skinLabel);
+            skinLabel.alignment = original;
+#endif
         }
 
         /// <summary>
