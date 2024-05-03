@@ -1,4 +1,4 @@
-Shader "UGizmo"
+Shader "UGizmo/Mesh"
 {
     SubShader
     {
@@ -58,7 +58,7 @@ Shader "UGizmo"
 
                 IN.normal = mul(render_data.mat, IN.normal);
 
-                float strength = dot(IN.normal, -UNITY_MATRIX_V[2].xyz) * 0.2f + 0.8f;
+                float strength = dot(IN.normal, -UNITY_MATRIX_V[2].xyz) * 0.15f + 0.85f;
                 o.color.rgb = render_data.color * (strength * strength);
                 o.color.a = render_data.color.a;
 

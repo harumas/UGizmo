@@ -1,0 +1,16 @@
+{
+    "name": "UGizmo.Samples.URP",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c1e10642d7fcc6b41bab01db03480669"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,7 +1,7 @@
 using UGizmo;
 using UnityEngine;
 
-namespace Sample
+namespace UGizmo.Samples.HDRP
 {
     public class DrawArrows : MonoBehaviour
     {

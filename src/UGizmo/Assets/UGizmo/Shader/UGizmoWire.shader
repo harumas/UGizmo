@@ -1,4 +1,4 @@
-Shader "UGizmo"
+Shader "UGizmo/Wire"
 {
     SubShader
     {

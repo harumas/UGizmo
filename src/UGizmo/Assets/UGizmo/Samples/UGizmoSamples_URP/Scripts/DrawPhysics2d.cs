@@ -1,7 +1,6 @@
-using UGizmo;
 using UnityEngine;
 
-namespace Sample
+namespace UGizmo.Samples.URP
 {
     public class DrawPhysics2d : MonoBehaviour
     {

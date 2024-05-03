@@ -1,8 +1,6 @@
-using System;
-using UGizmo;
 using UnityEngine;
 
-namespace Sample
+namespace UGizmo.Samples.URP
 {
     public class DrawPrimitives : MonoBehaviour
     {
