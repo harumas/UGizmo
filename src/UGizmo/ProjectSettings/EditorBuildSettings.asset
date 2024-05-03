@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Samples/UGizmoSamples/Scenes/Sample.unity
+    path: Assets/UGizmo/Samples/UGizmoSamples/Scenes/Sample.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 69b17c677cffeba44a3ef87cdad0ab21,

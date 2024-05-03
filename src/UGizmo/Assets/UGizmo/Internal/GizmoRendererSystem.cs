@@ -10,6 +10,7 @@ using UnityEngine.Rendering;
 
 namespace UGizmo.Internal
 {
+    [InitializeOnLoad]
     internal static unsafe class GizmoRendererSystem
     {
         private static NoResizableList<IGizmoRenderer> renderers;
@@ -22,9 +23,27 @@ namespace UGizmo.Internal
 
         private const int InitialCapacity = 64;
 
+        private static bool isFirstRun = true;
+
+        static GizmoRendererSystem()
+        {
+#if UNITY_EDITOR
+            EditorApplication.update += Init;
+#endif
+        }
+
+#if !UNITY_EDITOR
         [InitializeOnLoadMethod]
+#endif
         public static void Init()
         {
+            if (!isFirstRun)
+            {
+                return;
+            }
+
+            isFirstRun = false;
+
             RenderPipelineManager.endContextRendering += OnEndCameraRendering;
             DisposeEvent.instance.Dispose += OnDispose;
 
@@ -33,7 +52,7 @@ namespace UGizmo.Internal
 
             activator = new GizmoInstanceActivator();
             activator.Activate();
-            
+
             commandBuffer = new CommandBuffer();
 
             renderers = activator.Updaters;
