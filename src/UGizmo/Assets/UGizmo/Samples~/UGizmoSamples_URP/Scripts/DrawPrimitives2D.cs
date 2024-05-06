@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UGizmo.Samples.URP
 {
-    public class DrawPrimitives2D : MonoBehaviour
+    public class DrawPrimitives2d : MonoBehaviour
     {
         [SerializeField] private Color color;
         [SerializeField] private Transform box2D;
