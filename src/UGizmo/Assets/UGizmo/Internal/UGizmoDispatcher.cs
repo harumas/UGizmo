@@ -17,9 +17,12 @@ namespace UGizmo.Internal
         private static readonly CommandBuffer commandBuffer;
         private static readonly GizmoRenderSystem renderSystem;
         private static bool isFirstRun = true;
+        private static bool usingHDRP;
 
         static UGizmoDispatcher()
         {
+            usingHDRP = GraphicsSettings.currentRenderPipeline.GetType().ToString().Contains("HighDefinition");
+            
 #if UNITY_EDITOR
             EditorApplication.update += Initialize;
 #endif
@@ -56,6 +59,10 @@ namespace UGizmo.Internal
                 return;
             }
 
+            if (usingHDRP)
+            {
+                context.Submit();               
+            }
 
             bool updateRenderData = previousFrame != Time.renderedFrameCount;
 
