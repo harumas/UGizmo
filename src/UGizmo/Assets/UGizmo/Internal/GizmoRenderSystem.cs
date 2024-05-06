@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Jobs.LowLevel.Unsafe;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 #if UNITY_EDITOR
@@ -15,19 +16,18 @@ using UnityEngine;
 
 namespace UGizmo.Internal
 {
-    internal static unsafe class GizmoRendererSystem
+    internal unsafe class GizmoRenderSystem
     {
-        private static NoResizableList<IGizmoRenderer> renderers;
-        private static NoResizableList<IPreparingJobScheduler> preparingJobSchedulers;
-        private static NoResizableList<IGizmoJobScheduler> jobSchedulers;
-        private static GizmoInstanceActivator activator;
-        private static UnsafeList<JobHandle> preparingJobHandles;
-        private static UnsafeList<JobHandle> jobHandles;
+        private NoResizableList<IGizmoDrawer> drawers;
+        private NoResizableList<IPreparingJobScheduler> preparingJobSchedulers;
+        private NoResizableList<IGizmoJobScheduler> jobSchedulers;
+        private GizmoInstanceActivator activator;
+        private UnsafeList<JobHandle> preparingJobHandles;
+        private UnsafeList<JobHandle> jobHandles;
 
         private const int InitialCapacity = 64;
-        private static bool isInitialized;
 
-        public static void Initialize()
+        public void Initialize()
         {
 #if UNITY_EDITOR
             AssemblyReloadEvents.beforeAssemblyReload += OnDispose;
@@ -41,44 +41,49 @@ namespace UGizmo.Internal
             activator = new GizmoInstanceActivator();
             activator.Activate();
 
-            renderers = activator.Updaters;
+            drawers = activator.Updaters;
             preparingJobSchedulers = activator.PreparingJobSchedulers;
             jobSchedulers = activator.JobSchedulers;
-
-            isInitialized = true;
         }
 
-        public static void SetupCommandBuffer(CommandBuffer commandBuffer)
+        public void ExecuteCreateJob()
         {
-            if (!isInitialized
-#if UNITY_EDITOR
-                || !Handles.ShouldRenderGizmos()
-#endif
-               )
-            {
-                return;
-            }
-
             ExecutePrepareGizmoJob();
             ExecuteGizmoJob();
 
-            foreach (var updater in renderers.AsSpan())
+            foreach (var drawer in drawers.AsSpan())
             {
-                updater.Render(commandBuffer);
+                drawer.UploadGpuData();
+                drawer.SwapBuffer();
+            }
+        }
+
+        public void SetCommandBuffer(CommandBuffer commandBuffer)
+        {
+            foreach (var drawer in drawers.AsSpan())
+            {
+                drawer.Draw(commandBuffer);
+            }
+        }
+
+        public void ClearScheduler()
+        {
+            foreach (IGizmoJobScheduler scheduler in jobSchedulers.AsSpan())
+            {
+                scheduler.Clear();
             }
 
-            foreach (var scheduler in jobSchedulers.AsSpan())
+            foreach (IPreparingJobScheduler scheduler in preparingJobSchedulers.AsSpan())
             {
                 scheduler.Clear();
             }
         }
 
-        private static void ExecutePrepareGizmoJob()
+        private void ExecutePrepareGizmoJob()
         {
             foreach (var scheduler in preparingJobSchedulers.AsSpan())
             {
                 preparingJobHandles.Add(scheduler.Schedule());
-                scheduler.Clear();
             }
 
             int length = preparingJobHandles.Length;
@@ -88,7 +93,7 @@ namespace UGizmo.Internal
             preparingJobHandles.Clear();
         }
 
-        private static void ExecuteGizmoJob()
+        private void ExecuteGizmoJob()
         {
             foreach (var scheduler in jobSchedulers.AsSpan())
             {
@@ -102,7 +107,7 @@ namespace UGizmo.Internal
             jobHandles.Clear();
         }
 
-        private static void OnDispose()
+        private void OnDispose()
         {
             activator.Dispose();
             preparingJobHandles.Dispose();

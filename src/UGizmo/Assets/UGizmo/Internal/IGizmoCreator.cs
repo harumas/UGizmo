@@ -6,7 +6,7 @@
     }
 
     internal abstract class GizmoAsset<TRenderer, TJobData> : IGizmoCreator
-        where TRenderer : GizmoRenderer<TJobData>, new()
+        where TRenderer : GizmoDrawer<TJobData>, new()
         where TJobData : unmanaged
     {
         public abstract string MeshName { get; }

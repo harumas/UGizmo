@@ -5,10 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/UGizmo/Samples/UGizmoSamples_URP/Scenes/Sample.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/a.unity
     guid: 6ac9520dd320af04c9164e1a5129cd4c
   m_configObjects:

@@ -9,9 +9,9 @@ using UnityEngine;
 
 namespace UGizmo.Internal
 {
-    internal unsafe class GizmoRenderBuffer<TJobData> : IDisposable where TJobData : unmanaged
+    internal unsafe class GizmoDrawBuffer<TJobData> : IDisposable where TJobData : unmanaged
     {
-        public int Count { get; private set; } = 0;
+        public int Count { get; set; } = 0;
 
         private const int InitialCapacity = 8192;
 
@@ -25,13 +25,14 @@ namespace UGizmo.Internal
 
         private static readonly MethodInfo setNativeDataMethod;
         private static readonly int renderBufferProperty = Shader.PropertyToID("_RenderBuffer");
-
-        static GizmoRenderBuffer()
+        
+        
+        static GizmoDrawBuffer()
         {
             setNativeDataMethod = typeof(GraphicsBuffer).GetRuntimeMethods().First(method => method.Name == "InternalSetNativeData");
         }
 
-        public GizmoRenderBuffer()
+        public GizmoDrawBuffer()
         {
             handleBuffer = UnmanagedUtility.Malloc<int>(InitialCapacity, Allocator.Persistent);
             renderBuffer = UnmanagedUtility.Malloc<RenderData>(InitialCapacity, Allocator.Persistent);
@@ -84,7 +85,7 @@ namespace UGizmo.Internal
 
             return ptr;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UploadGpuData()
         {
@@ -120,7 +121,7 @@ namespace UGizmo.Internal
             Type targetType = typeof(Action<IntPtr, int, int, int, int>);
             return (Action<IntPtr, int, int, int, int>)Delegate.CreateDelegate(targetType, graphicsBuffer, setNativeDataMethod);
         }
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {

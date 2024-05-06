@@ -7,13 +7,13 @@ namespace UGizmo.Internal
 {
     internal class GizmoInstanceActivator : IDisposable
     {
-        public NoResizableList<IGizmoRenderer> Updaters;
+        public NoResizableList<IGizmoDrawer> Updaters;
         public NoResizableList<IPreparingJobScheduler> PreparingJobSchedulers;
         public NoResizableList<IGizmoJobScheduler> JobSchedulers;
 
         public void Activate()
         {
-            Updaters = new NoResizableList<IGizmoRenderer>();
+            Updaters = new NoResizableList<IGizmoDrawer>();
             PreparingJobSchedulers = new NoResizableList<IPreparingJobScheduler>();
             JobSchedulers = new NoResizableList<IGizmoJobScheduler>();
 
@@ -58,7 +58,7 @@ namespace UGizmo.Internal
         }
 
         internal void RegisterRenderer<TRenderer, TJobData>(GizmoAsset<TRenderer, TJobData> asset)
-            where TRenderer : GizmoRenderer<TJobData>, new()
+            where TRenderer : GizmoDrawer<TJobData>, new()
             where TJobData : unmanaged
         {
             TRenderer gizmoRenderer = new TRenderer();

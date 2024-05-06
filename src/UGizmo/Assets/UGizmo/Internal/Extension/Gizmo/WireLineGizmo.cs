@@ -5,32 +5,32 @@ namespace UGizmo.Internal.Extension.Gizmo
 {
     public unsafe class WireLineGizmo : IGizmoJobScheduler
     {
-        private readonly SharedGizmoBuffer<LineData> gizmoBuffer;
+        private readonly SharedGizmoBuffer<LineData> sharedGizmoBuffer;
 
         public WireLineGizmo()
         {
-            gizmoBuffer = SharedGizmoBuffer<LineData>.GetSharedBuffer();
+            sharedGizmoBuffer = SharedGizmoBuffer<LineData>.GetSharedBuffer();
         }
         
         public JobHandle Schedule()
         {
             var createJob = new CreateWireLineJob()
             {
-                GizmoDataPtr = gizmoBuffer.JobBuffer.Ptr,
-                Result = gizmoBuffer.RenderBuffer.Ptr
+                GizmoDataPtr = sharedGizmoBuffer.JobBuffer.Ptr,
+                Result = sharedGizmoBuffer.RenderBuffer.Ptr
             };
 
-            return createJob.Schedule(gizmoBuffer.JobBuffer.Length, 16);
+            return createJob.Schedule(sharedGizmoBuffer.JobBuffer.Length, 16);
         }
 
         public void Clear()
         {
-            gizmoBuffer.Clear();
+            sharedGizmoBuffer.Clear();
         }
 
         public void Dispose()
         {
-            gizmoBuffer?.Dispose();
+            sharedGizmoBuffer?.Dispose();
         }
     }
 }

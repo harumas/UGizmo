@@ -6,45 +6,59 @@ using UnityEngine.Rendering;
 
 namespace UGizmo.Internal
 {
-    public interface IGizmoRenderer : IDisposable
+    public interface IGizmoDrawer : IDisposable
     {
         int RenderQueue { get; }
-        void Render(CommandBuffer commandBuffer);
+        void Draw(CommandBuffer commandBuffer);
+        void UploadGpuData();
+        void SwapBuffer();
     }
 
     [BurstCompile]
-    internal abstract class GizmoRenderer<TJobData> : IGizmoRenderer where TJobData : unmanaged
+    internal abstract class GizmoDrawer<TJobData> : IGizmoDrawer where TJobData : unmanaged
     {
         public virtual int RenderQueue => 1000;
-        public GizmoRenderBuffer<TJobData> RenderBuffer { get; private set; }
+        public GizmoDrawBuffer<TJobData> GizmoDrawBuffer { get; private set; }
 
         private Mesh mesh;
         private Material material;
+
+        private int bufferCount;
 
         public void Initialize(Mesh mesh, Material material)
         {
             this.mesh = mesh;
             this.material = material;
 
-            RenderBuffer = new GizmoRenderBuffer<TJobData>();
+            GizmoDrawBuffer = new GizmoDrawBuffer<TJobData>();
+        }
+
+        public void UploadGpuData()
+        {
+            GizmoDrawBuffer.UploadGpuData();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Render(CommandBuffer commandBuffer)
+        public void Draw(CommandBuffer commandBuffer)
         {
-            if (RenderBuffer.Count == 0)
+            if (bufferCount == 0)
             {
                 return;
             }
 
-            RenderBuffer.UploadGpuData();
-            commandBuffer.DrawMeshInstancedProcedural(mesh, 0, material, -1, RenderBuffer.Count, RenderBuffer.GetPropertyBlock());
-            RenderBuffer.Clear();
+            commandBuffer.DrawMeshInstancedProcedural(mesh, 0, material, -1, bufferCount, GizmoDrawBuffer.GetPropertyBlock());
+            GizmoDrawBuffer.Clear();
+        }
+        
+        public void SwapBuffer()
+        {
+            SharedGizmoBuffer<TJobData>.GetSharedBuffer().Swap();
+            bufferCount = GizmoDrawBuffer.Count;
         }
 
         public void Dispose()
         {
-            RenderBuffer.Dispose();
+            GizmoDrawBuffer.Dispose();
         }
     }
 }

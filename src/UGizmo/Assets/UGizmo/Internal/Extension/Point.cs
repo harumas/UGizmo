@@ -8,7 +8,7 @@ namespace UGizmo.Internal.Extension
         public override string MaterialName => "CommonMeshFront";
     }
 
-    internal sealed class Point : GizmoRenderer<PrimitiveData>
+    internal sealed class Point : GizmoDrawer<PrimitiveData>
     {
         public override int RenderQueue => 2000;
     }

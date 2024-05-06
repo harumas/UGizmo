@@ -12,32 +12,32 @@ namespace UGizmo.Internal.Extension.Gizmo
 
     public unsafe class PrimitiveGizmo : IGizmoJobScheduler
     {
-        private readonly SharedGizmoBuffer<PrimitiveData> gizmoBuffer;
+        private readonly SharedGizmoBuffer<PrimitiveData> sharedGizmoBuffer;
 
         public PrimitiveGizmo()
         {
-            gizmoBuffer = SharedGizmoBuffer<PrimitiveData>.GetSharedBuffer();
+            sharedGizmoBuffer = SharedGizmoBuffer<PrimitiveData>.GetSharedBuffer();
         }
         
         public JobHandle Schedule()
         {
             var createJob = new CreatePrimitiveJob()
             {
-                GizmoDataPtr = gizmoBuffer.JobBuffer.Ptr,
-                Result = gizmoBuffer.RenderBuffer.Ptr
+                GizmoDataPtr = sharedGizmoBuffer.JobBuffer.Ptr,
+                Result = sharedGizmoBuffer.RenderBuffer.Ptr
             };
 
-            return createJob.Schedule(gizmoBuffer.JobBuffer.Length, 16);
+            return createJob.Schedule(sharedGizmoBuffer.JobBuffer.Length, 16);
         }
 
         public void Clear()
         {
-            gizmoBuffer.Clear();
+            sharedGizmoBuffer.Clear();
         }
 
         public void Dispose()
         {
-            gizmoBuffer?.Dispose();
+            sharedGizmoBuffer?.Dispose();
         }
     }
 }

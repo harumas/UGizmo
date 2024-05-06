@@ -8,7 +8,7 @@ namespace UGizmo.Internal.Extension
         public override string MaterialName => "CommonMeshCullOff";
     }
 
-    internal sealed class Circle : GizmoRenderer<PrimitiveData>
+    internal sealed class Circle : GizmoDrawer<PrimitiveData>
     {
     }
 }

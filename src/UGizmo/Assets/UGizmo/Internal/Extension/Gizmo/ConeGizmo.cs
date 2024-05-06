@@ -1,36 +1,37 @@
 ﻿using UGizmo.Internal.Extension.Jobs;
 using Unity.Jobs;
+using UnityEngine;
 
 namespace UGizmo.Internal.Extension.Gizmo
 {
     public unsafe class ConeGizmo : IGizmoJobScheduler
     {
-        private readonly SharedGizmoBuffer<ConeData> gizmoBuffer;
+        private readonly SharedGizmoBuffer<ConeData> sharedGizmoBuffer;
 
         public ConeGizmo()
         {
-            gizmoBuffer = SharedGizmoBuffer<ConeData>.GetSharedBuffer();
+            sharedGizmoBuffer = SharedGizmoBuffer<ConeData>.GetSharedBuffer();
         }
 
         public JobHandle Schedule()
         {
             var createJob = new CreateConeJob()
             {
-                GizmoDataPtr = gizmoBuffer.JobBuffer.Ptr,
-                Result = gizmoBuffer.RenderBuffer.Ptr
+                GizmoDataPtr = sharedGizmoBuffer.JobBuffer.Ptr,
+                Result = sharedGizmoBuffer.RenderBuffer.Ptr
             };
 
-            return createJob.Schedule(gizmoBuffer.JobBuffer.Length, 16);
+            return createJob.Schedule(sharedGizmoBuffer.JobBuffer.Length, 16);
         }
 
         public void Clear()
         {
-            gizmoBuffer.Clear();
+            sharedGizmoBuffer.Clear();
         }
 
         public void Dispose()
         {
-            gizmoBuffer?.Dispose();
+            sharedGizmoBuffer?.Dispose();
         }
     }
 }

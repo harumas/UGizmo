@@ -4,16 +4,16 @@ using UnityEngine;
 namespace UGizmo.Internal
 {
     internal static unsafe class Gizmo<TRenderer, TJobData>
-        where TRenderer : GizmoRenderer<TJobData>
+        where TRenderer : GizmoDrawer<TJobData>
         where TJobData : unmanaged
     {
-        private static GizmoRenderBuffer<TJobData> gizmoBuffer;
+        private static TRenderer gizmoRenderer;
         private static bool isInitialized;
 
         public static void Initialize(TRenderer renderer)
         {
-            gizmoBuffer = renderer.RenderBuffer;
             isInitialized = true;
+            gizmoRenderer = renderer;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -24,7 +24,7 @@ namespace UGizmo.Internal
                 return;
             }
 
-            gizmoBuffer.Add(data);
+            gizmoRenderer.GizmoDrawBuffer.Add(data);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -34,14 +34,14 @@ namespace UGizmo.Internal
             {
                 return;
             }
-            
-            gizmoBuffer?.AddRange(data, length);
+
+            gizmoRenderer.GizmoDrawBuffer.AddRange(data, length);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TJobData* Reserve(int count)
         {
-            return gizmoBuffer.Reserve(count);
+            return gizmoRenderer.GizmoDrawBuffer.Reserve(count);
         }
     }
 }

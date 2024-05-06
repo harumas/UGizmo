@@ -8,7 +8,7 @@ namespace UGizmo.Internal.Extension
         public override string MaterialName => "CommonWire";
     }
 
-    internal sealed class WireCube : GizmoRenderer<PrimitiveData>
+    internal sealed class WireCube : GizmoDrawer<PrimitiveData>
     {
         public override int RenderQueue => 3000;
     }

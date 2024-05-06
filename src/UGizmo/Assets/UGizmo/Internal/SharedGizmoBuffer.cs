@@ -2,53 +2,55 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine;
 
 namespace UGizmo.Internal
 {
     [BurstCompile]
     internal unsafe class SharedGizmoBuffer<TJobData> : IDisposable where TJobData : unmanaged
     {
-        public UnsafeList<TJobData> JobBuffer => jobBuffer;
+        public ref UnsafeList<TJobData> JobBuffer => ref backJobBuffer.Ref;
 
-        public UnsafeList<RenderData> RenderBuffer
+        public ref UnsafeList<RenderData> RenderBuffer
         {
             get
             {
-                renderBuffer.Resize(jobBuffer.Length);
-                return renderBuffer;
+                renderBuffer.Resize(backJobBuffer.Ref.Length);
+                return ref renderBuffer;
             }
         }
 
         private static SharedGizmoBuffer<TJobData> instance;
-
-        private const int InitialCapacity = 4192;
-        private UnsafeList<TJobData> jobBuffer = new UnsafeList<TJobData>(InitialCapacity, Allocator.Persistent);
-        private UnsafeList<RenderData> renderBuffer = new UnsafeList<RenderData>(InitialCapacity, Allocator.Persistent);
 
         public static SharedGizmoBuffer<TJobData> GetSharedBuffer()
         {
             return instance ??= new SharedGizmoBuffer<TJobData>();
         }
 
+        private const int InitialCapacity = 4192;
+        private UnsafeListReference<TJobData> frontJobBuffer = new UnsafeListReference<TJobData>(InitialCapacity, Allocator.Persistent);
+        private UnsafeListReference<TJobData> backJobBuffer = new UnsafeListReference<TJobData>(InitialCapacity, Allocator.Persistent);
+        private UnsafeList<RenderData> renderBuffer = new UnsafeList<RenderData>(InitialCapacity, Allocator.Persistent);
+
         public int Add(in TJobData jobData)
         {
-            int handle = jobBuffer.Length;
-            jobBuffer.Add(jobData);
+            int handle = backJobBuffer.Ref.Length;
+            backJobBuffer.Ref.Add(jobData);
             return handle;
         }
 
         public (int start, int length) AddRange(TJobData* jobData, int count)
         {
-            int length = jobBuffer.Length;
-            jobBuffer.AddRange(jobData, count);
+            int length = backJobBuffer.Ref.Length;
+            backJobBuffer.Ref.AddRange(jobData, count);
             return (length, count);
         }
 
         public (int start, int length) Reserve(int count, out TJobData* targetPtr)
         {
-            int length = jobBuffer.Length;
-            jobBuffer.Resize(length + count);
-            targetPtr = jobBuffer.Ptr + length;
+            int length = backJobBuffer.Ref.Length;
+            backJobBuffer.Ref.Resize(length + count);
+            targetPtr = backJobBuffer.Ref.Ptr + length;
             return (length, count);
         }
 
@@ -61,15 +63,22 @@ namespace UGizmo.Internal
             }
         }
 
+        public void Swap()
+        {
+            (frontJobBuffer, backJobBuffer) = (backJobBuffer, frontJobBuffer);
+            backJobBuffer.Ref.Clear();
+        }
+
         public void Clear()
         {
-            jobBuffer.Clear();
+            backJobBuffer.Ref.Clear();
             renderBuffer.Clear();
         }
 
         public void Dispose()
         {
-            jobBuffer.Dispose();
+            frontJobBuffer.Dispose();
+            backJobBuffer.Dispose();
             renderBuffer.Dispose();
         }
     }

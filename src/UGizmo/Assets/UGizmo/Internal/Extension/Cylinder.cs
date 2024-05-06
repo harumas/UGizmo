@@ -8,7 +8,7 @@ namespace UGizmo.Internal.Extension
         public override string MaterialName => "CommonMesh";
     }
 
-    internal sealed class Cylinder : GizmoRenderer<PrimitiveData>
+    internal sealed class Cylinder : GizmoDrawer<PrimitiveData>
     {
     }
 }

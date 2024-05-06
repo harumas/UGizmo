@@ -8,7 +8,7 @@ namespace UGizmo.Internal.Extension
         public override string MaterialName => "CommonWire";
     }
 
-    internal sealed class WireLine : GizmoRenderer<LineData>
+    internal sealed class WireLine : GizmoDrawer<LineData>
     {
         public override int RenderQueue => 3000;
     }

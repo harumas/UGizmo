@@ -8,7 +8,7 @@ namespace UGizmo.Internal.Extension
         public override string MaterialName => "CommonMesh";
     }
 
-    internal sealed class Hemisphere : GizmoRenderer<PrimitiveData>
+    internal sealed class Hemisphere : GizmoDrawer<PrimitiveData>
     {
     }
 }
