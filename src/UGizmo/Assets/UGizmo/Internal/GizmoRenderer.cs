@@ -11,7 +11,6 @@ namespace UGizmo.Internal
         int RenderQueue { get; }
         void Draw(CommandBuffer commandBuffer);
         void UploadGpuData();
-        void SwapBuffer();
     }
 
     [BurstCompile]
@@ -36,6 +35,10 @@ namespace UGizmo.Internal
         public void UploadGpuData()
         {
             GizmoDrawBuffer.UploadGpuData();
+
+            //Swap buffer
+            SharedGizmoBuffer<TJobData>.GetSharedBuffer().Swap();
+            bufferCount = GizmoDrawBuffer.Count;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -48,12 +51,6 @@ namespace UGizmo.Internal
 
             commandBuffer.DrawMeshInstancedProcedural(mesh, 0, material, -1, bufferCount, GizmoDrawBuffer.GetPropertyBlock());
             GizmoDrawBuffer.Clear();
-        }
-        
-        public void SwapBuffer()
-        {
-            SharedGizmoBuffer<TJobData>.GetSharedBuffer().Swap();
-            bufferCount = GizmoDrawBuffer.Count;
         }
 
         public void Dispose()

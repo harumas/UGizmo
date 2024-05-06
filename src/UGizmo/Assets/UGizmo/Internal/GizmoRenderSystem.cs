@@ -54,7 +54,6 @@ namespace UGizmo.Internal
             foreach (var drawer in drawers.AsSpan())
             {
                 drawer.UploadGpuData();
-                drawer.SwapBuffer();
             }
         }
 
