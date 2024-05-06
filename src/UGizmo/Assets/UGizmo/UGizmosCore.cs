@@ -74,7 +74,7 @@ namespace UGizmo
             var data = new CapsuleData(center, upAxis, height, radius, color);
             PreparableGizmo<Capsule, CapsuleData>.AddData(data);
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void DrawWireCapsuleCore(float3 center, float3 upAxis, float height, float radius, Color color)
         {

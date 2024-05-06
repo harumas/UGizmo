@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using UGizmo.Internal;
 using UGizmo.Internal.Extension.Jobs;
 using Unity.Burst;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ using UnityEditor;
 
 namespace UGizmo
 {
+    [BurstCompile]
     public static partial class UGizmos
     {
         private static readonly Color trueColor = new Color(0.12f, 0.75f, 1f, 1f);
@@ -114,10 +116,10 @@ namespace UGizmo
         /// <param name="point2"></param>
         /// <param name="radius"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawCapsule(Vector3 point1, Vector3 point2, float radius, Color color)
+        public static void DrawCapsule(Vector3 point1, Vector3 point2, float radius, Color color)
         {
             float3 diff = point2 - point1;
-            GizmoUtil.LengthAndNormalize(&diff, out float length, out float3 normal);
+            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
             DrawCapsuleCore((float3)point1 + diff * 0.5f, normal, length + radius * 2f, radius, color);
         }
 
@@ -153,10 +155,10 @@ namespace UGizmo
         /// <param name="point2"></param>
         /// <param name="radius"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawWireCapsule(Vector3 point1, Vector3 point2, float radius, Color color)
+        public static void DrawWireCapsule(Vector3 point1, Vector3 point2, float radius, Color color)
         {
             float3 diff = point2 - point1;
-            GizmoUtil.LengthAndNormalize(&diff, out float length, out float3 normal);
+            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
             DrawWireCapsuleCore((float3)point1 + diff * 0.5f, normal, length + radius * 2f, radius, color);
         }
 
@@ -179,11 +181,11 @@ namespace UGizmo
         /// <param name="point2"></param>
         /// <param name="radius"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawCylinder(Vector3 point1, Vector3 point2, float radius, Color color)
+        public static void DrawCylinder(Vector3 point1, Vector3 point2, float radius, Color color)
         {
             float3 diff = point2 - point1;
-            GizmoUtil.LengthAndNormalize(&diff, out float length, out float3 normal);
-            GizmoUtil.FromUpToRotation(&normal, out quaternion rotation);
+            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
+            GizmoUtil.FromUpToRotation(normal, out quaternion rotation);
             DrawCylinderCore(point1 * diff * 0.5f, rotation, new float3(radius * 2f, length, radius * 2f), color);
         }
 
@@ -206,10 +208,10 @@ namespace UGizmo
         /// <param name="point2"></param>
         /// <param name="radius"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawWireCylinder(Vector3 point1, Vector3 point2, float radius, Color color)
+        public static void DrawWireCylinder(Vector3 point1, Vector3 point2, float radius, Color color)
         {
             float3 diff = point2 - point1;
-            GizmoUtil.LengthAndNormalize(&diff, out float length, out float3 normal);
+            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
             DrawWireCylinderCore((float3)point1 + diff * 0.5f, normal, length + radius * 2f, radius, color);
         }
 
@@ -300,9 +302,9 @@ namespace UGizmo
         /// <param name="rotation"></param>
         /// <param name="radius"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawCircle2D(Vector3 position, Quaternion rotation, float radius, Color color)
+        public static void DrawCircle2D(Vector3 position, Quaternion rotation, float radius, Color color)
         {
-            GizmoUtil.Rotate90X((quaternion*)(&rotation), out quaternion result);
+            GizmoUtil.Rotate90X(rotation, out quaternion result);
             DrawCircleCore(position, result, radius, color);
         }
 
@@ -324,9 +326,9 @@ namespace UGizmo
         /// <param name="rotation"></param>
         /// <param name="radius"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawWireCircle2D(Vector3 position, Quaternion rotation, float radius, Color color)
+        public static void DrawWireCircle2D(Vector3 position, Quaternion rotation, float radius, Color color)
         {
-            GizmoUtil.Rotate90X((quaternion*)(&rotation), out quaternion result);
+            GizmoUtil.Rotate90X(rotation, out quaternion result);
             DrawWireCircleCore(position, result, radius, color);
         }
 
@@ -348,9 +350,9 @@ namespace UGizmo
         /// <param name="rotation"></param>
         /// <param name="size"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawBox2D(Vector3 position, Quaternion rotation, Vector2 size, Color color)
+        public static void DrawBox2D(Vector3 position, Quaternion rotation, Vector2 size, Color color)
         {
-            GizmoUtil.Rotate90X((quaternion*)(&rotation), out quaternion result);
+            GizmoUtil.Rotate90X(rotation, out quaternion result);
             DrawPlaneCore(position, result, size, color);
         }
 
@@ -361,9 +363,9 @@ namespace UGizmo
         /// <param name="angle"></param>
         /// <param name="size"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawBox2D(Vector3 position, float angle, Vector2 size, Color color)
+        public static void DrawBox2D(Vector3 position, float angle, Vector2 size, Color color)
         {
-            GizmoUtil.PlaneToQuad(&angle, out quaternion rotation);
+            GizmoUtil.PlaneToQuad(angle, out quaternion rotation);
             DrawPlaneCore(position, rotation, size, color);
         }
 
@@ -374,9 +376,9 @@ namespace UGizmo
         /// <param name="rotation"></param>
         /// <param name="size"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawWireBox2D(Vector3 position, Quaternion rotation, Vector2 size, Color color)
+        public static void DrawWireBox2D(Vector3 position, Quaternion rotation, Vector2 size, Color color)
         {
-            GizmoUtil.Rotate90X((quaternion*)(&rotation), out quaternion result);
+            GizmoUtil.Rotate90X(rotation, out quaternion result);
             DrawWirePlaneCore(position, result, size, color);
         }
 
@@ -387,9 +389,9 @@ namespace UGizmo
         /// <param name="angle"></param>
         /// <param name="size"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawWireBox2D(Vector3 position, float angle, Vector2 size, Color color)
+        public static void DrawWireBox2D(Vector3 position, float angle, Vector2 size, Color color)
         {
-            GizmoUtil.PlaneToQuad(&angle, out quaternion rotation);
+            GizmoUtil.PlaneToQuad(angle, out quaternion rotation);
             DrawWirePlaneCore(position, rotation, size, color);
         }
 
@@ -412,9 +414,9 @@ namespace UGizmo
         /// <param name="angle"></param>
         /// <param name="size"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawTriangle2D(Vector3 position, float angle, Vector2 size, Color color)
+        public static void DrawTriangle2D(Vector3 position, float angle, Vector2 size, Color color)
         {
-            GizmoUtil.Rotate2D(&angle, out quaternion to);
+            GizmoUtil.Rotate2D(angle, out quaternion to);
             DrawTriangleCore(position, to, size, color);
         }
 
@@ -437,9 +439,9 @@ namespace UGizmo
         /// <param name="angle"></param>
         /// <param name="size"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawWireTriangle2D(Vector3 position, float angle, Vector2 size, Color color)
+        public static void DrawWireTriangle2D(Vector3 position, float angle, Vector2 size, Color color)
         {
-            GizmoUtil.Rotate2D(&angle, out quaternion to);
+            GizmoUtil.Rotate2D(angle, out quaternion to);
             DrawWireTriangleCore(position, to, size, color);
         }
 
@@ -478,9 +480,9 @@ namespace UGizmo
         /// <param name="height"></param>
         /// <param name="radius"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawCapsule2D(Vector3 center, float angle, float height, float radius, Color color)
+        public static void DrawCapsule2D(Vector3 center, float angle, float height, float radius, Color color)
         {
-            GizmoUtil.Rotate2D(&angle, out quaternion to);
+            GizmoUtil.Rotate2D(angle, out quaternion to);
             DrawCapsule2DCore(center, to, height, radius, color);
         }
 
@@ -505,9 +507,9 @@ namespace UGizmo
         /// <param name="height"></param>
         /// <param name="radius"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawWireCapsule2D(Vector3 center, float angle, float height, float radius, Color color)
+        public static void DrawWireCapsule2D(Vector3 center, float angle, float height, float radius, Color color)
         {
-            GizmoUtil.Rotate2D(&angle, out quaternion to);
+            GizmoUtil.Rotate2D(angle, out quaternion to);
             DrawWireCapsule2DCore(center, to, height, radius, color);
         }
 
@@ -552,7 +554,10 @@ namespace UGizmo
 
             fixed (float3* ptr = MemoryMarshal.Cast<Vector3, float3>(points))
             {
-                WriteLineBufferList(ptr, points.Length, color);
+                fixed (LineData* destination = wireLineBuffer)
+                {
+                    WriteLineBufferList_Burst(ptr, destination, points.Length, (float4*)&color);
+                }
             }
 
             fixed (LineData* ptr = wireLineBuffer)
@@ -577,7 +582,10 @@ namespace UGizmo
 
             fixed (float3* ptr = MemoryMarshal.Cast<Vector3, float3>(points))
             {
-                WriteLineBufferStrip(ptr, points.Length, loop, color);
+                fixed (LineData* destination = wireLineBuffer)
+                {
+                    WriteLineBufferStrip_Burst(ptr, destination, points.Length, loop, (float4*)&color);
+                }
             }
 
             fixed (LineData* ptr = wireLineBuffer)
@@ -587,25 +595,25 @@ namespace UGizmo
         }
 
         [BurstCompile]
-        private static unsafe void WriteLineBufferList(float3* points, int count, Color color)
+        private static unsafe void WriteLineBufferList_Burst(float3* points, LineData* destination, int count, float4* color)
         {
             for (int i = 0; i < count / 2; i++)
             {
-                wireLineBuffer[i] = new LineData(points[i * 2], points[i * 2 + 1], color);
+                destination[i] = new LineData(points[i * 2], points[i * 2 + 1], *(Color*)color);
             }
         }
 
         [BurstCompile]
-        private static unsafe void WriteLineBufferStrip(float3* points, int count, bool loop, Color color)
+        private static unsafe void WriteLineBufferStrip_Burst(float3* points, LineData* destination, int count, bool loop, float4* color)
         {
             for (int i = 0; i < count; i++)
             {
-                wireLineBuffer[i] = new LineData(points[i], points[i + 1], color);
+                destination[i] = new LineData(points[i], points[i + 1], *(Color*)color);
             }
 
             if (loop)
             {
-                wireLineBuffer[count] = new LineData(points[count - 1], points[0], color);
+                destination[count] = new LineData(points[count - 1], points[0], *(Color*)color);
             }
         }
 
@@ -698,7 +706,7 @@ namespace UGizmo
 
 #if UNITY_EDITOR
             float3 textNormal = math.normalizesafe(math.cross(camNormal, diff), new float3(0f, 0f, 1f));
-            
+
             GUIStyle skinLabel = GUI.skin.label;
             TextAnchor original = skinLabel.alignment;
             skinLabel.alignment = TextAnchor.MiddleCenter;
@@ -714,13 +722,13 @@ namespace UGizmo
         /// <param name="to"></param>
         /// <param name="interval"></param>
         /// <param name="color"></param>
-        public static unsafe void DrawMeasure(Vector3 from, Vector3 to, float interval, Color color)
+        public static void DrawMeasure(Vector3 from, Vector3 to, float interval, Color color)
         {
             Camera camera = Camera.current;
             float3 a = from;
             float3 b = to;
             float3 diff = to - from;
-            GizmoUtil.LengthAndNormalize(&diff, out float length, out float3 normal);
+            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
 
             float3 cross = math.normalizesafe(math.cross(camera.transform.forward, normal));
 
@@ -863,14 +871,14 @@ namespace UGizmo
         /// <param name="layerMask"></param>
         /// <param name="queryTriggerInteraction"></param>
         /// <returns></returns>
-        public static unsafe bool Linecast(
+        public static bool Linecast(
             Vector3 start,
             Vector3 end,
             int layerMask = -5,
             QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
         {
             float3 diff = end - start;
-            GizmoUtil.LengthAndNormalize(&diff, out float length, out float3 normal);
+            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
             return Raycast(start, normal, length, layerMask, queryTriggerInteraction);
         }
 
@@ -881,14 +889,14 @@ namespace UGizmo
         /// <param name="end"></param>
         /// <param name="isHit"></param>
         /// <param name="hitInfo"></param>
-        public static unsafe void DrawLinecast(
+        public static void DrawLinecast(
             Vector3 start,
             Vector3 end,
             bool isHit,
             in RaycastHit hitInfo)
         {
             float3 diff = end - start;
-            GizmoUtil.LengthAndNormalize(&diff, out float length, out float3 normal);
+            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
             DrawShapeCast(start, normal, length, isHit, in hitInfo, out _);
         }
 
@@ -1043,7 +1051,7 @@ namespace UGizmo
         /// <param name="maxDistance"></param>
         /// <param name="isHit"></param>
         /// <param name="hitInfo"></param>
-        public static unsafe void DrawCapsuleCast(Vector3 point1,
+        public static void DrawCapsuleCast(Vector3 point1,
             Vector3 point2,
             float radius,
             Vector3 direction,
@@ -1062,7 +1070,7 @@ namespace UGizmo
                 DrawPoint(hitInfo.point, pointRadius, trueDarkColor);
             }
 
-            GizmoUtil.LengthAndNormalize(&diff, out float length, out float3 normal);
+            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
             float height = length + radius * 2f;
             DrawWireCapsule(origin, normal, height, radius, color);
             DrawWireCapsule(target, normal, height, radius, color);

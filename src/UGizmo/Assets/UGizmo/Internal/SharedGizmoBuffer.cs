@@ -54,12 +54,17 @@ namespace UGizmo.Internal
             return (length, count);
         }
 
-        [BurstCompile]
         public void SetRenderData(int* handles, RenderData* destination, int count)
+        {
+            SetRenderData_Burst(handles, renderBuffer.Ptr, destination, count);
+        }
+
+        [BurstCompile]
+        private static void SetRenderData_Burst(int* handles, RenderData* origin, RenderData* destination, int count)
         {
             for (int i = 0; i < count; i++)
             {
-                destination[i] = renderBuffer[handles[i]];
+                destination[i] = origin[handles[i]];
             }
         }
 
