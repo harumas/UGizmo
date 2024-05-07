@@ -67,6 +67,23 @@ Package Manager > UGizmo > Samplesを開くと、URPとHDRP向けのサンプル
 
 ![image](https://github.com/harumas/UGizmo/assets/43531665/5e1e4a5e-12d7-4144-9531-9d6de54097f9)
 
+## パフォーマンス
+以下のメソッドをOnDrawGizmos内で呼び出す際に、60fpsを保つことが出来る描画回数を示したベンチマークです。
+具体的なベンチマークのソースはプロジェクト内の`UGizmo.Benchmark`を参照してください。
+```C#
+Gizmos:
+Gizmos.DrawSphere();
+Gizmos.DrawCube();
+Gizmos.DrawLine();
+
+UGizmos:
+UGizmos.DrawSphere();
+UGizmos.DrawCube();
+UGizmos.DrawLine();
+```
+
+![image](https://github.com/harumas/UGizmo/assets/43531665/3a7cde16-151a-4ea7-b4d4-66aebc431f6b)
+
 
 ## ライセンス
 本ライブラリはMITライセンスで公開しています。  
