@@ -2,6 +2,8 @@
 
 Highly efficient gizmo renderer for Unity
 
+[日本語版](https://github.com/harumas/UGizmo/blob/main/README_JA.md)
+
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.md)
 [![license](https://img.shields.io/badge/PR-welcome-green.svg)](https://github.com/HarumaroJP/UGizmo/pulls)
 [![license](https://img.shields.io/badge/Unity-2021.3-green.svg)](#要件)
