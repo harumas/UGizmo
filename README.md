@@ -1,6 +1,6 @@
 # UGizmo
 
-Highly efficient gizmo renderer for Unity
+Highly efficient gizmo renderer for Unity.
 
 [日本語版](https://github.com/harumas/UGizmo/blob/main/README_JA.md)
 
