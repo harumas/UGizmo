@@ -35,7 +35,7 @@ UGizmoはGPU instancingを用いてドローコールを削減することによ
 https://github.com/harumas/UGizmo.git?path=src/UGizmo/Assets/UGizmo
 ```
 
-あるいはPackages/manifest.jsonを開き、dependenciesブロックに以下を追記
+もしくはPackages/manifest.jsonを開き、dependenciesブロックに以下を追記してください。
 
 ```json
 {
@@ -84,6 +84,80 @@ UGizmos.DrawLine();
 
 ![image](https://github.com/harumas/UGizmo/assets/43531665/3a7cde16-151a-4ea7-b4d4-66aebc431f6b)
 
+## 機能リスト
+
+### 3D Primitives
+| 名前 | 補足 |
+| --- | --- |
+| `DrawSphere()` | 球体は従来の倍の頂点数 |
+| `DrawWireSphere()` | 球体は従来の倍の頂点数 |
+| `DrawCube()` | |
+| `DrawWireCube()` | |
+| `DrawCapsule()` | |
+| `DrawWireCapsule()` | |
+| `DrawCylinder()` | |
+| `DrawWireCylinder()` | |
+| `DrawCone()` | |
+| `DrawWireCone()` | |
+| `DrawPlane()` | |
+| `DrawWirePlane()` | |
+
+### 2D Primitives
+| 名前 | 補足 |
+| --- | --- |
+| `DrawCircle2D()` | |
+| `DrawWireCircle2D()` | |
+| `DrawBox2D()` | |
+| `DrawWireBox2D()` | |
+| `DrawTriangle2D()` | |
+| `DrawWireTriangle2D()` | |
+| `DrawCapsule2D()` | |
+| `DrawWireCapsule2D()` | |
+
+### Utilites
+| 名前 | 補足 |
+| --- | --- |
+| `DrawPoint()` | 球体が最前面に描画されます |
+| `DrawLine()` | |
+| `DrawLineList()` | |
+| `DrawLineStrip()` | |
+| `DrawRay()` | |
+| `DrawFrustum()` | |
+| `DrawDistance()` | aからbの距離を表示します。ランタイムでは距離は表示されません。 |
+| `DrawMeasure()` | 一定間隔で区切られた線を描画します |
+| `DrawArrow()` | |
+| `DrawArrow2d()` | |
+| `DrawFacingArrow2d()` | 常にカメラに向きます |
+| `DrawWireArrow()` | |
+| `DrawFacingWireArrow()` | 常にカメラに向きます |
+
+### 3D Physics
+| 名前 | 補足 |
+| --- | --- |
+| `Raycast()` | 実際にレイキャストを行い、結果を描画します。 |
+| `DrawRaycast()` | RaycastHit構造体を渡して、レイキャストの結果を描画します。 |
+| `Linecast()` |  |
+| `DrawLinecast()` |  |
+| `SphereCast()` |  |
+| `DrawSphereCast()` |  |
+| `BoxCast()` |  |
+| `DrawBoxCast()` |  |
+| `CapsuleCast()` |  |
+| `DrawCapsuleCast()` |  |
+
+### 2D Physics
+| 名前 | 補足 |
+| --- | --- |
+| `Raycast2D()` | 実際にレイキャストを行い、結果を描画します。 |
+| `DrawRaycast2D()` | RaycastHit構造体を渡して、レイキャストの結果を描画します。 |
+| `Linecast2D()` |  |
+| `DrawLinecast2D()` |  |
+| `SphereCast2D()` |  |
+| `DrawSphereCast2D()` |  |
+| `BoxCast2D()` |  |
+| `DrawBoxCast2D()` |  |
+| `CapsuleCast2D()` |  |
+| `DrawCapsuleCast2D()` |  |
 
 ## ライセンス
 本ライブラリはMITライセンスで公開しています。  
