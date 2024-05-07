@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using Unity.Burst;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -10,6 +11,7 @@ namespace UGizmo.Internal
     {
         int RenderQueue { get; }
         void Draw(CommandBuffer commandBuffer);
+        void DrawWithCamera(Camera camera);
         void UploadGpuData();
     }
 
@@ -48,9 +50,15 @@ namespace UGizmo.Internal
             {
                 return;
             }
-
+            
             commandBuffer.DrawMeshInstancedProcedural(mesh, 0, material, -1, bufferCount, GizmoDrawBuffer.GetPropertyBlock());
             GizmoDrawBuffer.Clear();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DrawWithCamera(Camera camera)
+        {
+            Graphics.DrawMeshInstancedProcedural(mesh, 0, material, new Bounds(Vector3.zero, Vector3.one * 10000), bufferCount, GizmoDrawBuffer.GetPropertyBlock(), ShadowCastingMode.Off, false, 0, camera, LightProbeUsage.Off);
         }
 
         public void Dispose()

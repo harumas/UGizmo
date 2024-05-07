@@ -18,9 +18,11 @@ namespace UGizmo.Internal
         private static readonly GizmoRenderSystem renderSystem;
         private static bool isFirstRun = true;
         private static bool usingHDRP;
+        private static bool usingSRP;
 
         static UGizmoDispatcher()
         {
+            usingSRP = GraphicsSettings.currentRenderPipeline != null;
             usingHDRP = GraphicsSettings.currentRenderPipeline.GetType().ToString().Contains("HighDefinition");
             
 #if UNITY_EDITOR
@@ -29,7 +31,15 @@ namespace UGizmo.Internal
             profilingSampler = new ProfilingSampler("DrawUGizmos");
             commandBuffer = CommandBufferPool.Get();
             renderSystem = new GizmoRenderSystem();
-            RenderPipelineManager.endCameraRendering += OnEndCameraRendering;
+
+            if (usingSRP)
+            {
+                RenderPipelineManager.endCameraRendering += OnEndCameraRendering;
+            }
+            else
+            {
+                Camera.onPreCull += OnPreCull;
+            }
         }
 
 #if !UNITY_EDITOR
@@ -61,16 +71,16 @@ namespace UGizmo.Internal
 
             if (usingHDRP)
             {
-                context.Submit();               
+                context.Submit();
             }
 
             bool updateRenderData = previousFrame != Time.renderedFrameCount;
 
             if (updateRenderData)
             {
-                renderSystem.ExecuteCreateJob(); 
+                renderSystem.ExecuteCreateJob();
             }
-               
+
             using (new ProfilingScope(commandBuffer, profilingSampler))
             {
                 renderSystem.SetCommandBuffer(commandBuffer);
@@ -78,6 +88,22 @@ namespace UGizmo.Internal
 
             context.ExecuteCommandBuffer(commandBuffer);
             context.Submit();
+
+            renderSystem.ClearScheduler();
+            commandBuffer.Clear();
+            previousFrame = Time.renderedFrameCount;
+        }
+
+        private static void OnPreCull(Camera camera)
+        {
+            bool updateRenderData = previousFrame != Time.renderedFrameCount;
+
+            if (updateRenderData)
+            {
+                renderSystem.ExecuteCreateJob();
+            }
+
+            renderSystem.DrawWithCamera(camera);
 
             renderSystem.ClearScheduler();
             commandBuffer.Clear();

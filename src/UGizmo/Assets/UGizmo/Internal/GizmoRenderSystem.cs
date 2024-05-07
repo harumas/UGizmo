@@ -65,6 +65,15 @@ namespace UGizmo.Internal
             }
         }
 
+        public void DrawWithCamera(Camera camera)
+        {
+            foreach (IGizmoDrawer drawer in drawers.AsSpan())
+            {
+                drawer.DrawWithCamera(camera);
+            }
+        }
+        
+
         public void ClearScheduler()
         {
             foreach (IGizmoJobScheduler scheduler in jobSchedulers.AsSpan())

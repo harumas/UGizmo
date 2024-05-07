@@ -1198,7 +1198,7 @@ namespace UGizmo
         /// <param name="minDepth"></param>
         /// <param name="maxDepth"></param>
         /// <returns></returns>
-        public static RaycastHit2D Circlecast2D(
+        public static RaycastHit2D CircleCast2D(
             Vector2 origin,
             float radius,
             Vector2 direction,
@@ -1208,7 +1208,7 @@ namespace UGizmo
             float maxDepth = float.MaxValue)
         {
             ContactFilter2D legacyFilter = CreateLegacyFilter(layerMask, minDepth, maxDepth);
-            return Circlecast2D(origin, radius, direction, legacyFilter, distance);
+            return CircleCast2D(origin, radius, direction, legacyFilter, distance);
         }
 
         /// <summary>
@@ -1220,7 +1220,7 @@ namespace UGizmo
         /// <param name="contactFilter2D"></param>
         /// <param name="distance"></param>
         /// <returns></returns>
-        public static RaycastHit2D Circlecast2D(
+        public static RaycastHit2D CircleCast2D(
             Vector2 origin,
             float radius,
             Vector2 direction,
@@ -1260,7 +1260,7 @@ namespace UGizmo
         /// <param name="minDepth"></param>
         /// <param name="maxDepth"></param>
         /// <returns></returns>
-        public static RaycastHit2D Boxcast2D(
+        public static RaycastHit2D BoxCast2D(
             Vector2 origin,
             Vector2 size,
             float angle,
@@ -1271,7 +1271,7 @@ namespace UGizmo
             float maxDepth = float.MaxValue)
         {
             ContactFilter2D legacyFilter = CreateLegacyFilter(layerMask, minDepth, maxDepth);
-            return Boxcast2D(origin, size, angle, direction, legacyFilter, distance);
+            return BoxCast2D(origin, size, angle, direction, legacyFilter, distance);
         }
 
         /// <summary>
@@ -1284,7 +1284,7 @@ namespace UGizmo
         /// <param name="contactFilter2D"></param>
         /// <param name="distance"></param>
         /// <returns></returns>
-        public static RaycastHit2D Boxcast2D(
+        public static RaycastHit2D BoxCast2D(
             Vector2 origin,
             Vector2 size,
             float angle,
@@ -1326,7 +1326,7 @@ namespace UGizmo
         /// <param name="minDepth"></param>
         /// <param name="maxDepth"></param>
         /// <returns></returns>
-        public static RaycastHit2D Capsulecast2D(
+        public static RaycastHit2D CapsuleCast2D(
             Vector2 origin,
             Vector2 size,
             float angle,
@@ -1338,7 +1338,7 @@ namespace UGizmo
             float maxDepth = float.MaxValue)
         {
             ContactFilter2D legacyFilter = CreateLegacyFilter(layerMask, minDepth, maxDepth);
-            return Capsulecast2D(origin, size, angle, capsuleDirection, direction, legacyFilter, distance);
+            return CapsuleCast2D(origin, size, angle, capsuleDirection, direction, legacyFilter, distance);
         }
 
         /// <summary>
@@ -1352,7 +1352,7 @@ namespace UGizmo
         /// <param name="contactFilter2D"></param>
         /// <param name="distance"></param>
         /// <returns></returns>
-        public static RaycastHit2D Capsulecast2D(
+        public static RaycastHit2D CapsuleCast2D(
             Vector2 origin,
             Vector2 size,
             float angle,
