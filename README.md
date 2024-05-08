@@ -8,7 +8,7 @@ Highly efficient gizmo renderer for Unity.
 [![license](https://img.shields.io/badge/PR-welcome-green.svg)](https://github.com/HarumaroJP/UGizmo/pulls)
 [![license](https://img.shields.io/badge/Unity-2021.3-green.svg)](#要件)
 
-![UGizmo-02](https://github.com/harumas/UGizmo/assets/43531665/14cd2412-19fa-48de-94ae-47973ee5ca99)
+![UGizmo-02](https://github.com/harumas/UGizmo/assets/43531665/81bb8462-d39a-4009-a634-dea451ab5f17)
 
 ## Overview
 
