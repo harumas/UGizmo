@@ -1,47 +1,46 @@
 ﻿using System.Runtime.CompilerServices;
-using UnityEngine;
 
 namespace UGizmo.Internal
 {
-    internal static unsafe class Gizmo<TRenderer, TJobData>
-        where TRenderer : GizmoDrawer<TJobData>
+    internal static unsafe class Gizmo<TDrawer, TJobData>
+        where TDrawer : GizmoDrawer<TJobData>
         where TJobData : unmanaged
     {
-        private static TRenderer gizmoRenderer;
+        private static TDrawer gizmoDrawer;
         private static bool isInitialized;
 
-        public static void Initialize(TRenderer renderer)
+        public static void Initialize(TDrawer drawer)
         {
             isInitialized = true;
-            gizmoRenderer = renderer;
+            gizmoDrawer = drawer;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddData(in TJobData data)
+        public static void AddData(in TJobData data, float duration)
         {
             if (!isInitialized)
             {
                 return;
             }
 
-            gizmoRenderer.GizmoDrawBuffer.Add(data);
+            gizmoDrawer.Add(data, duration);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddDataRange(TJobData* data, int length)
+        public static void AddDataRange(TJobData* data, int length, float duration)
         {
             if (!isInitialized)
             {
                 return;
             }
 
-            gizmoRenderer.GizmoDrawBuffer.AddRange(data, length);
+            gizmoDrawer.AddRange(data, length, duration);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TJobData* Reserve(int count)
         {
-            return gizmoRenderer.GizmoDrawBuffer.Reserve(count);
+            return gizmoDrawer.Reserve(count);
         }
     }
 }

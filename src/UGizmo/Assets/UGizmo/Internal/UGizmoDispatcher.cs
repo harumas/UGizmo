@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -15,7 +14,7 @@ namespace UGizmo.Internal
     {
         private static readonly ProfilingSampler profilingSampler;
         private static readonly CommandBuffer commandBuffer;
-        private static readonly GizmoRenderSystem renderSystem;
+        private static readonly GizmoDrawSystem drawSystem;
         private static bool isFirstRun = true;
         private static bool usingHDRP;
         private static bool usingSRP;
@@ -24,13 +23,20 @@ namespace UGizmo.Internal
         {
             usingSRP = GraphicsSettings.currentRenderPipeline != null;
             usingHDRP = usingSRP && GraphicsSettings.currentRenderPipeline.GetType().ToString().Contains("HighDefinition");
-            
+
 #if UNITY_EDITOR
             EditorApplication.update += Initialize;
+            EditorApplication.playModeStateChanged += state =>
+            {
+                if (state == PlayModeStateChange.ExitingPlayMode || state == PlayModeStateChange.ExitingEditMode)
+                {
+                    drawSystem?.ClearContinuousGizmo();
+                }
+            };
 #endif
             profilingSampler = new ProfilingSampler("DrawUGizmos");
             commandBuffer = CommandBufferPool.Get();
-            renderSystem = new GizmoRenderSystem();
+            drawSystem = new GizmoDrawSystem();
 
             if (usingSRP)
             {
@@ -52,7 +58,7 @@ namespace UGizmo.Internal
                 return;
             }
 
-            renderSystem.Initialize();
+            drawSystem.Initialize();
             isFirstRun = false;
         }
 
@@ -78,18 +84,18 @@ namespace UGizmo.Internal
 
             if (updateRenderData)
             {
-                renderSystem.ExecuteCreateJob();
+                drawSystem.ExecuteCreateJob();
             }
 
             using (new ProfilingScope(commandBuffer, profilingSampler))
             {
-                renderSystem.SetCommandBuffer(commandBuffer);
+                drawSystem.SetCommandBuffer(commandBuffer);
             }
 
             context.ExecuteCommandBuffer(commandBuffer);
             context.Submit();
 
-            renderSystem.ClearScheduler();
+            drawSystem.ClearScheduler();
             commandBuffer.Clear();
             previousFrame = Time.renderedFrameCount;
         }
@@ -104,17 +110,17 @@ namespace UGizmo.Internal
             {
                 return;
             }
-            
+
             bool updateRenderData = previousFrame != Time.renderedFrameCount;
 
             if (updateRenderData)
             {
-                renderSystem.ExecuteCreateJob();
+                drawSystem.ExecuteCreateJob();
             }
 
-            renderSystem.DrawWithCamera(camera);
+            drawSystem.DrawWithCamera(camera);
 
-            renderSystem.ClearScheduler();
+            drawSystem.ClearScheduler();
             previousFrame = Time.renderedFrameCount;
         }
     }

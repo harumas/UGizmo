@@ -7,7 +7,7 @@ public class UGizmoBenchmark : MonoBehaviour
 {
     [SerializeField] private float targetFps = 60f;
     [SerializeField] private bool useUGizmo;
-    [SerializeField] private int tryMax = 10;
+    [SerializeField] private int tryMax = 5;
     [SerializeField] private int drawCount;
 
     [SerializeField] private float radius = 5f;

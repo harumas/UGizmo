@@ -16,7 +16,7 @@ using UnityEngine;
 
 namespace UGizmo.Internal
 {
-    internal unsafe class GizmoRenderSystem
+    internal unsafe class GizmoDrawSystem
     {
         private NoResizableList<IGizmoDrawer> drawers;
         private NoResizableList<IPreparingJobScheduler> preparingJobSchedulers;
@@ -48,6 +48,11 @@ namespace UGizmo.Internal
 
         public void ExecuteCreateJob()
         {
+            foreach (var drawer in drawers.AsSpan())
+            {
+                drawer.EnqueueContinuousGizmo();
+            }
+
             ExecutePrepareGizmoJob();
             ExecuteGizmoJob();
 
@@ -72,7 +77,19 @@ namespace UGizmo.Internal
                 drawer.DrawWithCamera(camera);
             }
         }
-        
+
+        public void ClearContinuousGizmo()
+        {
+            foreach (IGizmoDrawer drawer in drawers.AsSpan())
+            {
+                drawer.ClearContinuousGizmo();
+            }
+
+            foreach (IPreparingJobScheduler scheduler in preparingJobSchedulers.AsSpan())
+            {
+                scheduler.ClearContinuousGizmo();
+            }
+        }
 
         public void ClearScheduler()
         {
@@ -91,6 +108,7 @@ namespace UGizmo.Internal
         {
             foreach (var scheduler in preparingJobSchedulers.AsSpan())
             {
+                scheduler.EnqueueContinuousGizmo();
                 preparingJobHandles.Add(scheduler.Schedule());
             }
 

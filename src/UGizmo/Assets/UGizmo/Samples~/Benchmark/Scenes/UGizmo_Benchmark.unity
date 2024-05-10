@@ -132,7 +132,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 726986449}
-  - component: {fileID: 726986448}
+  - component: {fileID: 726986450}
   m_Layer: 0
   m_Name: Benchmark
   m_TagString: Untagged
@@ -140,25 +140,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &726986448
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 726986447}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a5d78fb74e3c5d4fbc0b3f613b37a81, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetFps: 60
-  useUGizmo: 1
-  tryMax: 10
-  drawCount: 0
-  radius: 30
-  center: {x: 0, y: 0, z: 0}
-  cubeSize: 0.4
 --- !u!4 &726986449
 Transform:
   m_ObjectHideFlags: 0
@@ -174,6 +155,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &726986450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 726986447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5d78fb74e3c5d4fbc0b3f613b37a81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetFps: 100
+  useUGizmo: 1
+  tryMax: 5
+  drawCount: 0
+  radius: 50
+  center: {x: 0, y: 0, z: 0}
+  cubeSize: 1
 --- !u!1 &1397893173
 GameObject:
   m_ObjectHideFlags: 0

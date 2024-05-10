@@ -16,14 +16,14 @@ namespace UGizmo.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddData(in TPrepareData data)
+        public static void AddData(in TPrepareData data, float duration)
         {
             if (!isInitialized)
             {
                 return;
             }
             
-            scheduler.Add(data);
+            scheduler.Add(data, duration);
         }
     }
 }

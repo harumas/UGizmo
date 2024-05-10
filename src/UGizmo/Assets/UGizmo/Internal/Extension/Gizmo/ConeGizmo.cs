@@ -1,6 +1,5 @@
 ﻿using UGizmo.Internal.Extension.Jobs;
 using Unity.Jobs;
-using UnityEngine;
 
 namespace UGizmo.Internal.Extension.Gizmo
 {

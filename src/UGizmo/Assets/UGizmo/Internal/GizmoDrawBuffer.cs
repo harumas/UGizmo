@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 namespace UGizmo.Internal
@@ -25,8 +24,8 @@ namespace UGizmo.Internal
 
         private static readonly MethodInfo setNativeDataMethod;
         private static readonly int renderBufferProperty = Shader.PropertyToID("_RenderBuffer");
-        
-        
+
+
         static GizmoDrawBuffer()
         {
             setNativeDataMethod = typeof(GraphicsBuffer).GetRuntimeMethods().First(method => method.Name == "InternalSetNativeData");
@@ -48,7 +47,7 @@ namespace UGizmo.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(in TJobData data)
         {
-            CheckCapacity();
+            EnsureCapacity(1);
 
             handleBuffer[Count++] = gizmoBuffer.Add(data);
         }
@@ -56,7 +55,7 @@ namespace UGizmo.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddRange(TJobData* data, int count)
         {
-            CheckCapacity();
+            EnsureCapacity(count);
 
             int offset = Count;
             Count += count;
@@ -71,7 +70,7 @@ namespace UGizmo.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TJobData* Reserve(int count)
         {
-            CheckCapacity();
+            EnsureCapacity(count);
 
             int offset = Count;
             Count += count;
@@ -100,19 +99,20 @@ namespace UGizmo.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void CheckCapacity()
+        private void EnsureCapacity(int offset)
         {
-            if (Count >= graphicsBuffer.count)
+            if (Count + offset > graphicsBuffer.count)
             {
                 int count = graphicsBuffer.count;
+                int newCapacity = Math.Max(Count + offset, count * 2);
                 graphicsBuffer?.Dispose();
-                graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, count * 2, Marshal.SizeOf<RenderData>());
+                graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, newCapacity, Marshal.SizeOf<RenderData>());
                 propertyBlock.SetBuffer(renderBufferProperty, graphicsBuffer);
 
                 setNativeData = CreateInternalSetDataDelegate();
 
-                UnmanagedUtility.ResizePointer(ref handleBuffer, count, count * 2, Allocator.Persistent);
-                UnmanagedUtility.ResizePointer(ref renderBuffer, count, count * 2, Allocator.Persistent);
+                UnmanagedUtility.ResizePointer(ref handleBuffer, count, newCapacity, Allocator.Persistent);
+                UnmanagedUtility.ResizePointer(ref renderBuffer, count, newCapacity, Allocator.Persistent);
             }
         }
 
@@ -121,7 +121,7 @@ namespace UGizmo.Internal
             Type targetType = typeof(Action<IntPtr, int, int, int, int>);
             return (Action<IntPtr, int, int, int, int>)Delegate.CreateDelegate(targetType, graphicsBuffer, setNativeDataMethod);
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
