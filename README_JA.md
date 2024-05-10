@@ -62,10 +62,10 @@ public class DrawCubeSample : MonoBehaviour
 }
 ```
 
-
 Package Manager > UGizmo > Samplesを開くと、URPとHDRP向けのサンプルをインストールすることができます。
 
-![image](https://github.com/harumas/UGizmo/assets/43531665/5e1e4a5e-12d7-4144-9531-9d6de54097f9)
+![image](https://github.com/harumas/UGizmo/assets/43531665/a321d8b5-0ef9-40a5-b24b-cd901af8f8f1)
+
 
 ## 機能リスト
 
