@@ -2,7 +2,7 @@
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
-namespace UGizmo.Internal
+namespace UGizmo.Internal.Utility
 {
     internal static unsafe class UnmanagedUtility
     {

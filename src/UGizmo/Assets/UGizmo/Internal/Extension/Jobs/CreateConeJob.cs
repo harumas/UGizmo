@@ -16,7 +16,7 @@ namespace UGizmo.Internal.Extension.Jobs
 
         [NativeDisableUnsafePtrRestriction]
         [WriteOnly]
-        public RenderData* Result;
+        public DrawData* Result;
 
         [BurstCompile]
         public void Execute([AssumeRange(0, int.MaxValue)] int index)
@@ -34,7 +34,7 @@ namespace UGizmo.Internal.Extension.Jobs
             float3 scale = new float3(width, coneData->Distance, width);
 
             float4x4 matrix = float4x4.TRS(position, rotation, scale);
-            Result[index] = new RenderData(matrix, coneData->Color);
+            Result[index] = new DrawData(matrix, coneData->Color);
         }
     }
 }

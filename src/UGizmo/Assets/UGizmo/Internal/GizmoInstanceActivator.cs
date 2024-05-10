@@ -1,26 +1,27 @@
 ﻿using System;
 using System.Linq;
 using UGizmo.Internal.Extension.Gizmo;
+using UGizmo.Internal.Utility;
 using UnityEngine;
 
 namespace UGizmo.Internal
 {
     internal class GizmoInstanceActivator : IDisposable
     {
-        public NoResizableList<IGizmoDrawer> Updaters;
+        public NoResizableList<IGizmoDrawer> Drawers;
         public NoResizableList<IPreparingJobScheduler> PreparingJobSchedulers;
         public NoResizableList<IGizmoJobScheduler> JobSchedulers;
 
         public void Activate()
         {
-            Updaters = new NoResizableList<IGizmoDrawer>();
+            Drawers = new NoResizableList<IGizmoDrawer>();
             PreparingJobSchedulers = new NoResizableList<IPreparingJobScheduler>();
             JobSchedulers = new NoResizableList<IGizmoJobScheduler>();
 
             RegisterElements();
 
-            var sortedArray = Updaters.Take(Updaters.Count).OrderBy(renderer => renderer.RenderQueue).ToArray();
-            Updaters.SetArray(sortedArray);
+            var sortedArray = Drawers.Take(Drawers.Count).OrderBy(renderer => renderer.RenderQueue).ToArray();
+            Drawers.SetArray(sortedArray);
         }
 
         private void RegisterElements()
@@ -37,7 +38,7 @@ namespace UGizmo.Internal
                     }
 
                     Type[] interfaces = type.GetInterfaces();
-
+                    
                     if (interfaces.Contains(typeof(IGizmoCreator)))
                     {
                         var gizmoElement = (IGizmoCreator)Activator.CreateInstance(type);
@@ -57,16 +58,16 @@ namespace UGizmo.Internal
             }
         }
 
-        internal void RegisterRenderer<TRenderer, TJobData>(GizmoAsset<TRenderer, TJobData> asset)
-            where TRenderer : GizmoDrawer<TJobData>, new()
+        internal void RegisterDrawer<TDrawer, TJobData>(GizmoAsset<TDrawer, TJobData> asset)
+            where TDrawer : GizmoDrawer<TJobData>, new()
             where TJobData : unmanaged
         {
-            TRenderer gizmoRenderer = new TRenderer();
+            TDrawer gizmoDrawer = new TDrawer();
             (Mesh mesh, Material material) = AssetUtility.CreateMeshAndMaterial(asset.MeshName, asset.MaterialName);
-            gizmoRenderer.Initialize(mesh, material);
+            gizmoDrawer.Initialize(mesh, material);
 
-            Gizmo<TRenderer, TJobData>.Initialize(gizmoRenderer);
-            Updaters.Add(gizmoRenderer);
+            Gizmo<TDrawer, TJobData>.Initialize(gizmoDrawer);
+            Drawers.Add(gizmoDrawer);
         }
 
         internal void RegisterScheduler<TScheduler, TJobData>(TScheduler scheduler)
@@ -79,9 +80,9 @@ namespace UGizmo.Internal
 
         public void Dispose()
         {
-            foreach (var gizmoRenderer in Updaters.AsSpan())
+            foreach (var drawer in Drawers.AsSpan())
             {
-                gizmoRenderer.Dispose();
+                drawer.Dispose();
             }
 
             foreach (var jobScheduler in JobSchedulers.AsSpan())

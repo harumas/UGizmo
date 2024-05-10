@@ -45,9 +45,11 @@ namespace UGizmo.Internal.Extension.Jobs
             quaternion topRotation = new quaternion(value);
             quaternion bottomRotation = math.mul(topRotation, correctionValue);
 
+            //Body Quad
             float3 scale = new float3(radius, height - radius * 2f, radius);
             TubeResult[index] = new PrimitiveData(capsuleData->Center, topRotation, scale, capsuleData->Color);
 
+            //Top and Bottom
             float3 sphereOffset = capsuleData->UpAxis * (height * 0.5f - radius);
             float3 pos1 = capsuleData->Center + sphereOffset;
             float3 pos2 = capsuleData->Center - sphereOffset;

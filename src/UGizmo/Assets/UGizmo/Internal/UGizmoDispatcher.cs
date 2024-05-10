@@ -44,6 +44,7 @@ namespace UGizmo.Internal
             }
             else
             {
+                //TODO: BRP Support
                 Camera.onPreCull += OnPreCull;
             }
         }
@@ -77,12 +78,14 @@ namespace UGizmo.Internal
 
             if (usingHDRP)
             {
+                //Run OnDrawGizmos()
                 context.Submit();
             }
 
-            bool updateRenderData = previousFrame != Time.renderedFrameCount;
+            bool updateDrawData = previousFrame != Time.renderedFrameCount;
 
-            if (updateRenderData)
+            //When the frame is updated
+            if (updateDrawData)
             {
                 drawSystem.ExecuteCreateJob();
             }
@@ -111,9 +114,9 @@ namespace UGizmo.Internal
                 return;
             }
 
-            bool updateRenderData = previousFrame != Time.renderedFrameCount;
+            bool updateDrawData = previousFrame != Time.renderedFrameCount;
 
-            if (updateRenderData)
+            if (updateDrawData)
             {
                 drawSystem.ExecuteCreateJob();
             }

@@ -41,13 +41,14 @@ namespace UGizmo.Internal
             activator = new GizmoInstanceActivator();
             activator.Activate();
 
-            drawers = activator.Updaters;
+            drawers = activator.Drawers;
             preparingJobSchedulers = activator.PreparingJobSchedulers;
             jobSchedulers = activator.JobSchedulers;
         }
 
         public void ExecuteCreateJob()
         {
+            //Run Continuous Gizmo
             foreach (var drawer in drawers.AsSpan())
             {
                 drawer.EnqueueContinuousGizmo();

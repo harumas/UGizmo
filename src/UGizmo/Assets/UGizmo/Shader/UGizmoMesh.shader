@@ -28,13 +28,13 @@ Shader "UGizmo/Mesh"
             #pragma multi_compile_instancing
             #include "UnityCG.cginc"
 
-            struct RenderData
+            struct DrawData
             {
                 float4x4 mat;
                 float4 color;
             };
 
-            StructuredBuffer<RenderData> _RenderBuffer;
+            StructuredBuffer<DrawData> _DrawBuffer;
 
             struct Attributes
             {
@@ -51,16 +51,16 @@ Shader "UGizmo/Mesh"
             Varyings vert(Attributes IN, uint instanceID : SV_InstanceID)
             {
                 Varyings o;
-                RenderData render_data = _RenderBuffer[instanceID];
+                DrawData drawData = _DrawBuffer[instanceID];
 
-                float4 pos = mul(render_data.mat, IN.positionOS);
+                float4 pos = mul(drawData.mat, IN.positionOS);
                 o.positionHCS = UnityObjectToClipPos(pos.xyz);
 
-                IN.normal = mul(render_data.mat, IN.normal);
+                IN.normal = mul(drawData.mat, IN.normal);
 
                 float strength = dot(IN.normal, -UNITY_MATRIX_V[2].xyz) * 0.15f + 0.85f;
-                o.color.rgb = render_data.color * (strength * strength);
-                o.color.a = render_data.color.a;
+                o.color.rgb = drawData.color * (strength * strength);
+                o.color.a = drawData.color.a;
 
                 return o;
             }
@@ -92,13 +92,13 @@ Shader "UGizmo/Mesh"
             #pragma multi_compile_instancing
             #include "UnityCG.cginc"
 
-            struct RenderData
+            struct DrawData
             {
                 float4x4 mat;
                 float4 color;
             };
 
-            StructuredBuffer<RenderData> _RenderBuffer;
+            StructuredBuffer<DrawData> _DrawBuffer;
 
             struct Attributes
             {
@@ -114,11 +114,11 @@ Shader "UGizmo/Mesh"
             Varyings vert(Attributes IN, uint instanceID : SV_InstanceID)
             {
                 Varyings o;
-                RenderData render_data = _RenderBuffer[instanceID];
+                DrawData drawData = _DrawBuffer[instanceID];
 
-                float4 pos = mul(render_data.mat, IN.positionOS);
+                float4 pos = mul(drawData.mat, IN.positionOS);
                 o.positionHCS = UnityObjectToClipPos(pos.xyz);
-                o.color = render_data.color;
+                o.color = drawData.color;
                 o.color.a *= 0.3;
 
                 return o;

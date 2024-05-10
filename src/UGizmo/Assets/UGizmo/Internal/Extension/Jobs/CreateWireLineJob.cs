@@ -17,15 +17,15 @@ namespace UGizmo.Internal.Extension.Jobs
 
         [NativeDisableUnsafePtrRestriction]
         [WriteOnly]
-        public RenderData* Result;
+        public DrawData* Result;
 
         [BurstCompile]
         public void Execute([AssumeRange(0, int.MaxValue)] int index)
         {
-            LineData* renderData = GizmoDataPtr + index;
+            LineData* data = GizmoDataPtr + index;
 
-            float3 diff = renderData->End - renderData->Start;
-            float3 position = renderData->Start + diff * 0.5f;
+            float3 diff = data->End - data->Start;
+            float3 position = data->Start + diff * 0.5f;
             float length = math.length(diff);
 
             float cos = (1 + math.clamp(diff.z / length, -1f, 1f)) * 0.5f;
@@ -33,7 +33,7 @@ namespace UGizmo.Internal.Extension.Jobs
             quaternion rotation = new quaternion(new float4(axis * math.sqrt(1 - cos), math.sqrt(cos)));
             float4x4 matrix = float4x4.TRS(position, rotation, new float3(0f, 0f, length));
 
-            Result[index] = new RenderData(matrix, renderData->Color);
+            Result[index] = new DrawData(matrix, data->Color);
         }
     }
 

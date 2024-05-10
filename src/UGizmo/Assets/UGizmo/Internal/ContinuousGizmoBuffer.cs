@@ -29,6 +29,11 @@ namespace UGizmo.Internal
             this.enqueueData = enqueueData;
         }
 
+        /// <summary>
+        /// Add JobData with duration.
+        /// </summary>
+        /// <param name="jobData"></param>
+        /// <param name="duration"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(in TJobData jobData, float duration)
         {
@@ -37,6 +42,12 @@ namespace UGizmo.Internal
             array[length++] = new ContinuousGizmoData<TJobData>(DateTime.Now + TimeSpan.FromSeconds(duration), jobData);
         }
 
+        /// <summary>
+        /// Adds JobData for a given range with duration
+        /// </summary>
+        /// <param name="jobData"></param>
+        /// <param name="count"></param>
+        /// <param name="duration"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddRange(TJobData* jobData, int count, float duration)
         {
@@ -59,6 +70,9 @@ namespace UGizmo.Internal
             }
         }
 
+        /// <summary>
+        /// Enqueue all data being retained.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void EnqueueAllJobData()
         {
@@ -71,6 +85,7 @@ namespace UGizmo.Internal
 
                 if (data.EndTime < now)
                 {
+                    //Remove and Swap
                     array[index] = array[--length];
                     continue;
                 }
@@ -80,6 +95,9 @@ namespace UGizmo.Internal
             }
         }
 
+        /// <summary>
+        /// Clear buffer.
+        /// </summary>
         public void Clear()
         {
             length = 0;

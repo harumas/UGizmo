@@ -51,6 +51,7 @@ namespace UGizmo.Internal.Extension.Jobs
             Color planeColor = arrowData->Color;
             planeColor.a = 0.2f;
 
+            //Body Wireframe
             float extends = arrowData->Width * 0.5f;
             float3 p1 = arrowData->From + right * extends;
             float3 p2 = arrowData->From + right * -extends;
@@ -60,14 +61,9 @@ namespace UGizmo.Internal.Extension.Jobs
             float3 p6 = arrowData->From + borderPoint + right * -(extends * HeadMultiplier);
             float3 p7 = arrowData->To;
 
+            //Body Plane
             float3 bodyPosition = arrowData->From + borderPoint * 0.5f;
             float3 headPosition = (p5 + p6 + p7) / 3f;
-
-
-            PlaneResult[index] = new PrimitiveData(bodyPosition, rotationPlane, new float3(arrowData->Width, 1f, bodyLength), planeColor);
-            TriangleResult[index] = new PrimitiveData(headPosition, rotation,
-                new float3(arrowData->Width * HeadMultiplier, headLength * FixMultiplier, 1f),
-                planeColor);
 
             LineResult[LineCount * index + 0] = new LineData(p1, p2, arrowData->Color);
             LineResult[LineCount * index + 1] = new LineData(p1, p3, arrowData->Color);
@@ -76,6 +72,12 @@ namespace UGizmo.Internal.Extension.Jobs
             LineResult[LineCount * index + 4] = new LineData(p4, p6, arrowData->Color);
             LineResult[LineCount * index + 5] = new LineData(p5, p7, arrowData->Color);
             LineResult[LineCount * index + 6] = new LineData(p6, p7, arrowData->Color);
+            
+            PlaneResult[index] = new PrimitiveData(bodyPosition, rotationPlane, new float3(arrowData->Width, 1f, bodyLength), planeColor);
+            TriangleResult[index] = new PrimitiveData(headPosition, rotation,
+                new float3(arrowData->Width * HeadMultiplier, headLength * FixMultiplier, 1f),
+                planeColor);
+
         }
     }
 

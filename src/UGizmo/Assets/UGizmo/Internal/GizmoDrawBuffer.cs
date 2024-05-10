@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using UGizmo.Internal.Utility;
 using Unity.Collections;
 using UnityEngine;
 
@@ -10,38 +9,36 @@ namespace UGizmo.Internal
 {
     internal unsafe class GizmoDrawBuffer<TJobData> : IDisposable where TJobData : unmanaged
     {
-        public int Count { get; set; } = 0;
+        public int Count { get; private set; } = 0;
 
         private const int InitialCapacity = 8192;
 
         private int* handleBuffer;
-        private RenderData* renderBuffer;
+        private DrawData* drawBuffer;
 
         private GraphicsBuffer graphicsBuffer;
-        private readonly SharedGizmoBuffer<TJobData> gizmoBuffer;
+        private readonly SharedGizmoBuffer<TJobData> jobDataBuffer;
         private readonly MaterialPropertyBlock propertyBlock;
         private Action<IntPtr, int, int, int, int> setNativeData;
-
-        private static readonly MethodInfo setNativeDataMethod;
-        private static readonly int renderBufferProperty = Shader.PropertyToID("_RenderBuffer");
-
-
-        static GizmoDrawBuffer()
-        {
-            setNativeDataMethod = typeof(GraphicsBuffer).GetRuntimeMethods().First(method => method.Name == "InternalSetNativeData");
-        }
 
         public GizmoDrawBuffer()
         {
             handleBuffer = UnmanagedUtility.Malloc<int>(InitialCapacity, Allocator.Persistent);
-            renderBuffer = UnmanagedUtility.Malloc<RenderData>(InitialCapacity, Allocator.Persistent);
+            drawBuffer = UnmanagedUtility.Malloc<DrawData>(InitialCapacity, Allocator.Persistent);
 
-            gizmoBuffer = SharedGizmoBuffer<TJobData>.GetSharedBuffer();
-            graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, InitialCapacity, Marshal.SizeOf<RenderData>());
+            jobDataBuffer = SharedGizmoBuffer<TJobData>.GetSharedBuffer();
             propertyBlock = new MaterialPropertyBlock();
-            propertyBlock.SetBuffer(renderBufferProperty, graphicsBuffer);
 
-            setNativeData = CreateInternalSetDataDelegate();
+            AllocateGraphicsBuffer(InitialCapacity);
+        }
+        
+        private void AllocateGraphicsBuffer(int capacity)
+        {
+            graphicsBuffer?.Dispose();
+            graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, capacity, Marshal.SizeOf<DrawData>());
+            
+            propertyBlock.SetBuffer(Shader.PropertyToID("_DrawBuffer"), graphicsBuffer);
+            setNativeData = UnityInternalUtility.CreateInternalSetDataDelegate(graphicsBuffer);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -49,7 +46,7 @@ namespace UGizmo.Internal
         {
             EnsureCapacity(1);
 
-            handleBuffer[Count++] = gizmoBuffer.Add(data);
+            handleBuffer[Count++] = jobDataBuffer.Add(data);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -59,8 +56,9 @@ namespace UGizmo.Internal
 
             int offset = Count;
             Count += count;
-            (int start, int length) handle = gizmoBuffer.AddRange(data, count);
+            (int start, int length) handle = jobDataBuffer.AddRange(data, count);
 
+            //Treats a range of indexes as handles.
             for (int i = 0; i < handle.length; i++)
             {
                 handleBuffer[offset + i] = handle.start + i;
@@ -75,8 +73,9 @@ namespace UGizmo.Internal
             int offset = Count;
             Count += count;
 
-            (int start, int length) handle = gizmoBuffer.Reserve(count, out TJobData* ptr);
+            (int start, int length) handle = jobDataBuffer.Reserve(count, out TJobData* ptr);
 
+            //Treats a range of indexes as handles.
             for (int i = 0; i < handle.length; i++)
             {
                 handleBuffer[offset + i] = handle.start + i;
@@ -88,8 +87,8 @@ namespace UGizmo.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UploadGpuData()
         {
-            gizmoBuffer.SetRenderData(handleBuffer, renderBuffer, Count);
-            setNativeData((IntPtr)renderBuffer, 0, 0, Count, sizeof(RenderData));
+            jobDataBuffer.SetRenderData(handleBuffer, drawBuffer, Count);
+            setNativeData((IntPtr)drawBuffer, 0, 0, Count, sizeof(DrawData));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -105,21 +104,12 @@ namespace UGizmo.Internal
             {
                 int count = graphicsBuffer.count;
                 int newCapacity = Math.Max(Count + offset, count * 2);
-                graphicsBuffer?.Dispose();
-                graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, newCapacity, Marshal.SizeOf<RenderData>());
-                propertyBlock.SetBuffer(renderBufferProperty, graphicsBuffer);
 
-                setNativeData = CreateInternalSetDataDelegate();
+                AllocateGraphicsBuffer(newCapacity);
 
                 UnmanagedUtility.ResizePointer(ref handleBuffer, count, newCapacity, Allocator.Persistent);
-                UnmanagedUtility.ResizePointer(ref renderBuffer, count, newCapacity, Allocator.Persistent);
+                UnmanagedUtility.ResizePointer(ref drawBuffer, count, newCapacity, Allocator.Persistent);
             }
-        }
-
-        private Action<IntPtr, int, int, int, int> CreateInternalSetDataDelegate()
-        {
-            Type targetType = typeof(Action<IntPtr, int, int, int, int>);
-            return (Action<IntPtr, int, int, int, int>)Delegate.CreateDelegate(targetType, graphicsBuffer, setNativeDataMethod);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -131,7 +121,7 @@ namespace UGizmo.Internal
         public void Dispose()
         {
             UnmanagedUtility.Free(ref handleBuffer, Allocator.Persistent);
-            UnmanagedUtility.Free(ref renderBuffer, Allocator.Persistent);
+            UnmanagedUtility.Free(ref drawBuffer, Allocator.Persistent);
             graphicsBuffer.Dispose();
         }
     }

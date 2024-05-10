@@ -2,6 +2,11 @@
 
 namespace UGizmo.Internal
 {
+    /// <summary>
+    /// Class for static access to GizmoDrawer.
+    /// </summary>
+    /// <typeparam name="TDrawer"></typeparam>
+    /// <typeparam name="TJobData"></typeparam>
     internal static unsafe class Gizmo<TDrawer, TJobData>
         where TDrawer : GizmoDrawer<TJobData>
         where TJobData : unmanaged

@@ -5,6 +5,7 @@ using UGizmo.Internal.Extension.Jobs;
 using Unity.Burst;
 using Unity.Mathematics;
 using UnityEngine;
+using GizmoUtility = UGizmo.Internal.Utility.GizmoUtility;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -126,7 +127,7 @@ namespace UGizmo
         public static void DrawCapsule(Vector3 point1, Vector3 point2, float radius, Color color, float duration = 0f)
         {
             float3 diff = point2 - point1;
-            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
+            GizmoUtility.LengthAndNormalize(diff, out float length, out float3 normal);
             DrawCapsuleCore((float3)point1 + diff * 0.5f, normal, length + radius * 2f, radius, color, duration);
         }
 
@@ -168,7 +169,7 @@ namespace UGizmo
         public static void DrawWireCapsule(Vector3 point1, Vector3 point2, float radius, Color color, float duration = 0f)
         {
             float3 diff = point2 - point1;
-            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
+            GizmoUtility.LengthAndNormalize(diff, out float length, out float3 normal);
             DrawWireCapsuleCore((float3)point1 + diff * 0.5f, normal, length + radius * 2f, radius, color, duration);
         }
 
@@ -196,8 +197,8 @@ namespace UGizmo
         public static void DrawCylinder(Vector3 point1, Vector3 point2, float radius, Color color, float duration = 0f)
         {
             float3 diff = point2 - point1;
-            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
-            GizmoUtil.FromUpToRotation(normal, out quaternion rotation);
+            GizmoUtility.LengthAndNormalize(diff, out float length, out float3 normal);
+            GizmoUtility.FromUpToRotation(normal, out quaternion rotation);
             DrawCylinderCore(point1 * diff * 0.5f, rotation, new float3(radius * 2f, length, radius * 2f), color, duration);
         }
 
@@ -225,7 +226,7 @@ namespace UGizmo
         public static void DrawWireCylinder(Vector3 point1, Vector3 point2, float radius, Color color, float duration = 0f)
         {
             float3 diff = point2 - point1;
-            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
+            GizmoUtility.LengthAndNormalize(diff, out float length, out float3 normal);
             DrawWireCylinderCore((float3)point1 + diff * 0.5f, normal, length + radius * 2f, radius, color, duration);
         }
 
@@ -325,7 +326,7 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawCircle2D(Vector3 position, Quaternion rotation, float radius, Color color, float duration = 0f)
         {
-            GizmoUtil.Rotate90X(rotation, out quaternion result);
+            GizmoUtility.Rotate90X(rotation, out quaternion result);
             DrawCircleCore(position, result, radius, color, duration);
         }
 
@@ -338,7 +339,7 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawCircle2D(Vector3 position, float radius, Color color, float duration = 0f)
         {
-            DrawCircleCore(position, GizmoUtil.GetRotate90X(), radius, color, duration);
+            DrawCircleCore(position, GizmoUtility.GetRotate90X(), radius, color, duration);
         }
 
         /// <summary>
@@ -351,7 +352,7 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawWireCircle2D(Vector3 position, Quaternion rotation, float radius, Color color, float duration = 0f)
         {
-            GizmoUtil.Rotate90X(rotation, out quaternion result);
+            GizmoUtility.Rotate90X(rotation, out quaternion result);
             DrawWireCircleCore(position, result, radius, color, duration);
         }
 
@@ -364,7 +365,7 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawWireCircle2D(Vector3 position, float radius, Color color, float duration = 0f)
         {
-            DrawWireCircleCore(position, GizmoUtil.GetRotate90X(), radius, color, duration);
+            DrawWireCircleCore(position, GizmoUtility.GetRotate90X(), radius, color, duration);
         }
 
         /// <summary>
@@ -377,7 +378,7 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawBox2D(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0f)
         {
-            GizmoUtil.Rotate90X(rotation, out quaternion result);
+            GizmoUtility.Rotate90X(rotation, out quaternion result);
             DrawPlaneCore(position, result, size, color, duration);
         }
 
@@ -391,7 +392,7 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawBox2D(Vector3 position, float angle, Vector2 size, Color color, float duration = 0f)
         {
-            GizmoUtil.PlaneToQuad(angle, out quaternion rotation);
+            GizmoUtility.PlaneToQuad(angle, out quaternion rotation);
             DrawPlaneCore(position, rotation, size, color, duration);
         }
 
@@ -405,7 +406,7 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawWireBox2D(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0f)
         {
-            GizmoUtil.Rotate90X(rotation, out quaternion result);
+            GizmoUtility.Rotate90X(rotation, out quaternion result);
             DrawWirePlaneCore(position, result, size, color, duration);
         }
 
@@ -419,7 +420,7 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawWireBox2D(Vector3 position, float angle, Vector2 size, Color color, float duration = 0f)
         {
-            GizmoUtil.PlaneToQuad(angle, out quaternion rotation);
+            GizmoUtility.PlaneToQuad(angle, out quaternion rotation);
             DrawWirePlaneCore(position, rotation, size, color, duration);
         }
 
@@ -446,7 +447,7 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawTriangle2D(Vector3 position, float angle, Vector2 size, Color color, float duration = 0f)
         {
-            GizmoUtil.Rotate2D(angle, out quaternion to);
+            GizmoUtility.Rotate2D(angle, out quaternion to);
             DrawTriangleCore(position, to, size, color, duration);
         }
 
@@ -473,7 +474,7 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawWireTriangle2D(Vector3 position, float angle, Vector2 size, Color color, float duration = 0f)
         {
-            GizmoUtil.Rotate2D(angle, out quaternion to);
+            GizmoUtility.Rotate2D(angle, out quaternion to);
             DrawWireTriangleCore(position, to, size, color, duration);
         }
 
@@ -517,7 +518,7 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawCapsule2D(Vector3 center, float angle, float height, float radius, Color color, float duration = 0f)
         {
-            GizmoUtil.Rotate2D(angle, out quaternion to);
+            GizmoUtility.Rotate2D(angle, out quaternion to);
             DrawCapsule2DCore(center, to, height, radius, color, duration);
         }
 
@@ -546,7 +547,7 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawWireCapsule2D(Vector3 center, float angle, float height, float radius, Color color, float duration = 0f)
         {
-            GizmoUtil.Rotate2D(angle, out quaternion to);
+            GizmoUtility.Rotate2D(angle, out quaternion to);
             DrawWireCapsule2DCore(center, to, height, radius, color, duration);
         }
 
@@ -777,7 +778,7 @@ namespace UGizmo
             float3 a = from;
             float3 b = to;
             float3 diff = to - from;
-            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
+            GizmoUtility.LengthAndNormalize(diff, out float length, out float3 normal);
 
             float3 cross = math.normalizesafe(math.cross(camera.transform.forward, normal));
 
@@ -952,7 +953,7 @@ namespace UGizmo
             QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
         {
             float3 diff = end - start;
-            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
+            GizmoUtility.LengthAndNormalize(diff, out float length, out float3 normal);
             return Raycast(start, normal, length, layerMask, queryTriggerInteraction);
         }
 
@@ -970,7 +971,7 @@ namespace UGizmo
             in RaycastHit hitInfo)
         {
             float3 diff = end - start;
-            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
+            GizmoUtility.LengthAndNormalize(diff, out float length, out float3 normal);
             DrawShapeCast(start, normal, length, isHit, in hitInfo, out _);
         }
 
@@ -1144,7 +1145,7 @@ namespace UGizmo
                 DrawPoint(hitInfo.point, pointRadius, trueDarkColor);
             }
 
-            GizmoUtil.LengthAndNormalize(diff, out float length, out float3 normal);
+            GizmoUtility.LengthAndNormalize(diff, out float length, out float3 normal);
             float height = length + radius * 2f;
             DrawWireCapsule(origin, normal, height, radius, color);
             DrawWireCapsule(target, normal, height, radius, color);

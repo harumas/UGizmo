@@ -24,7 +24,7 @@ namespace UGizmo.Internal.Extension.Gizmo
             var createJob = new CreatePrimitiveJob()
             {
                 GizmoDataPtr = sharedGizmoBuffer.JobBuffer.Ptr,
-                Result = sharedGizmoBuffer.RenderBuffer.Ptr
+                Result = sharedGizmoBuffer.DrawBuffer.Ptr
             };
 
             return createJob.Schedule(sharedGizmoBuffer.JobBuffer.Length, 16);

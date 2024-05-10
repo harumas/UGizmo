@@ -53,7 +53,6 @@ namespace UGizmo.Internal.Extension.Jobs
 
             float3 headPosition = (p3 + p4 + p5) / 3f;
 
-
             TriangleResult[index] = new PrimitiveData(headPosition, rotation,
                 new float3(arrowData->HeadWidth, arrowData->HeadLength * FixMultiplier, 1f),
                 planeColor);

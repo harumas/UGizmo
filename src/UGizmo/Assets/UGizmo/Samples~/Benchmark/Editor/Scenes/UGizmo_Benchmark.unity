@@ -167,13 +167,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a5d78fb74e3c5d4fbc0b3f613b37a81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetFps: 100
-  useUGizmo: 1
+  targetFps: 60
+  useUGizmo: 0
   tryMax: 5
   drawCount: 0
-  radius: 50
+  radius: 5
   center: {x: 0, y: 0, z: 0}
   cubeSize: 1
+  attempt: 0
+  drawCountSum: 0
+  drawCountMin: 2147483647
+  drawCountMax: -2147483648
+  elapsed: 0
 --- !u!1 &1397893173
 GameObject:
   m_ObjectHideFlags: 0

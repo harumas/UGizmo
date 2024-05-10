@@ -1,10 +1,10 @@
 ﻿using Unity.Burst;
 using Unity.Mathematics;
 
-namespace UGizmo.Internal
+namespace UGizmo.Internal.Utility
 {
     [BurstCompile]
-    public static class GizmoUtil
+    public static class GizmoUtility
     {
         private static readonly float3 up = new float3(0f, 1f, 0f);
         private static readonly float3 forward = new float3(0f, 0f, 1f);

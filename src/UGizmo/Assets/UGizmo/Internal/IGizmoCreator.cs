@@ -5,8 +5,8 @@
         void Create(GizmoInstanceActivator dispatcher);
     }
 
-    internal abstract class GizmoAsset<TRenderer, TJobData> : IGizmoCreator
-        where TRenderer : GizmoDrawer<TJobData>, new()
+    internal abstract class GizmoAsset<TDrawer, TJobData> : IGizmoCreator
+        where TDrawer : GizmoDrawer<TJobData>, new()
         where TJobData : unmanaged
     {
         public abstract string MeshName { get; }
@@ -14,7 +14,7 @@
 
         public void Create(GizmoInstanceActivator activator)
         {
-            activator.RegisterRenderer<TRenderer, TJobData>(this);
+            activator.RegisterDrawer<TDrawer, TJobData>(this);
         }
     }
 }

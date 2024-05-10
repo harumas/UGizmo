@@ -2,10 +2,17 @@
 using System.IO;
 using UnityEngine;
 
-namespace UGizmo.Internal
+namespace UGizmo.Internal.Utility
 {
     internal static class AssetUtility
     {
+        /// <summary>
+        /// Loads meshes and materials from a given path.
+        /// </summary>
+        /// <param name="meshPath"></param>
+        /// <param name="materialPath"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         internal static (Mesh mesh, Material material) CreateMeshAndMaterial(string meshPath, string materialPath)
         {
             const string rootPath = "UGizmo";

@@ -27,13 +27,13 @@ Shader "UGizmo/MeshCullOff"
             #pragma multi_compile_instancing
             #include "UnityCG.cginc"
 
-            struct RenderData
+            struct DrawData
             {
                 float4x4 mat;
                 float4 color;
             };
 
-            StructuredBuffer<RenderData> _RenderBuffer;
+            StructuredBuffer<DrawData> _DrawBuffer;
 
             struct Attributes
             {
@@ -50,11 +50,11 @@ Shader "UGizmo/MeshCullOff"
             Varyings vert(Attributes IN, uint instanceID : SV_InstanceID)
             {
                 Varyings o;
-                RenderData render_data = _RenderBuffer[instanceID];
+                DrawData drawData = _DrawBuffer[instanceID];
 
-                float4 pos = mul(render_data.mat, IN.positionOS);
+                float4 pos = mul(drawData.mat, IN.positionOS);
                 o.positionHCS = UnityObjectToClipPos(pos.xyz);
-                o.color = render_data.color;
+                o.color = drawData.color;
 
                 return o;
             }
@@ -86,13 +86,13 @@ Shader "UGizmo/MeshCullOff"
             #pragma multi_compile_instancing
             #include "UnityCG.cginc"
 
-            struct RenderData
+            struct DrawData
             {
                 float4x4 mat;
                 float4 color;
             };
 
-            StructuredBuffer<RenderData> _RenderBuffer;
+            StructuredBuffer<DrawData> _DrawBuffer;
 
             struct Attributes
             {
@@ -108,11 +108,11 @@ Shader "UGizmo/MeshCullOff"
             Varyings vert(Attributes IN, uint instanceID : SV_InstanceID)
             {
                 Varyings o;
-                RenderData render_data = _RenderBuffer[instanceID];
+                DrawData drawData = _DrawBuffer[instanceID];
 
-                float4 pos = mul(render_data.mat, IN.positionOS);
+                float4 pos = mul(drawData.mat, IN.positionOS);
                 o.positionHCS = UnityObjectToClipPos(pos.xyz);
-                o.color = render_data.color;
+                o.color = drawData.color;
                 o.color.a *= 0.4;
 
                 return o;

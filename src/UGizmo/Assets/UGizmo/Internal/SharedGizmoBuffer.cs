@@ -10,12 +10,12 @@ namespace UGizmo.Internal
     {
         public ref UnsafeList<TJobData> JobBuffer => ref backJobBuffer.Ref;
 
-        public ref UnsafeList<RenderData> RenderBuffer
+        public ref UnsafeList<DrawData> DrawBuffer
         {
             get
             {
-                renderBuffer.Resize(backJobBuffer.Ref.Length);
-                return ref renderBuffer;
+                drawBuffer.Resize(backJobBuffer.Ref.Length);
+                return ref drawBuffer;
             }
         }
 
@@ -29,7 +29,7 @@ namespace UGizmo.Internal
         private const int InitialCapacity = 4192;
         private UnsafeListReference<TJobData> frontJobBuffer = new UnsafeListReference<TJobData>(InitialCapacity, Allocator.Persistent);
         private UnsafeListReference<TJobData> backJobBuffer = new UnsafeListReference<TJobData>(InitialCapacity, Allocator.Persistent);
-        private UnsafeList<RenderData> renderBuffer = new UnsafeList<RenderData>(InitialCapacity, Allocator.Persistent);
+        private UnsafeList<DrawData> drawBuffer = new UnsafeList<DrawData>(InitialCapacity, Allocator.Persistent);
 
         public int Add(in TJobData jobData)
         {
@@ -53,13 +53,13 @@ namespace UGizmo.Internal
             return (length, count);
         }
 
-        public void SetRenderData(int* handles, RenderData* destination, int count)
+        public void SetRenderData(int* handles, DrawData* destination, int count)
         {
-            SetRenderData_Burst(handles, renderBuffer.Ptr, destination, count);
+            SetRenderData_Burst(handles, drawBuffer.Ptr, destination, count);
         }
 
         [BurstCompile]
-        private static void SetRenderData_Burst(int* handles, RenderData* origin, RenderData* destination, int count)
+        private static void SetRenderData_Burst(int* handles, DrawData* origin, DrawData* destination, int count)
         {
             for (int i = 0; i < count; i++)
             {
@@ -76,14 +76,14 @@ namespace UGizmo.Internal
         public void Clear()
         {
             backJobBuffer.Ref.Clear();
-            renderBuffer.Clear();
+            drawBuffer.Clear();
         }
 
         public void Dispose()
         {
             frontJobBuffer.Dispose();
             backJobBuffer.Dispose();
-            renderBuffer.Dispose();
+            drawBuffer.Dispose();
         }
     }
 }
