@@ -25,6 +25,11 @@
       "displayName": "UGizmo Sample for HDRP",
       "description": "Contains gizmo samples",
       "path": "Samples~/UGizmoSamples_HDRP"
+    },
+    {
+      "displayName": "UGizmo Benchmark",
+      "description": "Contains Benchmark",
+      "path": "Samples~/Benchmark"
     }
   ]
 }

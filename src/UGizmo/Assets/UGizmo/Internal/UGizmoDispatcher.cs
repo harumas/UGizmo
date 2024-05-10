@@ -23,7 +23,7 @@ namespace UGizmo.Internal
         static UGizmoDispatcher()
         {
             usingSRP = GraphicsSettings.currentRenderPipeline != null;
-            usingHDRP = GraphicsSettings.currentRenderPipeline.GetType().ToString().Contains("HighDefinition");
+            usingHDRP = usingSRP && GraphicsSettings.currentRenderPipeline.GetType().ToString().Contains("HighDefinition");
             
 #if UNITY_EDITOR
             EditorApplication.update += Initialize;
@@ -96,6 +96,15 @@ namespace UGizmo.Internal
 
         private static void OnPreCull(Camera camera)
         {
+            if (isFirstRun
+#if UNITY_EDITOR
+                || !Handles.ShouldRenderGizmos()
+#endif
+               )
+            {
+                return;
+            }
+            
             bool updateRenderData = previousFrame != Time.renderedFrameCount;
 
             if (updateRenderData)
@@ -106,7 +115,6 @@ namespace UGizmo.Internal
             renderSystem.DrawWithCamera(camera);
 
             renderSystem.ClearScheduler();
-            commandBuffer.Clear();
             previousFrame = Time.renderedFrameCount;
         }
     }
