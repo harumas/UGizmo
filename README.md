@@ -64,6 +64,8 @@ public class DrawCubeSample : MonoBehaviour
 
 Open Package Manager > UGizmo > Samples to install samples for URP and HDRP.
 
+![image](https://github.com/harumas/UGizmo/assets/43531665/a321d8b5-0ef9-40a5-b24b-cd901af8f8f1)
+
 ## Features
 
 ### 3D Primitives
