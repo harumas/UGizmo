@@ -40,7 +40,7 @@ https://github.com/harumas/UGizmo.git?path=src/UGizmo/Assets/UGizmo
 ```json
 {
     "dependencies": {
-        "com.harumaron.ugizmo": "https://github.com/harumas/UGizmo.git?path=src/UGizmo/Assets/UGizmo"
+        "com.harumaro.ugizmo": "https://github.com/harumas/UGizmo.git?path=src/UGizmo/Assets/UGizmo"
     }
 }
 ```
