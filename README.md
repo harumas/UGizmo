@@ -22,6 +22,17 @@ Also, by using GPU instancing to reduce draw calls, you can draw gizmos efficien
 - Draw call optimization using GPU instancing
 - More than 30 gizmos
 
+### Draw call optimization
+
+Using Standard Gizmos  
+<img src="https://github.com/harumas/UGizmo/assets/43531665/34578ce8-c60a-4921-87fc-9aae99132c96" width="400px">
+
+Using UGizmos  
+<img src="https://github.com/harumas/UGizmo/assets/43531665/1cd23670-a982-4679-af8e-b3fa8f7d0bee" width="400px">
+
+
+![image](https://github.com/harumas/UGizmo/assets/43531665/28b6614e-e610-4112-88f9-e0760babef3d)
+
 ## Getting Started
 
 ### Requirements
