@@ -12,7 +12,7 @@ Shader "UGizmo/Mesh"
         {
             Cull Back
             ZTest LEqual
-            ZWrite On
+            ZWrite Off
             Blend SrcAlpha OneMinusSrcAlpha
             Offset -1, -1
 

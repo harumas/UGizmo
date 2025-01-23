@@ -19,7 +19,7 @@ namespace UGizmo.Samples.URP
         [SerializeField] private Transform distanceB;
         [SerializeField] private Transform measureA;
         [SerializeField] private Transform measureB;
-
+        
         private void OnDrawGizmos()
         {
             Color color = new Color(0.12f, 0.09f, 1f);
@@ -30,6 +30,20 @@ namespace UGizmo.Samples.URP
             UGizmos.DrawFacingWireArrow(facingWireArrowA.position, facingWireArrowB.position, color);
             UGizmos.DrawDistance(distanceA.position, distanceB.position, color);
             UGizmos.DrawMeasure(measureA.position, measureB.position, 1, color);
+        }       
+
+#if !UNITY_EDITOR
+       private void Update()
+        {
+            Color color = new Color(0.12f, 0.09f, 1f);
+            UGizmos.DrawArrow(arrowA.position, arrowB.position, color);
+            UGizmos.DrawArrow2d(arrow2dA.position, arrow2dB.position, Vector3.forward, color);
+            UGizmos.DrawFacingArrow2d(facingArrow2dA.position, facingArrow2dB.position, color);
+            UGizmos.DrawWireArrow(wireArrowA.position, wireArrowB.position, Vector3.forward, color);
+            UGizmos.DrawFacingWireArrow(facingWireArrowA.position, facingWireArrowB.position, color);
+            UGizmos.DrawDistance(distanceA.position, distanceB.position, color);
+            UGizmos.DrawMeasure(measureA.position, measureB.position, 1, color);
         }
+#endif
     }
 }

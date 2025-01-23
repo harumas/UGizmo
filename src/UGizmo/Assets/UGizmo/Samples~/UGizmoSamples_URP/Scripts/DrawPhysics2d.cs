@@ -17,5 +17,16 @@ namespace UGizmo.Samples.URP
             UGizmos.CapsuleCast2D(capsule2d.position, capsule2d.localScale, capsule2d.localEulerAngles.z * Mathf.Deg2Rad, CapsuleDirection2D.Vertical,
                 Vector2.down, 5f);
         }
+
+#if !UNITY_EDITOR
+        private void Update()
+        {
+            UGizmos.Raycast2D(ray.position, ray.right, 5f);
+            UGizmos.CircleCast2D(circle2d.position, 0.5f, circle2d.right, 5f);
+            UGizmos.BoxCast2D(box2d.position, box2d.localScale, box2d.localEulerAngles.z * Mathf.Deg2Rad, Vector2.down, 5f);
+            UGizmos.CapsuleCast2D(capsule2d.position, capsule2d.localScale, capsule2d.localEulerAngles.z * Mathf.Deg2Rad, CapsuleDirection2D.Vertical,
+                Vector2.down, 5f);
+        }
+#endif
     }
 }

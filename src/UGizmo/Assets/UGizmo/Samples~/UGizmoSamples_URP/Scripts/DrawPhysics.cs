@@ -17,5 +17,15 @@ namespace UGizmo.Samples.URP
             UGizmos.BoxCast(box.position, box.localScale * 0.5f, Vector3.forward, box.rotation, 10f);
             UGizmos.CapsuleCast(capsule.position + capsule.up * 0.5f, capsule.position - capsule.up * 0.5f, 0.5f, Vector3.forward, 10f);
         }
+
+#if !UNITY_EDITOR
+        private void Update()
+        {
+            UGizmos.Raycast(ray.position, Vector3.forward, 10f);
+            UGizmos.SphereCast(sphere.position, 0.5f, Vector3.forward, 10f);
+            UGizmos.BoxCast(box.position, box.localScale * 0.5f, Vector3.forward, box.rotation, 10f);
+            UGizmos.CapsuleCast(capsule.position + capsule.up * 0.5f, capsule.position - capsule.up * 0.5f, 0.5f, Vector3.forward, 10f);
+        }
+#endif
     }
 }

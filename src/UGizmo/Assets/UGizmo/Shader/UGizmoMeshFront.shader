@@ -11,7 +11,7 @@ Shader "UGizmo/MeshFront"
         {
             Cull Back
             ZTest Always
-            ZWrite On
+            ZWrite Off
             Blend SrcAlpha OneMinusSrcAlpha
             Offset -1, -1
 
