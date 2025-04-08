@@ -155,4 +155,4 @@ Package Manager > UGizmo > Samplesを開くと、URPとHDRP向けのサンプル
 
 ## ライセンス
 本ライブラリはMITライセンスで公開しています。  
-[MIT License](/LICENSE.md)
+[MIT License](/LICENSE)
