@@ -154,4 +154,4 @@ Open Package Manager > UGizmo > Samples to install samples for URP and HDRP.
 
 ## License
 This library is released under the MIT License. 
-[MIT License](/LICENSE.md)
+[MIT License](/LICENSE)
