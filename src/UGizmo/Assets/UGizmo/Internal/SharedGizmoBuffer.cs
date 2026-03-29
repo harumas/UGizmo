@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -26,7 +26,7 @@ namespace UGizmo.Internal
             return instance ??= new SharedGizmoBuffer<TJobData>();
         }
 
-        private const int InitialCapacity = 4192;
+        private const int InitialCapacity = 4096;
         private UnsafeListReference<TJobData> frontJobBuffer = new UnsafeListReference<TJobData>(InitialCapacity, Allocator.Persistent);
         private UnsafeListReference<TJobData> backJobBuffer = new UnsafeListReference<TJobData>(InitialCapacity, Allocator.Persistent);
         private UnsafeList<DrawData> drawBuffer = new UnsafeList<DrawData>(InitialCapacity, Allocator.Persistent);

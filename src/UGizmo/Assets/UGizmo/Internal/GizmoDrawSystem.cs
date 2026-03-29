@@ -1,4 +1,4 @@
-﻿using UGizmo.Internal.Extension.Gizmo;
+using UGizmo.Internal.Extension.Gizmo;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
@@ -8,9 +8,6 @@ using UnityEngine.Rendering;
 
 #if UNITY_EDITOR
 using UnityEditor;
-
-#else
-using UnityEngine;
 #endif
 
 

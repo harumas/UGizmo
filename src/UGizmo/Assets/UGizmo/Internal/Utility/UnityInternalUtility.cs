@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
 namespace UGizmo.Internal.Utility
 {
-    public static class UnityInternalUtility
+    internal static class UnityInternalUtility
     {
         private static readonly MethodInfo setNativeDataMethod;
 

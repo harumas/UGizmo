@@ -1,8 +1,13 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace UGizmo.Internal
 {
+    internal interface IContinuousGizmoReceiver<TJobData> where TJobData : unmanaged
+    {
+        void AddFromContinuous(in TJobData data);
+    }
+
     internal readonly struct ContinuousGizmoData<TJobData> where TJobData : unmanaged
     {
         public readonly DateTime EndTime;
@@ -15,18 +20,20 @@ namespace UGizmo.Internal
         }
     }
 
-    internal unsafe class ContinuousGizmoBuffer<TJobData> where TJobData : unmanaged
+    internal unsafe class ContinuousGizmoBuffer<TJobData, TReceiver>
+        where TJobData : unmanaged
+        where TReceiver : IContinuousGizmoReceiver<TJobData>
     {
         private int length = 0;
         private ContinuousGizmoData<TJobData>[] array;
-        private Action<TJobData> enqueueData;
+        private TReceiver receiver;
 
         private const int InitialCapacity = 1024;
 
-        public ContinuousGizmoBuffer(Action<TJobData> enqueueData)
+        public ContinuousGizmoBuffer(TReceiver receiver)
         {
             array = new ContinuousGizmoData<TJobData>[InitialCapacity];
-            this.enqueueData = enqueueData;
+            this.receiver = receiver;
         }
 
         /// <summary>
@@ -55,10 +62,11 @@ namespace UGizmo.Internal
 
             int offset = length;
             length += count;
+            DateTime endTime = DateTime.Now + TimeSpan.FromSeconds(duration);
 
             for (int i = 0; i < count; i++)
             {
-                array[offset + i] = new ContinuousGizmoData<TJobData>(DateTime.Now + TimeSpan.FromSeconds(duration), jobData[i]);
+                array[offset + i] = new ContinuousGizmoData<TJobData>(endTime, jobData[i]);
             }
         }
 
@@ -90,7 +98,7 @@ namespace UGizmo.Internal
                     continue;
                 }
 
-                enqueueData(data.JobData);
+                receiver.AddFromContinuous(data.JobData);
                 index++;
             }
         }

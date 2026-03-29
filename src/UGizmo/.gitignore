@@ -79,3 +79,7 @@ crashlytics-build.properties
 /Assets/MiniTools/
 /Assets/DebugDrawingExtension.meta
 /Assets/MiniTools.meta
+
+# macOS
+.DS_Store
+**/.DS_Store

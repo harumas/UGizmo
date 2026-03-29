@@ -1,14 +1,19 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using UGizmo.Internal.Utility;
+using Unity.Burst;
 using Unity.Collections;
 using UnityEngine;
 
 namespace UGizmo.Internal
 {
+    [BurstCompile]
     internal unsafe class GizmoDrawBuffer<TJobData> : IDisposable where TJobData : unmanaged
     {
+        private static readonly int DrawBufferPropertyId = Shader.PropertyToID("_DrawBuffer");
+        private static readonly int DrawDataSize = Marshal.SizeOf<DrawData>();
+
         public int Count { get; private set; } = 0;
 
         private const int InitialCapacity = 8192;
@@ -35,9 +40,9 @@ namespace UGizmo.Internal
         private void AllocateGraphicsBuffer(int capacity)
         {
             graphicsBuffer?.Dispose();
-            graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, capacity, Marshal.SizeOf<DrawData>());
+            graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, capacity, DrawDataSize);
             
-            propertyBlock.SetBuffer(Shader.PropertyToID("_DrawBuffer"), graphicsBuffer);
+            propertyBlock.SetBuffer(DrawBufferPropertyId, graphicsBuffer);
             setNativeData = UnityInternalUtility.CreateInternalSetDataDelegate(graphicsBuffer);
         }
 
@@ -58,11 +63,7 @@ namespace UGizmo.Internal
             Count += count;
             (int start, int length) handle = jobDataBuffer.AddRange(data, count);
 
-            //Treats a range of indexes as handles.
-            for (int i = 0; i < handle.length; i++)
-            {
-                handleBuffer[offset + i] = handle.start + i;
-            }
+            FillSequentialHandles(handleBuffer + offset, handle.start, handle.length);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -75,13 +76,18 @@ namespace UGizmo.Internal
 
             (int start, int length) handle = jobDataBuffer.Reserve(count, out TJobData* ptr);
 
-            //Treats a range of indexes as handles.
-            for (int i = 0; i < handle.length; i++)
-            {
-                handleBuffer[offset + i] = handle.start + i;
-            }
+            FillSequentialHandles(handleBuffer + offset, handle.start, handle.length);
 
             return ptr;
+        }
+
+        [BurstCompile]
+        private static void FillSequentialHandles(int* buffer, int start, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                buffer[i] = start + i;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

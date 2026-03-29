@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace UGizmo.Internal
 {
-    internal sealed class NoResizableList<T> : IEnumerable<T>
+    internal sealed class NoResizableList<T>
     {
         private T[] items;
         private int count;
@@ -52,16 +49,6 @@ namespace UGizmo.Internal
         public void Clear()
         {
             count = 0;
-        }
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            return items.AsEnumerable().GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }

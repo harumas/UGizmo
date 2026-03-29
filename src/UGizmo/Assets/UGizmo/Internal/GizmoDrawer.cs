@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using Unity.Burst;
 using UnityEngine;
@@ -17,12 +17,14 @@ namespace UGizmo.Internal
     }
 
     [BurstCompile]
-    internal abstract unsafe class GizmoDrawer<TJobData> : IGizmoDrawer where TJobData : unmanaged
+    internal abstract unsafe class GizmoDrawer<TJobData> : IGizmoDrawer, IContinuousGizmoReceiver<TJobData> where TJobData : unmanaged
     {
         public virtual int RenderQueue => 1000;
 
+        private static readonly Bounds DrawBounds = new Bounds(Vector3.zero, Vector3.one * 10000);
+
         private GizmoDrawBuffer<TJobData> drawBuffer;
-        private ContinuousGizmoBuffer<TJobData> continuousGizmoBuffer;
+        private ContinuousGizmoBuffer<TJobData, GizmoDrawer<TJobData>> continuousGizmoBuffer;
         private Mesh mesh;
         private Material material;
 
@@ -34,7 +36,7 @@ namespace UGizmo.Internal
             this.material = material;
 
             drawBuffer = new GizmoDrawBuffer<TJobData>();
-            continuousGizmoBuffer = new ContinuousGizmoBuffer<TJobData>(data => drawBuffer.Add(data));
+            continuousGizmoBuffer = new ContinuousGizmoBuffer<TJobData, GizmoDrawer<TJobData>>(this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -81,11 +83,16 @@ namespace UGizmo.Internal
 
         public void UploadGpuData()
         {
+            bufferCount = drawBuffer.Count;
+            if (bufferCount == 0)
+            {
+                return;
+            }
+
             drawBuffer.UploadGpuData();
 
             //Swap buffer
             SharedGizmoBuffer<TJobData>.GetSharedBuffer().Swap();
-            bufferCount = drawBuffer.Count;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -103,8 +110,14 @@ namespace UGizmo.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawWithCamera(Camera camera)
         {
-            Graphics.DrawMeshInstancedProcedural(mesh, 0, material, new Bounds(Vector3.zero, Vector3.one * 10000), bufferCount,
+            Graphics.DrawMeshInstancedProcedural(mesh, 0, material, DrawBounds, bufferCount,
                 drawBuffer.GetPropertyBlock(), ShadowCastingMode.Off, false, 0, camera, LightProbeUsage.Off);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddFromContinuous(in TJobData data)
+        {
+            drawBuffer.Add(data);
         }
 
         public void Dispose()

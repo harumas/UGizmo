@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Rendering;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -22,7 +22,7 @@ namespace UGizmo.Internal
         static UGizmoDispatcher()
         {
             usingSRP = GraphicsSettings.currentRenderPipeline != null;
-            usingHDRP = usingSRP && GraphicsSettings.currentRenderPipeline.GetType().ToString().Contains("HighDefinition");
+            usingHDRP = usingSRP && GraphicsSettings.currentRenderPipeline.GetType().FullName.Contains("HighDefinition");
 
 #if UNITY_EDITOR
             EditorApplication.update += Initialize;

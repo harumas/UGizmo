@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+using System;
 using UGizmo.Internal.Extension.Gizmo;
 using UGizmo.Internal.Utility;
 using UnityEngine;
@@ -8,9 +7,9 @@ namespace UGizmo.Internal
 {
     internal class GizmoInstanceActivator : IDisposable
     {
-        public NoResizableList<IGizmoDrawer> Drawers;
-        public NoResizableList<IPreparingJobScheduler> PreparingJobSchedulers;
-        public NoResizableList<IGizmoJobScheduler> JobSchedulers;
+        public NoResizableList<IGizmoDrawer> Drawers { get; private set; }
+        public NoResizableList<IPreparingJobScheduler> PreparingJobSchedulers { get; private set; }
+        public NoResizableList<IGizmoJobScheduler> JobSchedulers { get; private set; }
 
         public void Activate()
         {
@@ -20,7 +19,8 @@ namespace UGizmo.Internal
 
             RegisterElements();
 
-            var sortedArray = Drawers.Take(Drawers.Count).OrderBy(renderer => renderer.RenderQueue).ToArray();
+            var sortedArray = Drawers.AsSpan().ToArray();
+            Array.Sort(sortedArray, (a, b) => a.RenderQueue.CompareTo(b.RenderQueue));
             Drawers.SetArray(sortedArray);
         }
 
@@ -28,9 +28,9 @@ namespace UGizmo.Internal
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-            foreach (var types in assemblies.Select(assembly => assembly.GetTypes()))
+            foreach (var assembly in assemblies)
             {
-                foreach (var type in types)
+                foreach (var type in assembly.GetTypes())
                 {
                     if (type.IsClass && type.IsAbstract)
                     {
@@ -39,17 +39,17 @@ namespace UGizmo.Internal
 
                     Type[] interfaces = type.GetInterfaces();
                     
-                    if (interfaces.Contains(typeof(IGizmoCreator)))
+                    if (Array.IndexOf(interfaces, typeof(IGizmoCreator)) >= 0)
                     {
                         var gizmoElement = (IGizmoCreator)Activator.CreateInstance(type);
                         gizmoElement.Create(this);
                     }
-                    else if (interfaces.Contains(typeof(IPreparingJobScheduler)))
+                    else if (Array.IndexOf(interfaces, typeof(IPreparingJobScheduler)) >= 0)
                     {
                         var preparingJobScheduler = (IPreparingJobScheduler)Activator.CreateInstance(type);
                         preparingJobScheduler.Register(this);
                     }
-                    else if (interfaces.Contains(typeof(IGizmoJobScheduler)))
+                    else if (Array.IndexOf(interfaces, typeof(IGizmoJobScheduler)) >= 0)
                     {
                         var jobScheduler = (IGizmoJobScheduler)Activator.CreateInstance(type);
                         JobSchedulers.Add(jobScheduler);
