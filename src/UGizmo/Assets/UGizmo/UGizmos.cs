@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using UGizmo.Internal;
 using UGizmo.Internal.Extension.Jobs;
@@ -366,6 +366,60 @@ namespace UGizmo
         public static void DrawWireCircle2D(Vector3 position, float radius, Color color, float duration = 0f)
         {
             DrawWireCircleCore(position, GizmoUtility.GetRotate90X(), radius, color, duration);
+        }
+
+        /// <summary>
+        /// Draw a 2D sector (pie slice).
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation">Base rotation</param>
+        /// <param name="radius"></param>
+        /// <param name="angle">Sweep angle in radians</param>
+        /// <param name="color"></param>
+        /// <param name="duration"></param>
+        public static void DrawSector2D(Vector3 position, Quaternion rotation, float radius, float angle, Color color, int segments = 16, float duration = 0f)
+        {
+            DrawSectorCore(position, rotation, radius, angle, color, segments, duration);
+        }
+
+        /// <summary>
+        /// Draw a 2D sector (pie slice) oriented in the z direction.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="radius"></param>
+        /// <param name="angle">Sweep angle in radians</param>
+        /// <param name="color"></param>
+        /// <param name="duration"></param>
+        public static void DrawSector2D(Vector3 position, float radius, float angle, Color color, int segments = 16, float duration = 0f)
+        {
+            DrawSectorCore(position, quaternion.identity, radius, angle, color, segments, duration);
+        }
+
+        /// <summary>
+        /// Draw a 2D wire sector.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation">Base rotation</param>
+        /// <param name="radius"></param>
+        /// <param name="angle">Sweep angle in radians</param>
+        /// <param name="color"></param>
+        /// <param name="duration"></param>
+        public static void DrawWireSector2D(Vector3 position, Quaternion rotation, float radius, float angle, Color color, int segments = 16, float duration = 0f)
+        {
+            DrawWireSectorCore(position, rotation, radius, angle, color, segments, duration);
+        }
+
+        /// <summary>
+        /// Draw a 2D wire sector oriented in the z direction.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="radius"></param>
+        /// <param name="angle">Sweep angle in radians</param>
+        /// <param name="color"></param>
+        /// <param name="duration"></param>
+        public static void DrawWireSector2D(Vector3 position, float radius, float angle, Color color, int segments = 16, float duration = 0f)
+        {
+            DrawWireSectorCore(position, quaternion.identity, radius, angle, color, segments, duration);
         }
 
         /// <summary>

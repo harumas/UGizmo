@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using UGizmo.Internal;
 using UGizmo.Internal.Extension;
 using UGizmo.Internal.Extension.Jobs;
@@ -59,6 +59,22 @@ namespace UGizmo
         {
             var data = new PrimitiveData(position, rotation, new Vector3(radius, 1f, radius), color);
             Gizmo<WireCircle, PrimitiveData>.AddData(data, duration);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void DrawSectorCore(float3 position, quaternion rotation, float radius, float angleRad, Color color, int segments, float duration)
+        {
+            segments = math.max(1, segments);
+            var data = new Sector2dData(position, rotation, radius, angleRad, color, segments);
+            PreparableGizmo<Sector2d, Sector2dData>.AddData(data, duration);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void DrawWireSectorCore(float3 position, quaternion rotation, float radius, float angleRad, Color color, int segments, float duration)
+        {
+            segments = math.max(1, segments);
+            var data = new Sector2dData(position, rotation, radius, angleRad, color, segments);
+            PreparableGizmo<WireSector2d, Sector2dData>.AddData(data, duration);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

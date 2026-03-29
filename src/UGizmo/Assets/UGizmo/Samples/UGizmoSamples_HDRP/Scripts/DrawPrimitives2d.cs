@@ -14,6 +14,8 @@ namespace UGizmo.Samples.HDRP
         [SerializeField] private Transform wireTriangle2D;
         [SerializeField] private Transform capsule2D;
         [SerializeField] private Transform wireCapsule2D;
+        [SerializeField] private Transform sector2D;
+        [SerializeField] private Transform wireSector2D;
 
 
         private void OnDrawGizmos()
@@ -29,6 +31,9 @@ namespace UGizmo.Samples.HDRP
 
             UGizmos.DrawCapsule2D(capsule2D.position, capsule2D.rotation, 2f, 0.5f, color);
             UGizmos.DrawWireCapsule2D(wireCapsule2D.position, wireCapsule2D.rotation, 2f, 0.5f, color);
+
+            if (sector2D != null) UGizmos.DrawSector2D(sector2D.position, sector2D.rotation, 0.5f, Mathf.PI * 0.75f, color);
+            if (wireSector2D != null) UGizmos.DrawWireSector2D(wireSector2D.position, wireSector2D.rotation, 0.5f, Mathf.PI * 0.75f, color);
         }
 
 #if !UNITY_EDITOR
@@ -45,6 +50,9 @@ namespace UGizmo.Samples.HDRP
 
             UGizmos.DrawCapsule2D(capsule2D.position, capsule2D.rotation, 2f, 0.5f, color);
             UGizmos.DrawWireCapsule2D(wireCapsule2D.position, wireCapsule2D.rotation, 2f, 0.5f, color);
+
+            if (sector2D != null) UGizmos.DrawSector2D(sector2D.position, sector2D.rotation, 0.5f, Mathf.PI * 0.75f, color);
+            if (wireSector2D != null) UGizmos.DrawWireSector2D(wireSector2D.position, wireSector2D.rotation, 0.5f, Mathf.PI * 0.75f, color);
         }
 #endif
     }
