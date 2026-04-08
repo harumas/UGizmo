@@ -100,6 +100,8 @@ Open Package Manager > UGizmo > Samples to install samples for URP and HDRP.
 | --- | --- |
 | `DrawCircle2D()` | Draws a circle. |
 | `DrawWireCircle2D()` | Draws a wireframe circle. |
+| `DrawSector2D()` | Draws a sector (pie slice). |
+| `DrawWireSector2D()` | Draws a wireframe sector (pie slice). |
 | `DrawBox2D()` | Draws a box. |
 | `DrawWireBox2D()` | Draws a wireframe box. |
 | `DrawTriangle2D()` | Draws a triangle. |

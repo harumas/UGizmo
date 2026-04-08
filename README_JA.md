@@ -101,6 +101,8 @@ Package Manager > UGizmo > Samplesを開くと、URPとHDRP向けのサンプル
 | --- | --- |
 | `DrawCircle2D()` | 円を描画します。 |
 | `DrawWireCircle2D()` | ワイヤーフレームの円を描画します。|
+| `DrawSector2D()` | セクター（扇形）を描画します。 |
+| `DrawWireSector2D()` | ワイヤーフレームのセクター（扇形）を描画します。 |
 | `DrawBox2D()` | ボックスを描画します。 |
 | `DrawWireBox2D()` | ワイヤーフレームのボックスを描画します。 |
 | `DrawTriangle2D()` | 三角形を描画します。 |
