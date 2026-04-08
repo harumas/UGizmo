@@ -1,6 +1,6 @@
 {
   "name": "com.harumaro.ugizmo",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "unity": "2021.3",
   "displayName": "UGizmo",
   "description": "Highly efficient gizmo drawer for Unity.",
