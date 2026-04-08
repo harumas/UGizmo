@@ -29,8 +29,11 @@ Shader "UGizmo/MeshFront"
 
             struct DrawData
             {
-                float4x4 mat;
-                float4 color;
+                float m00, m10, m20;
+                float m01, m11, m21;
+                float m02, m12, m22;
+                float m03, m13, m23;
+                uint color;
             };
 
             StructuredBuffer<DrawData> _DrawBuffer;
@@ -50,11 +53,24 @@ Shader "UGizmo/MeshFront"
             Varyings vert(Attributes IN, uint instanceID : SV_InstanceID)
             {
                 Varyings o;
-                DrawData drawData = _DrawBuffer[instanceID];
+                DrawData rawData = _DrawBuffer[instanceID];
 
-                float4 pos = mul(drawData.mat, IN.positionOS);
+                float4x4 drawData_mat = float4x4(
+                    rawData.m00, rawData.m01, rawData.m02, rawData.m03,
+                    rawData.m10, rawData.m11, rawData.m12, rawData.m13,
+                    rawData.m20, rawData.m21, rawData.m22, rawData.m23,
+                    0, 0, 0, 1
+                );
+                float4 drawData_color = float4(
+                    (rawData.color & 0xFF) / 255.0,
+                    ((rawData.color >> 8) & 0xFF) / 255.0,
+                    ((rawData.color >> 16) & 0xFF) / 255.0,
+                    ((rawData.color >> 24) & 0xFF) / 255.0
+                );
+
+                float4 pos = mul(drawData_mat, IN.positionOS);
                 o.positionHCS = UnityObjectToClipPos(pos.xyz);
-                o.color = drawData.color;
+                o.color = drawData_color;
 
                 return o;
             }

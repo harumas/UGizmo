@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace UGizmo.Internal
 {
@@ -18,7 +18,7 @@ namespace UGizmo.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddData(in TPrepareData data, float duration)
         {
-            if (!isInitialized)
+            if (!UGizmos.enabled || !isInitialized)
             {
                 return;
             }

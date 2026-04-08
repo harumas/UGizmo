@@ -16,6 +16,10 @@ namespace UGizmo
     [BurstCompile]
     public static partial class UGizmos
     {
+        /// <summary>
+        /// Set to false to disable all UGizmo tracking and rendering.
+        /// </summary>
+        public static bool enabled { get; set; } = true;
         private static readonly Color trueColor = new Color(0.12f, 0.75f, 1f, 1f);
         private static readonly Color trueDarkColor = new Color(0.09f, 0.32f, 0.72f);
         private static readonly Color falseColor = new Color(1f, 0.09f, 0.12f, 1f);
@@ -808,13 +812,16 @@ namespace UGizmo
             DrawWireArrow2dCore(center, to, camNormal, color, headLength, headWidth, duration);
 
 #if UNITY_EDITOR
-            float3 textNormal = math.normalizesafe(math.cross(camNormal, diff), new float3(0f, 0f, 1f));
+            if (enabled)
+            {
+                float3 textNormal = math.normalizesafe(math.cross(camNormal, diff), new float3(0f, 0f, 1f));
 
-            GUIStyle skinLabel = GUI.skin.label;
-            TextAnchor original = skinLabel.alignment;
-            skinLabel.alignment = TextAnchor.MiddleCenter;
-            Handles.Label(center + textNormal * 0.2f, math.length(diff).ToString("0.00"), skinLabel);
-            skinLabel.alignment = original;
+                GUIStyle skinLabel = GUI.skin.label;
+                TextAnchor original = skinLabel.alignment;
+                skinLabel.alignment = TextAnchor.MiddleCenter;
+                Handles.Label(center + textNormal * 0.2f, math.length(diff).ToString("0.00"), skinLabel);
+                skinLabel.alignment = original;
+            }
 #endif
         }
 

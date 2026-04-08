@@ -54,6 +54,8 @@ namespace UGizmo.Internal
             ExecutePrepareGizmoJob();
             ExecuteGizmoJob();
 
+            if (!UGizmos.enabled) return;
+
             foreach (var drawer in drawers.AsSpan())
             {
                 drawer.UploadGpuData();
@@ -62,6 +64,7 @@ namespace UGizmo.Internal
 
         public void SetCommandBuffer(CommandBuffer commandBuffer)
         {
+            if (!UGizmos.enabled) return;
             foreach (var drawer in drawers.AsSpan())
             {
                 drawer.Draw(commandBuffer);
@@ -70,6 +73,7 @@ namespace UGizmo.Internal
 
         public void DrawWithCamera(Camera camera)
         {
+            if (!UGizmos.enabled) return;
             foreach (IGizmoDrawer drawer in drawers.AsSpan())
             {
                 drawer.DrawWithCamera(camera);

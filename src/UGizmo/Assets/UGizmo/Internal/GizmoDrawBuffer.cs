@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using UGizmo.Internal.Utility;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Burst;
 using Unity.Collections;
 using UnityEngine;
@@ -19,17 +20,14 @@ namespace UGizmo.Internal
         private const int InitialCapacity = 8192;
 
         private int* handleBuffer;
-        private DrawData* drawBuffer;
 
         private GraphicsBuffer graphicsBuffer;
         private readonly SharedGizmoBuffer<TJobData> jobDataBuffer;
         private readonly MaterialPropertyBlock propertyBlock;
-        private Action<IntPtr, int, int, int, int> setNativeData;
 
         public GizmoDrawBuffer()
         {
             handleBuffer = UnmanagedUtility.Malloc<int>(InitialCapacity, Allocator.Persistent);
-            drawBuffer = UnmanagedUtility.Malloc<DrawData>(InitialCapacity, Allocator.Persistent);
 
             jobDataBuffer = SharedGizmoBuffer<TJobData>.GetSharedBuffer();
             propertyBlock = new MaterialPropertyBlock();
@@ -40,10 +38,9 @@ namespace UGizmo.Internal
         private void AllocateGraphicsBuffer(int capacity)
         {
             graphicsBuffer?.Dispose();
-            graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, capacity, DrawDataSize);
+            graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, GraphicsBuffer.UsageFlags.LockBufferForWrite, capacity, DrawDataSize);
             
             propertyBlock.SetBuffer(DrawBufferPropertyId, graphicsBuffer);
-            setNativeData = UnityInternalUtility.CreateInternalSetDataDelegate(graphicsBuffer);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -93,8 +90,14 @@ namespace UGizmo.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UploadGpuData()
         {
-            jobDataBuffer.SetRenderData(handleBuffer, drawBuffer, Count);
-            setNativeData((IntPtr)drawBuffer, 0, 0, Count, sizeof(DrawData));
+            if (Count == 0) return;
+
+            NativeArray<DrawData> gpuBuffer = graphicsBuffer.LockBufferForWrite<DrawData>(0, Count);
+            DrawData* gpuPtr = (DrawData*)gpuBuffer.GetUnsafePtr();
+
+            jobDataBuffer.SetRenderData(handleBuffer, gpuPtr, Count);
+
+            graphicsBuffer.UnlockBufferAfterWrite<DrawData>(Count);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -114,7 +117,6 @@ namespace UGizmo.Internal
                 AllocateGraphicsBuffer(newCapacity);
 
                 UnmanagedUtility.ResizePointer(ref handleBuffer, count, newCapacity, Allocator.Persistent);
-                UnmanagedUtility.ResizePointer(ref drawBuffer, count, newCapacity, Allocator.Persistent);
             }
         }
 
@@ -127,7 +129,6 @@ namespace UGizmo.Internal
         public void Dispose()
         {
             UnmanagedUtility.Free(ref handleBuffer, Allocator.Persistent);
-            UnmanagedUtility.Free(ref drawBuffer, Allocator.Persistent);
             graphicsBuffer.Dispose();
         }
     }
