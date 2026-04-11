@@ -12,13 +12,22 @@ namespace UGizmo.Internal
 
     internal static class UGizmoDispatcher
     {
-        private static readonly ProfilingSampler profilingSampler;
-        private static readonly CommandBuffer commandBuffer;
-        private static readonly GizmoDrawSystem drawSystem;
+        private static ProfilingSampler profilingSampler;
+        private static CommandBuffer commandBuffer;
+        private static GizmoDrawSystem drawSystem;
         private static bool usingHDRP;
         private static bool usingSRP;
 
         static UGizmoDispatcher()
+        {
+#if UNITY_EDITOR
+            EditorApplication.delayCall += Initialize;
+#else
+            Initialize();
+#endif
+        }
+
+        private static void Initialize()
         {
             usingSRP = GraphicsSettings.currentRenderPipeline != null;
             usingHDRP = usingSRP && GraphicsSettings.currentRenderPipeline.GetType().FullName.Contains("HighDefinition");
