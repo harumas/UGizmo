@@ -15,7 +15,6 @@ namespace UGizmo.Internal
         private static readonly ProfilingSampler profilingSampler;
         private static readonly CommandBuffer commandBuffer;
         private static readonly GizmoDrawSystem drawSystem;
-        private static bool isFirstRun = true;
         private static bool usingHDRP;
         private static bool usingSRP;
 
@@ -25,7 +24,6 @@ namespace UGizmo.Internal
             usingHDRP = usingSRP && GraphicsSettings.currentRenderPipeline.GetType().FullName.Contains("HighDefinition");
 
 #if UNITY_EDITOR
-            EditorApplication.update += Initialize;
             EditorApplication.playModeStateChanged += state =>
             {
                 if (state == PlayModeStateChange.ExitingPlayMode || state == PlayModeStateChange.ExitingEditMode)
@@ -37,6 +35,7 @@ namespace UGizmo.Internal
             profilingSampler = new ProfilingSampler("DrawUGizmos");
             commandBuffer = CommandBufferPool.Get();
             drawSystem = new GizmoDrawSystem();
+            drawSystem.Initialize();
 
             if (usingSRP)
             {
@@ -49,32 +48,17 @@ namespace UGizmo.Internal
             }
         }
 
-#if !UNITY_EDITOR
-        [RuntimeInitializeOnLoadMethod]
-#endif
-        private static void Initialize()
-        {
-            if (!isFirstRun)
-            {
-                return;
-            }
-
-            drawSystem.Initialize();
-            isFirstRun = false;
-        }
 
         private static int previousFrame;
 
         private static void OnEndCameraRendering(ScriptableRenderContext context, Camera camera)
         {
-            if (isFirstRun
 #if UNITY_EDITOR
-                || !Handles.ShouldRenderGizmos()
-#endif
-               )
+            if (!Handles.ShouldRenderGizmos())
             {
                 return;
             }
+#endif
 
             if (usingHDRP)
             {
@@ -105,14 +89,12 @@ namespace UGizmo.Internal
 
         private static void OnPreCull(Camera camera)
         {
-            if (isFirstRun
 #if UNITY_EDITOR
-                || !Handles.ShouldRenderGizmos()
-#endif
-               )
+            if (!Handles.ShouldRenderGizmos())
             {
                 return;
             }
+#endif
 
             bool updateDrawData = previousFrame != Time.renderedFrameCount;
 

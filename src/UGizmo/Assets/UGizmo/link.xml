@@ -1,0 +1,9 @@
+<linker>
+  <!-- Preserve all types in the UGizmo assembly.
+       GizmoInstanceActivator.RegisterElements() discovers IGizmoCreator,
+       IPreparingJobScheduler, and IGizmoJobScheduler implementations
+       via reflection (AppDomain.GetAssemblies → assembly.GetTypes).
+       Without this, IL2CPP managed code stripping removes these types
+       because they have no direct code references. -->
+  <assembly fullname="UGizmo" preserve="all"/>
+</linker>
