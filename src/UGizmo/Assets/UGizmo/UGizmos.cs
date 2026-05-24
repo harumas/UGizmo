@@ -28,6 +28,16 @@ namespace UGizmo
         private static readonly float pointRadius = 0.08f;
         private static readonly float alphaRate = 0.3f;
 
+        private static Camera GetFacingCamera()
+        {
+            // Camera.current is set while a camera is rendering (incl. OnDrawGizmos),
+            // so it returns the per-camera context in split-screen / multi-camera setups.
+            // Fall back to Camera.main for calls made outside the render loop (e.g. Update).
+            Camera camera = Camera.current;
+            if (camera != null) return camera;
+            return Camera.main;
+        }
+
         #region Primitive
 
         /// <summary>
@@ -801,7 +811,8 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawDistance(Vector3 from, Vector3 to, Color color, float headLength = 0.5f, float headWidth = 0.3f, float duration = 0f)
         {
-            Camera camera = Camera.main;
+            Camera camera = GetFacingCamera();
+            if (camera == null) return;
             float3 diff = to - from;
             float3 center = (float3)from + diff * 0.5f;
             float3 camDiff = (float3)camera.transform.position - center;
@@ -835,7 +846,8 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawMeasure(Vector3 from, Vector3 to, float interval, Color color, float duration = 0f)
         {
-            Camera camera = Camera.main;
+            Camera camera = GetFacingCamera();
+            if (camera == null) return;
             float3 a = from;
             float3 b = to;
             float3 diff = to - from;
@@ -909,7 +921,8 @@ namespace UGizmo
         /// <param name="duration"></param>
         public static void DrawFacingArrow2d(Vector3 from, Vector3 to, Color color, float headLength = 0.5f, float width = 0.3f, float duration = 0f)
         {
-            Camera camera = Camera.main;
+            Camera camera = GetFacingCamera();
+            if (camera == null) return;
             float3 position = from + (to - from) * 0.5f;
             float3 normal = math.normalizesafe((float3)camera.transform.position - position, new float3(0f, 0f, 1f));
 
@@ -955,7 +968,8 @@ namespace UGizmo
             float headWidth = 0.3f,
             float duration = 0f)
         {
-            Camera camera = Camera.main;
+            Camera camera = GetFacingCamera();
+            if (camera == null) return;
             float3 position = from + (to - from) * 0.5f;
             float3 normal = math.normalizesafe((float3)camera.transform.position - position, new float3(0f, 0f, 1f));
 

@@ -12,16 +12,18 @@ namespace UGizmo.Internal
         where TJobData : unmanaged
     {
         private static TDrawer gizmoDrawer;
+        private static bool isInitialized = false;
 
         public static void Initialize(TDrawer drawer)
         {
             gizmoDrawer = drawer;
+            isInitialized = true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddData(in TJobData data, float duration)
         {
-            if (!UGizmos.enabled)
+            if (!UGizmos.enabled || !isInitialized)
             {
                 return;
             }
@@ -32,7 +34,7 @@ namespace UGizmo.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddDataRange(TJobData* data, int length, float duration)
         {
-            if (!UGizmos.enabled)
+            if (!UGizmos.enabled || !isInitialized)
             {
                 return;
             }
