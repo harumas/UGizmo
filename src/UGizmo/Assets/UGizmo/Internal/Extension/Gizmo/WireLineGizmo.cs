@@ -14,13 +14,20 @@ namespace UGizmo.Internal.Extension.Gizmo
         
         public JobHandle Schedule()
         {
+            int length = sharedGizmoBuffer.JobBuffer.Length;
+
+            if (length == 0)
+            {
+                return default;
+            }
+
             var createJob = new CreateWireLineJob()
             {
                 GizmoDataPtr = sharedGizmoBuffer.JobBuffer.Ptr,
                 Result = sharedGizmoBuffer.DrawBuffer.Ptr
             };
 
-            return createJob.Schedule(sharedGizmoBuffer.JobBuffer.Length, 16);
+            return createJob.Schedule(length, 16);
         }
 
         public void Clear()

@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace UGizmo.Internal
 {
@@ -10,10 +11,15 @@ namespace UGizmo.Internal
 
     internal readonly struct ContinuousGizmoData<TJobData> where TJobData : unmanaged
     {
-        public readonly DateTime EndTime;
+        /// <summary>
+        /// Expiry expressed as Time.realtimeSinceStartupAsDouble, not DateTime. DateTime.Now costs
+        /// a timezone conversion on every call, which is heavy for a per-draw hot path.
+        /// realtimeSinceStartup also keeps working in edit mode, unlike Time.time.
+        /// </summary>
+        public readonly double EndTime;
         public readonly TJobData JobData;
 
-        public ContinuousGizmoData(DateTime endTime, TJobData jobData)
+        public ContinuousGizmoData(double endTime, TJobData jobData)
         {
             EndTime = endTime;
             JobData = jobData;
@@ -46,7 +52,7 @@ namespace UGizmo.Internal
         {
             EnsureCapacity(1);
 
-            array[length++] = new ContinuousGizmoData<TJobData>(DateTime.Now + TimeSpan.FromSeconds(duration), jobData);
+            array[length++] = new ContinuousGizmoData<TJobData>(Time.realtimeSinceStartupAsDouble + duration, jobData);
         }
 
         /// <summary>
@@ -62,7 +68,7 @@ namespace UGizmo.Internal
 
             int offset = length;
             length += count;
-            DateTime endTime = DateTime.Now + TimeSpan.FromSeconds(duration);
+            double endTime = Time.realtimeSinceStartupAsDouble + duration;
 
             for (int i = 0; i < count; i++)
             {
@@ -84,8 +90,15 @@ namespace UGizmo.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void EnqueueAllJobData()
         {
+            // Called for every drawer and every scheduler each frame, so bail out before touching
+            // the clock when this buffer holds nothing.
+            if (length == 0)
+            {
+                return;
+            }
+
             int index = 0;
-            DateTime now = DateTime.Now;
+            double now = Time.realtimeSinceStartupAsDouble;
 
             while (index < length)
             {

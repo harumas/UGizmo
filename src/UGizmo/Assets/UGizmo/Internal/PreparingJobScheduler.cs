@@ -8,9 +8,24 @@ namespace UGizmo.Internal
 {
     internal interface IPreparingJobScheduler : IDisposable
     {
+        /// <summary>
+        /// False when nothing was queued this frame. Most schedulers are empty on any given frame,
+        /// and scheduling an empty parallel job still costs a job struct copy, safety handle setup
+        /// and a scheduler enqueue, so the caller skips them.
+        /// </summary>
+        bool HasData { get; }
+
         void Register(GizmoInstanceActivator activator);
         void EnqueueContinuousGizmo();
         void ClearContinuousGizmo();
+
+        /// <summary>
+        /// Reserves every range this scheduler needs in the shared buffers. Runs for all schedulers
+        /// before any of them schedules, so that no later reservation can reallocate a buffer whose
+        /// pointer has already been captured.
+        /// </summary>
+        void ReserveBuffers();
+
         JobHandle Schedule();
         void Clear();
     }
@@ -20,6 +35,8 @@ namespace UGizmo.Internal
         where TJobData : unmanaged
     {
         protected int InstanceCount => jobData.Length;
+
+        public bool HasData => jobData.Length > 0;
 
         private const int InitialCapacity = 4096;
         private UnsafeList<TJobData> jobData;
@@ -55,6 +72,8 @@ namespace UGizmo.Internal
         {
             continuousGizmoBuffer.Clear();
         }
+
+        public abstract void ReserveBuffers();
 
         public abstract JobHandle Schedule();
 

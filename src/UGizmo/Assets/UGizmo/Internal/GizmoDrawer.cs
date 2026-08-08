@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using Unity.Burst;
+using UGizmo.Internal.Utility;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -27,16 +28,32 @@ namespace UGizmo.Internal
         private ContinuousGizmoBuffer<TJobData, GizmoDrawer<TJobData>> continuousGizmoBuffer;
         private Mesh mesh;
         private Material material;
+        private string meshName;
+        private string materialName;
 
         private int bufferCount;
 
-        public void Initialize(Mesh mesh, Material material)
+        public void Initialize(Mesh mesh, Material material, string meshName, string materialName)
         {
             this.mesh = mesh;
             this.material = material;
+            this.meshName = meshName;
+            this.materialName = materialName;
 
             drawBuffer = new GizmoDrawBuffer<TJobData>();
             continuousGizmoBuffer = new ContinuousGizmoBuffer<TJobData, GizmoDrawer<TJobData>>(this);
+        }
+
+        // Unity can destroy this material outside of our control (e.g. shader recompilation during a Build), so re-resolve it lazily before drawing.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureMaterialIsValid()
+        {
+            if (material != null)
+            {
+                return;
+            }
+
+            (_, material) = AssetUtility.CreateMeshAndMaterial(meshName, materialName);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -76,9 +93,15 @@ namespace UGizmo.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TJobData* Reserve(int count)
+        public int Reserve(int count)
         {
             return drawBuffer.Reserve(count);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TJobData* GetReservedPointer(int start)
+        {
+            return drawBuffer.GetReservedPointer(start);
         }
 
         public void UploadGpuData()
@@ -90,9 +113,6 @@ namespace UGizmo.Internal
             }
 
             drawBuffer.UploadGpuData();
-
-            //Swap buffer
-            SharedGizmoBuffer<TJobData>.GetSharedBuffer().Swap();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -103,6 +123,8 @@ namespace UGizmo.Internal
                 return;
             }
 
+            EnsureMaterialIsValid();
+
             commandBuffer.DrawMeshInstancedProcedural(mesh, 0, material, -1, bufferCount, drawBuffer.GetPropertyBlock());
             drawBuffer.Clear();
         }
@@ -110,8 +132,16 @@ namespace UGizmo.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawWithCamera(Camera camera)
         {
+            if (bufferCount == 0)
+            {
+                return;
+            }
+
+            EnsureMaterialIsValid();
+
             Graphics.DrawMeshInstancedProcedural(mesh, 0, material, DrawBounds, bufferCount,
                 drawBuffer.GetPropertyBlock(), ShadowCastingMode.Off, false, 0, camera, LightProbeUsage.Off);
+            drawBuffer.Clear();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

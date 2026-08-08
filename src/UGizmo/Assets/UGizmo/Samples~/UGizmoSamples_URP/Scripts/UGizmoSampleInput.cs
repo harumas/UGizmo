@@ -4,7 +4,7 @@ namespace UGizmo.Samples.URP
 {
     /// <summary>
     /// Sample global application input controller.
-    /// Toggles UGizmo on/off when the Q key is pressed.
+    /// Toggles UGizmo on/off when the Q key is pressed (Legacy Input Manager only).
     /// </summary>
     public class UGizmoSampleInput : MonoBehaviour
     {
@@ -19,10 +19,12 @@ namespace UGizmo.Samples.URP
 
         private void Update()
         {
+#if ENABLE_LEGACY_INPUT_MANAGER
             if (Input.GetKeyDown(KeyCode.Q))
             {
                 UGizmos.enabled = !UGizmos.enabled;
             }
+#endif
         }
     }
 }

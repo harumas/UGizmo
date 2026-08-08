@@ -1,0 +1,26 @@
+{
+    "name": "UGizmo.URP",
+    "rootNamespace": "",
+    "references": [
+        "UGizmo",
+        "Unity.RenderPipelines.Core.Runtime",
+        "Unity.RenderPipelines.Universal.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UGIZMO_URP"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "",
+            "define": "UGIZMO_URP"
+        }
+    ],
+    "noEngineReferences": false
+}

@@ -21,6 +21,8 @@ Also, by using GPU instancing to reduce draw calls, you can draw gizmos efficien
 - Runtime support
 - Draw call optimization using GPU instancing
 - More than 30 gizmos
+- Can be made zero-cost in release builds (draw calls are stripped at the IL level)
+- Optional depth testing so gizmos can be occluded by scene geometry
 
 ### Draw call optimization
 
@@ -33,11 +35,61 @@ Using UGizmos
 
 ![image](https://github.com/harumas/UGizmo/assets/43531665/28b6614e-e610-4112-88f9-e0760babef3d)
 
+### Zero-cost in release builds
+
+All `UGizmos.DrawXXX` calls are marked with `[Conditional]`, so the compiler can remove them
+**at the IL level**. The call and its arguments are never emitted, so there is no runtime cost
+and no JIT — you can leave gizmo calls in your gameplay code without guarding them with `#if`.
+
+Draw calls are kept in the following cases (any one is enough):
+
+| Symbol | When it is defined |
+| --- | --- |
+| `UNITY_EDITOR` | In the Editor |
+| `DEVELOPMENT_BUILD` | Development builds ("Development Build" checked) |
+| `UGIZMO` | **Added for you when UGizmo is first imported**, so release builds draw gizmos out of the box |
+
+Gizmos are therefore on by default in release builds too. To strip them and get the zero-cost
+behaviour, untick **Tools > UGizmo > Keep Gizmos in Release Builds**. The menu adds or removes the
+`UGIZMO` symbol for the build target currently selected in Build Settings, so you never have to
+type it into Scripting Define Symbols by hand.
+
+> [!NOTE]
+> `UGIZMO` is a per-build-target setting, and it is added only for the target selected at import
+> time. After switching platform, re-tick the menu item for the new target.
+
+> [!NOTE]
+> A release build without this symbol draws nothing and reports no error or warning while doing so,
+> because the calls no longer exist. If gizmos are missing only in a build, check this first.
+
+> [!NOTE]
+> Because the arguments are stripped together with the call, do not put side effects inside
+> a gizmo call (e.g. `UGizmos.DrawSphere(Step(), ...)`). Physics helpers such as
+> `UGizmos.Raycast` return a value, so they always run; only their visualization is stripped.
+
+### Depth testing
+
+By default, gizmos ignore what is in front of them: wireframes and points always draw on top, and
+solid primitives show their occluded parts faintly. Set `UGizmos.depthTest = true` to make every
+gizmo respect the scene depth buffer instead, so anything behind other geometry is simply not
+drawn.
+
+```csharp
+UGizmos.depthTest = true;
+```
+
+It is a global switch — there is no per-draw-call option. `false` restores the default look
+described above.
+
+> [!NOTE]
+> `UGizmos.depthTest` is a static field, so it resets when scripts recompile. Assign it from a
+> script with `[ExecuteAlways]` if you want it to hold in edit mode.
+
 ## Getting Started
 
 ### Requirements
 - Unity 2021.3 or higher
-- URP or HDRP (Built-in Render Pipeline is not supported)
+- Built-in Render Pipeline, URP, or HDRP
 
 ### Installation
 You can enter the following link in the Package Manager of Unity
@@ -73,7 +125,43 @@ public class DrawCubeSample : MonoBehaviour
 }
 ```
 
-Open Package Manager > UGizmo > Samples to install samples for URP and HDRP.
+Open Package Manager > UGizmo > Samples to install the samples:
+
+| Sample | Contents |
+| --- | --- |
+| UGizmo Sample for URP | Every gizmo type, in a URP scene |
+| UGizmo Sample for HDRP | The same, in an HDRP scene |
+| UGizmo Sample for Built-in Render Pipeline | The same, in a Built-in Render Pipeline scene |
+| UGizmo Benchmark | Measures how many gizmos hold a target frame rate, and compares that against the built-in `Gizmos` class |
+
+### Where to draw from
+
+`OnDrawGizmos` works, but it is editor-only, and it runs after UGizmo has already collected the
+frame, so its gizmos appear one frame late. Subscribe to `UGizmos.OnDraw` instead when that
+matters — it fires once per frame from inside the render loop, with no lag, and works the same in
+play mode, edit mode and builds.
+
+```C#
+using UnityEngine;
+
+[ExecuteAlways]
+public class DrawCubeSample : MonoBehaviour
+{
+    private void OnEnable() => UGizmos.OnDraw += Draw;
+    private void OnDisable() => UGizmos.OnDraw -= Draw;
+
+    private void Draw(Camera camera)
+    {
+        UGizmos.DrawCube(Vector3.zero, Quaternion.Euler(45f, 45f, 45f), Vector3.one, Color.red);
+    }
+}
+```
+
+Drawing from `Update` or `LateUpdate` also has no lag, because both run before rendering.
+
+### Turning gizmos off
+
+`UGizmos.enabled` disables all tracking and rendering at runtime, without touching your draw calls.
 
 ![image](https://github.com/harumas/UGizmo/assets/43531665/a321d8b5-0ef9-40a5-b24b-cd901af8f8f1)
 

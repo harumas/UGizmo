@@ -24,14 +24,23 @@ namespace UGizmo.Internal.Extension.Jobs
         {
             LineData* data = GizmoDataPtr + index;
 
-            float3 diff = data->End - data->Start;
-            float3 position = data->Start + diff * 0.5f;
-            float length = math.length(diff);
+            float3 start = data->Start;
+            float3 diff = data->End - start;
 
-            float cos = (1 + math.clamp(diff.z / length, -1f, 1f)) * 0.5f;
-            float3 axis = math.normalizesafe(new float3(-diff.y, diff.x, 0f), new float3(0f, 0f, 1f));
-            quaternion rotation = new quaternion(new float4(axis * math.sqrt(1 - cos), math.sqrt(cos)));
-            float4x4 matrix = float4x4.TRS(position, rotation, new float3(0f, 0f, length));
+            // The line mesh runs along Z and is scaled by (0, 0, length), so the first two columns
+            // of the rotation are multiplied away and only its third column survives - as
+            // normalize(diff) * length, which is just diff. Building a quaternion from the
+            // direction and letting TRS convert it back into a matrix computed exactly this, at the
+            // cost of a length, a normalize, two square roots and a quaternion-to-matrix conversion
+            // per line. Lines are the most numerous gizmo (every wire capsule is four of them, a
+            // frustum twelve), so this ran a lot.
+            // Going straight to the matrix is also better behaved for a zero-length line: the old
+            // form divided by length and produced NaNs, this one collapses to a point.
+            float4x4 matrix = new float4x4(
+                float4.zero,
+                float4.zero,
+                new float4(diff, 0f),
+                new float4(start + diff * 0.5f, 1f));
 
             Result[index] = new DrawData(matrix, data->Color);
         }

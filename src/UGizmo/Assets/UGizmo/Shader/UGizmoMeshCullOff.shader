@@ -1,5 +1,12 @@
 Shader "UGizmo/MeshCullOff"
 {
+    Properties
+    {
+        // Greater by default, which is the long-standing look: occluded parts show through faintly.
+        // UGizmos.depthTest switches this to Never so they are hidden instead.
+        [HideInInspector] _ZTestOccluded ("ZTestOccluded", Float) = 5
+    }
+
     SubShader
     {
         Tags
@@ -85,7 +92,7 @@ Shader "UGizmo/MeshCullOff"
         Pass
         {
             Cull Off
-            ZTest Greater
+            ZTest [_ZTestOccluded]
             ZWrite Off
             Blend SrcAlpha OneMinusSrcAlpha
             Offset -1, -1

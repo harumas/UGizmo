@@ -5,10 +5,19 @@ namespace UGizmo.Internal.Extension
 {
     internal sealed unsafe class Capsule2d : PreparingJobScheduler<Capsule2d, Capsule2dData>
     {
+        private int semicircleStart;
+        private int planeStart;
+
+        public override void ReserveBuffers()
+        {
+            semicircleStart = Gizmo<Semicircle, PrimitiveData>.Reserve(InstanceCount * 2);
+            planeStart = Gizmo<Plane, PrimitiveData>.Reserve(InstanceCount);
+        }
+
         public override JobHandle Schedule()
         {
-            PrimitiveData* semicircleBuffer = Gizmo<Semicircle, PrimitiveData>.Reserve(InstanceCount * 2);
-            PrimitiveData* planeBuffer = Gizmo<Plane, PrimitiveData>.Reserve(InstanceCount);
+            PrimitiveData* semicircleBuffer = Gizmo<Semicircle, PrimitiveData>.GetReservedPointer(semicircleStart);
+            PrimitiveData* planeBuffer = Gizmo<Plane, PrimitiveData>.GetReservedPointer(planeStart);
 
             JobHandle jobHandle = new CreateCapsule2dJob()
             {

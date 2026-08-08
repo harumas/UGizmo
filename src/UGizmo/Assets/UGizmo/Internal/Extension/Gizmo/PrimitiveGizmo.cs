@@ -21,13 +21,22 @@ namespace UGizmo.Internal.Extension.Gizmo
         
         public JobHandle Schedule()
         {
+            int length = sharedGizmoBuffer.JobBuffer.Length;
+
+            // Nothing queued this frame. Skipping avoids scheduling an empty parallel job, and also
+            // avoids the resize that reading DrawBuffer would trigger.
+            if (length == 0)
+            {
+                return default;
+            }
+
             var createJob = new CreatePrimitiveJob()
             {
                 GizmoDataPtr = sharedGizmoBuffer.JobBuffer.Ptr,
                 Result = sharedGizmoBuffer.DrawBuffer.Ptr
             };
 
-            return createJob.Schedule(sharedGizmoBuffer.JobBuffer.Length, 16);
+            return createJob.Schedule(length, 16);
         }
 
         public void Clear()

@@ -42,10 +42,21 @@ namespace UGizmo.Internal
             gizmoDrawer.AddRange(data, length, duration);
         }
 
+        /// <summary>
+        /// Reserves a range and returns its start index. Call during the reservation phase, then
+        /// resolve with <see cref="GetReservedPointer"/> in the scheduling phase - reserving grows
+        /// a shared buffer that can reallocate, which would invalidate an earlier pointer.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TJobData* Reserve(int count)
+        public static int Reserve(int count)
         {
             return gizmoDrawer.Reserve(count);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TJobData* GetReservedPointer(int start)
+        {
+            return gizmoDrawer.GetReservedPointer(start);
         }
     }
 }

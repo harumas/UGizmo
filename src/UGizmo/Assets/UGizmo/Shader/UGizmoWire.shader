@@ -1,5 +1,10 @@
 Shader "UGizmo/Wire"
 {
+    Properties
+    {
+        [HideInInspector] _ZTest ("ZTest", Float) = 8
+    }
+
     SubShader
     {
         Tags
@@ -10,7 +15,7 @@ Shader "UGizmo/Wire"
         Pass
         {
             Cull Back
-            ZTest Always
+            ZTest [_ZTest]
             ZWrite Off
             Blend SrcAlpha OneMinusSrcAlpha
             Offset -1, -1
@@ -79,5 +84,6 @@ Shader "UGizmo/Wire"
             }
             ENDCG
         }
+
     }
 }

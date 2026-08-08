@@ -7,9 +7,16 @@ namespace UGizmo.Internal.Extension
     {
         private const int LineCount = 12;
 
+        private int lineStart;
+
+        public override void ReserveBuffers()
+        {
+            lineStart = Gizmo<WireLine, LineData>.Reserve(InstanceCount * LineCount);
+        }
+
         public override JobHandle Schedule()
         {
-            var buffer = Gizmo<WireLine, LineData>.Reserve(InstanceCount * LineCount);
+            LineData* buffer = Gizmo<WireLine, LineData>.GetReservedPointer(lineStart);
 
             JobHandle jobHandle = new CreateFrustumJob()
             {

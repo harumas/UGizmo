@@ -25,6 +25,10 @@ namespace UGizmo.Internal
         private readonly SharedGizmoBuffer<TJobData> jobDataBuffer;
         private readonly MaterialPropertyBlock propertyBlock;
 
+#if !UNITY_2022_2_OR_NEWER
+        private NativeArray<DrawData> stagingBuffer;
+#endif
+
         public GizmoDrawBuffer()
         {
             handleBuffer = UnmanagedUtility.Malloc<int>(InitialCapacity, Allocator.Persistent);
@@ -38,8 +42,19 @@ namespace UGizmo.Internal
         private void AllocateGraphicsBuffer(int capacity)
         {
             graphicsBuffer?.Dispose();
+#if UNITY_2022_2_OR_NEWER
             graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, GraphicsBuffer.UsageFlags.LockBufferForWrite, capacity, DrawDataSize);
-            
+#else
+            graphicsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, capacity, DrawDataSize);
+
+            if (stagingBuffer.IsCreated)
+            {
+                stagingBuffer.Dispose();
+            }
+
+            stagingBuffer = new NativeArray<DrawData>(capacity, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+#endif
+
             propertyBlock.SetBuffer(DrawBufferPropertyId, graphicsBuffer);
         }
 
@@ -63,19 +78,29 @@ namespace UGizmo.Internal
             FillSequentialHandles(handleBuffer + offset, handle.start, handle.length);
         }
 
+        /// <summary>
+        /// Reserves a range in the shared job buffer and returns its start index. Resolve it with
+        /// <see cref="GetReservedPointer"/> after every reservation for the frame has been made.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TJobData* Reserve(int count)
+        public int Reserve(int count)
         {
             EnsureCapacity(count);
 
             int offset = Count;
             Count += count;
 
-            (int start, int length) handle = jobDataBuffer.Reserve(count, out TJobData* ptr);
+            (int start, int length) handle = jobDataBuffer.Reserve(count);
 
             FillSequentialHandles(handleBuffer + offset, handle.start, handle.length);
 
-            return ptr;
+            return handle.start;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TJobData* GetReservedPointer(int start)
+        {
+            return jobDataBuffer.GetPointer(start);
         }
 
         [BurstCompile]
@@ -92,12 +117,20 @@ namespace UGizmo.Internal
         {
             if (Count == 0) return;
 
+#if UNITY_2022_2_OR_NEWER
             NativeArray<DrawData> gpuBuffer = graphicsBuffer.LockBufferForWrite<DrawData>(0, Count);
             DrawData* gpuPtr = (DrawData*)gpuBuffer.GetUnsafePtr();
 
             jobDataBuffer.SetRenderData(handleBuffer, gpuPtr, Count);
 
             graphicsBuffer.UnlockBufferAfterWrite<DrawData>(Count);
+#else
+            DrawData* gpuPtr = (DrawData*)stagingBuffer.GetUnsafePtr();
+
+            jobDataBuffer.SetRenderData(handleBuffer, gpuPtr, Count);
+
+            graphicsBuffer.SetData(stagingBuffer, 0, 0, Count);
+#endif
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -130,6 +163,13 @@ namespace UGizmo.Internal
         {
             UnmanagedUtility.Free(ref handleBuffer, Allocator.Persistent);
             graphicsBuffer.Dispose();
+
+#if !UNITY_2022_2_OR_NEWER
+            if (stagingBuffer.IsCreated)
+            {
+                stagingBuffer.Dispose();
+            }
+#endif
         }
     }
 }

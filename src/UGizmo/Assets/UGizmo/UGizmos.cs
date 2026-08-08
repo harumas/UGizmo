@@ -6,6 +6,8 @@ using Unity.Burst;
 using Unity.Mathematics;
 using UnityEngine;
 using GizmoUtility = UGizmo.Internal.Utility.GizmoUtility;
+using AssetUtility = UGizmo.Internal.Utility.AssetUtility;
+using Conditional = System.Diagnostics.ConditionalAttribute;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -20,6 +22,37 @@ namespace UGizmo
         /// Set to false to disable all UGizmo tracking and rendering.
         /// </summary>
         public static bool enabled { get; set; } = true;
+
+        /// <summary>
+        /// Set to true to make gizmos respect scene depth. Occluded parts are drawn
+        /// faintly instead of always rendering on top.
+        /// </summary>
+        public static bool depthTest
+        {
+            get => depthTestValue;
+            set
+            {
+                depthTestValue = value;
+                AssetUtility.ApplyDepthTest(value);
+            }
+        }
+
+        private static bool depthTestValue;
+
+        /// <summary>
+        /// Subscribe to draw gizmos from inside the render loop. Fires once per frame, in time
+        /// for the gizmos to be rendered by every camera (including the SceneView camera in edit
+        /// mode). Works in all render pipelines (Built-in, URP, HDRP). Prefer this over
+        /// MonoBehaviour.OnDrawGizmos, which is not supported in the Built-in Render Pipeline.
+        /// The argument is the camera that drives rendering for the current frame.
+        /// </summary>
+        public static event Action<Camera> OnDraw;
+
+        internal static void InvokeOnDraw(Camera camera)
+        {
+            OnDraw?.Invoke(camera);
+        }
+
         private static readonly Color trueColor = new Color(0.12f, 0.75f, 1f, 1f);
         private static readonly Color trueDarkColor = new Color(0.09f, 0.32f, 0.72f);
         private static readonly Color falseColor = new Color(1f, 0.09f, 0.12f, 1f);
@@ -47,6 +80,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawSphere(Vector3 center, float radius, Color color, float duration = 0f)
         {
             DrawSphereCore(center, Quaternion.identity, radius, color, duration);
@@ -59,6 +93,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireSphere(Vector3 center, float radius, Color color, float duration = 0f)
         {
             DrawWireSphereCore(center, Quaternion.identity, radius, color, duration);
@@ -72,6 +107,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireSphere(Vector3 center, Quaternion rotation, float radius, Color color, float duration = 0f)
         {
             DrawWireSphereCore(center, rotation, radius, color, duration);
@@ -85,6 +121,7 @@ namespace UGizmo
         /// <param name="size"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCube(Vector3 center, Quaternion rotation, Vector3 size, Color color, float duration = 0f)
         {
             DrawCubeCore(center, rotation, size, color, duration);
@@ -98,6 +135,7 @@ namespace UGizmo
         /// <param name="size"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireCube(Vector3 center, Quaternion rotation, Vector3 size, Color color, float duration = 0f)
         {
             DrawWireCubeCore(center, rotation, size, color, duration);
@@ -111,6 +149,7 @@ namespace UGizmo
         /// <param name="scale"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCapsule(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0f)
         {
             DrawCapsuleCore(position, rotation * Vector3.up, scale.y, math.max(scale.x, scale.z), color, duration);
@@ -125,6 +164,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCapsule(Vector3 center, Vector3 upAxis, float height, float radius, Color color, float duration = 0f)
         {
             DrawCapsuleCore(center, upAxis, height, radius, color, duration);
@@ -138,6 +178,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCapsule(Vector3 point1, Vector3 point2, float radius, Color color, float duration = 0f)
         {
             float3 diff = point2 - point1;
@@ -153,6 +194,7 @@ namespace UGizmo
         /// <param name="scale"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireCapsule(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0f)
         {
             DrawWireCapsuleCore(position, rotation * Vector3.up, scale.y, math.max(scale.x, scale.z), color, duration);
@@ -167,6 +209,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireCapsule(Vector3 center, Vector3 upAxis, float height, float radius, Color color, float duration = 0f)
         {
             DrawWireCapsuleCore(center, upAxis, height, radius, color, duration);
@@ -180,6 +223,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireCapsule(Vector3 point1, Vector3 point2, float radius, Color color, float duration = 0f)
         {
             float3 diff = point2 - point1;
@@ -195,6 +239,7 @@ namespace UGizmo
         /// <param name="scale"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCylinder(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0f)
         {
             DrawCylinderCore(position, rotation, scale, color, duration);
@@ -208,6 +253,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCylinder(Vector3 point1, Vector3 point2, float radius, Color color, float duration = 0f)
         {
             float3 diff = point2 - point1;
@@ -224,6 +270,7 @@ namespace UGizmo
         /// <param name="scale"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireCylinder(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0f)
         {
             DrawWireCylinderCore(position, rotation * Vector3.up, scale.y, math.max(scale.x, scale.z), color, duration);
@@ -237,6 +284,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireCylinder(Vector3 point1, Vector3 point2, float radius, Color color, float duration = 0f)
         {
             float3 diff = point2 - point1;
@@ -252,6 +300,7 @@ namespace UGizmo
         /// <param name="scale"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCone(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0f)
         {
             float maxX = math.max(scale.x, scale.y) * 0.5f;
@@ -267,6 +316,7 @@ namespace UGizmo
         /// <param name="angle"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCone(float3 origin, float3 direction, float distance, float angle, Color color, float duration = 0f)
         {
             DrawConeCore(origin, direction, distance, angle, color, duration);
@@ -280,6 +330,7 @@ namespace UGizmo
         /// <param name="scale"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireCone(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0f)
         {
             float maxX = math.max(scale.x, scale.y) * 0.5f;
@@ -295,6 +346,7 @@ namespace UGizmo
         /// <param name="angle"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireCone(float3 origin, float3 direction, float distance, float angle, Color color, float duration = 0f)
         {
             DrawWireConeCore(origin, direction, distance, angle, color, duration);
@@ -308,6 +360,7 @@ namespace UGizmo
         /// <param name="size"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawPlane(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0f)
         {
             DrawPlaneCore(position, rotation, size, color, duration);
@@ -321,6 +374,7 @@ namespace UGizmo
         /// <param name="size"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWirePlane(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0f)
         {
             DrawWirePlaneCore(position, rotation, size, color, duration);
@@ -338,6 +392,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCircle2D(Vector3 position, Quaternion rotation, float radius, Color color, float duration = 0f)
         {
             GizmoUtility.Rotate90X(rotation, out quaternion result);
@@ -351,6 +406,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCircle2D(Vector3 position, float radius, Color color, float duration = 0f)
         {
             DrawCircleCore(position, GizmoUtility.GetRotate90X(), radius, color, duration);
@@ -364,6 +420,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireCircle2D(Vector3 position, Quaternion rotation, float radius, Color color, float duration = 0f)
         {
             GizmoUtility.Rotate90X(rotation, out quaternion result);
@@ -377,6 +434,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireCircle2D(Vector3 position, float radius, Color color, float duration = 0f)
         {
             DrawWireCircleCore(position, GizmoUtility.GetRotate90X(), radius, color, duration);
@@ -391,6 +449,7 @@ namespace UGizmo
         /// <param name="angle">Sweep angle in radians</param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawSector2D(Vector3 position, Quaternion rotation, float radius, float angle, Color color, int segments = 16, float duration = 0f)
         {
             DrawSectorCore(position, rotation, radius, angle, color, segments, duration);
@@ -404,6 +463,7 @@ namespace UGizmo
         /// <param name="angle">Sweep angle in radians</param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawSector2D(Vector3 position, float radius, float angle, Color color, int segments = 16, float duration = 0f)
         {
             DrawSectorCore(position, quaternion.identity, radius, angle, color, segments, duration);
@@ -418,6 +478,7 @@ namespace UGizmo
         /// <param name="angle">Sweep angle in radians</param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireSector2D(Vector3 position, Quaternion rotation, float radius, float angle, Color color, int segments = 16, float duration = 0f)
         {
             DrawWireSectorCore(position, rotation, radius, angle, color, segments, duration);
@@ -431,6 +492,7 @@ namespace UGizmo
         /// <param name="angle">Sweep angle in radians</param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireSector2D(Vector3 position, float radius, float angle, Color color, int segments = 16, float duration = 0f)
         {
             DrawWireSectorCore(position, quaternion.identity, radius, angle, color, segments, duration);
@@ -444,6 +506,7 @@ namespace UGizmo
         /// <param name="size"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawBox2D(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0f)
         {
             GizmoUtility.Rotate90X(rotation, out quaternion result);
@@ -458,6 +521,7 @@ namespace UGizmo
         /// <param name="size"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawBox2D(Vector3 position, float angle, Vector2 size, Color color, float duration = 0f)
         {
             GizmoUtility.PlaneToQuad(angle, out quaternion rotation);
@@ -472,6 +536,7 @@ namespace UGizmo
         /// <param name="size"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireBox2D(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0f)
         {
             GizmoUtility.Rotate90X(rotation, out quaternion result);
@@ -486,6 +551,7 @@ namespace UGizmo
         /// <param name="size"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireBox2D(Vector3 position, float angle, Vector2 size, Color color, float duration = 0f)
         {
             GizmoUtility.PlaneToQuad(angle, out quaternion rotation);
@@ -500,6 +566,7 @@ namespace UGizmo
         /// <param name="size"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawTriangle2D(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0f)
         {
             DrawTriangleCore(position, rotation, size, color, duration);
@@ -513,6 +580,7 @@ namespace UGizmo
         /// <param name="size"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawTriangle2D(Vector3 position, float angle, Vector2 size, Color color, float duration = 0f)
         {
             GizmoUtility.Rotate2D(angle, out quaternion to);
@@ -527,6 +595,7 @@ namespace UGizmo
         /// <param name="size"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireTriangle2D(Vector3 position, Quaternion rotation, Vector2 size, Color color, float duration = 0f)
         {
             DrawWireTriangleCore(position, rotation, size, color, duration);
@@ -540,6 +609,7 @@ namespace UGizmo
         /// <param name="size"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireTriangle2D(Vector3 position, float angle, Vector2 size, Color color, float duration = 0f)
         {
             GizmoUtility.Rotate2D(angle, out quaternion to);
@@ -554,6 +624,7 @@ namespace UGizmo
         /// <param name="point3"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireTriangle2D(Vector3 point1, Vector3 point2, Vector3 point3, Color color, float duration = 0f)
         {
             DrawWireLineCore(point1, point2, color, duration);
@@ -570,6 +641,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCapsule2D(Vector3 center, Quaternion rotation, float height, float radius, Color color, float duration = 0f)
         {
             DrawCapsule2DCore(center, rotation, height, radius, color, duration);
@@ -584,6 +656,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCapsule2D(Vector3 center, float angle, float height, float radius, Color color, float duration = 0f)
         {
             GizmoUtility.Rotate2D(angle, out quaternion to);
@@ -599,6 +672,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireCapsule2D(Vector3 center, Quaternion rotation, float height, float radius, Color color, float duration = 0f)
         {
             DrawWireCapsule2DCore(center, rotation, height, radius, color, duration);
@@ -613,6 +687,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireCapsule2D(Vector3 center, float angle, float height, float radius, Color color, float duration = 0f)
         {
             GizmoUtility.Rotate2D(angle, out quaternion to);
@@ -630,6 +705,7 @@ namespace UGizmo
         /// <param name="radius"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawPoint(Vector3 position, float radius, Color color, float duration = 0f)
         {
             DrawPointCore(position, Quaternion.identity, radius, color, duration);
@@ -642,6 +718,7 @@ namespace UGizmo
         /// <param name="to"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawLine(Vector3 from, Vector3 to, Color color, float duration = 0f)
         {
             DrawWireLineCore(from, to, color, duration);
@@ -734,6 +811,7 @@ namespace UGizmo
         ///  <param name="direction"></param>
         ///  <param name="color"></param>
         ///  <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawRay(Vector3 from, Vector3 direction, Color color, float duration = 0f)
         {
             DrawWireLineCore(from, from + direction, color, duration);
@@ -745,6 +823,7 @@ namespace UGizmo
         /// <param name="ray"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawRay(Ray ray, Color color, float duration = 0f)
         {
             DrawWireLineCore(ray.origin, ray.origin + ray.direction, color, duration);
@@ -761,6 +840,7 @@ namespace UGizmo
         /// <param name="aspect"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawFrustum(
             Vector3 center,
             Quaternion rotation,
@@ -781,6 +861,7 @@ namespace UGizmo
         /// <param name="color"></param>
         /// <param name="duration"></param>
         /// <exception cref="ArgumentNullException"></exception>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawFrustum(Camera camera, Color color, float duration = 0f)
         {
             if (camera == null)
@@ -809,6 +890,7 @@ namespace UGizmo
         /// <param name="headLength"></param>
         /// <param name="headWidth"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawDistance(Vector3 from, Vector3 to, Color color, float headLength = 0.5f, float headWidth = 0.3f, float duration = 0f)
         {
             Camera camera = GetFacingCamera();
@@ -844,6 +926,7 @@ namespace UGizmo
         /// <param name="interval"></param>
         /// <param name="color"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawMeasure(Vector3 from, Vector3 to, float interval, Color color, float duration = 0f)
         {
             Camera camera = GetFacingCamera();
@@ -883,6 +966,7 @@ namespace UGizmo
         /// <param name="headLength"></param>
         /// <param name="width"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawArrow(Vector3 from, Vector3 to, Color color, float headLength = 0.5f, float width = 0.3f, float duration = 0f)
         {
             DrawArrowCore(from, to, color, headLength, width, duration);
@@ -898,6 +982,7 @@ namespace UGizmo
         /// <param name="headLength"></param>
         /// <param name="width"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawArrow2d(
             Vector3 from,
             Vector3 to,
@@ -919,6 +1004,7 @@ namespace UGizmo
         /// <param name="headLength"></param>
         /// <param name="width"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawFacingArrow2d(Vector3 from, Vector3 to, Color color, float headLength = 0.5f, float width = 0.3f, float duration = 0f)
         {
             Camera camera = GetFacingCamera();
@@ -939,6 +1025,7 @@ namespace UGizmo
         /// <param name="headLength"></param>
         /// <param name="headWidth"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawWireArrow(
             Vector3 from,
             Vector3 to,
@@ -960,6 +1047,7 @@ namespace UGizmo
         /// <param name="headLength"></param>
         /// <param name="headWidth"></param>
         /// <param name="duration"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawFacingWireArrow(
             Vector3 from,
             Vector3 to,
@@ -1008,6 +1096,7 @@ namespace UGizmo
         /// <param name="maxDistance"></param>
         /// <param name="isHit"></param>
         /// <param name="hitInfo"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawRaycast(Vector3 origin, Vector3 direction, float maxDistance, bool isHit, in RaycastHit hitInfo)
         {
             DrawShapeCast(origin, direction, maxDistance, isHit, in hitInfo, out _);
@@ -1039,6 +1128,7 @@ namespace UGizmo
         /// <param name="end"></param>
         /// <param name="isHit"></param>
         /// <param name="hitInfo"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawLinecast(
             Vector3 start,
             Vector3 end,
@@ -1081,6 +1171,7 @@ namespace UGizmo
         /// <param name="maxDistance"></param>
         /// <param name="isHit"></param>
         /// <param name="hitInfo"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawSphereCast(Vector3 origin,
             float radius,
             Vector3 direction,
@@ -1139,6 +1230,7 @@ namespace UGizmo
         /// <param name="maxDistance"></param>
         /// <param name="isHit"></param>
         /// <param name="hitInfo"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawBoxCast(Vector3 origin,
             Vector3 halfExtents,
             Vector3 direction,
@@ -1201,6 +1293,7 @@ namespace UGizmo
         /// <param name="maxDistance"></param>
         /// <param name="isHit"></param>
         /// <param name="hitInfo"></param>
+        [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD"), Conditional("UGIZMO")]
         public static void DrawCapsuleCast(Vector3 point1,
             Vector3 point2,
             float radius,

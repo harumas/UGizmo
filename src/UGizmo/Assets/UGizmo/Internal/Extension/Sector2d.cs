@@ -5,7 +5,9 @@ namespace UGizmo.Internal.Extension
 {
     internal unsafe class Sector2d : PreparingJobScheduler<Sector2d, Sector2dData>
     {
-        public override JobHandle Schedule()
+        private int triangleStart;
+
+        public override void ReserveBuffers()
         {
             int totalTriangles = 0;
             for (int i = 0; i < InstanceCount; i++)
@@ -14,7 +16,12 @@ namespace UGizmo.Internal.Extension
                 totalTriangles += JobDataPtr[i].Segments;
             }
 
-            PrimitiveData* triangleBuffer = Gizmo<Triangle, PrimitiveData>.Reserve(totalTriangles);
+            triangleStart = Gizmo<Triangle, PrimitiveData>.Reserve(totalTriangles);
+        }
+
+        public override JobHandle Schedule()
+        {
+            PrimitiveData* triangleBuffer = Gizmo<Triangle, PrimitiveData>.GetReservedPointer(triangleStart);
 
             JobHandle jobHandle = new CreateSector2dJob()
             {

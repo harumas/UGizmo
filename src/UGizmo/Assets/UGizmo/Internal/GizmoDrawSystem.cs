@@ -108,13 +108,40 @@ namespace UGizmo.Internal
 
         private void ExecutePrepareGizmoJob()
         {
+            // Every reservation has to happen before any scheduling. Reserving grows the shared
+            // job buffers, and once one of them exceeds its capacity it reallocates and frees the
+            // old block - which would leave a pointer captured by an already-scheduled job
+            // dangling, letting that job write into freed memory.
             foreach (var scheduler in preparingJobSchedulers.AsSpan())
             {
+                // Always runs: this is what moves duration-based gizmos back into the queue, so it
+                // decides whether the scheduler has data at all.
                 scheduler.EnqueueContinuousGizmo();
+
+                if (!scheduler.HasData)
+                {
+                    continue;
+                }
+
+                scheduler.ReserveBuffers();
+            }
+
+            foreach (var scheduler in preparingJobSchedulers.AsSpan())
+            {
+                if (!scheduler.HasData)
+                {
+                    continue;
+                }
+
                 preparingJobHandles.Add(scheduler.Schedule());
             }
 
             int length = preparingJobHandles.Length;
+
+            if (length == 0)
+            {
+                return;
+            }
 
             JobHandle preparingJobHandle = JobHandleUnsafeUtility.CombineDependencies(preparingJobHandles.Ptr, length);
             preparingJobHandle.Complete();
@@ -129,6 +156,11 @@ namespace UGizmo.Internal
             }
 
             int length = jobHandles.Length;
+
+            if (length == 0)
+            {
+                return;
+            }
 
             JobHandle jobHandle = JobHandleUnsafeUtility.CombineDependencies(jobHandles.Ptr, length);
             jobHandle.Complete();

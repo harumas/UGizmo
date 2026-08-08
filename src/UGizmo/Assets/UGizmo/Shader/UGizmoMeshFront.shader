@@ -1,5 +1,10 @@
 Shader "UGizmo/MeshFront"
 {
+    Properties
+    {
+        [HideInInspector] _ZTest ("ZTest", Float) = 8
+    }
+
     SubShader
     {
         Tags
@@ -10,7 +15,7 @@ Shader "UGizmo/MeshFront"
         Pass
         {
             Cull Back
-            ZTest Always
+            ZTest [_ZTest]
             ZWrite Off
             Blend SrcAlpha OneMinusSrcAlpha
             Offset -1, -1
@@ -21,7 +26,7 @@ Shader "UGizmo/MeshFront"
                 Mode Off
             }
 
-           CGPROGRAM 
+           CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
@@ -81,5 +86,6 @@ Shader "UGizmo/MeshFront"
             }
             ENDCG
         }
+
     }
 }
